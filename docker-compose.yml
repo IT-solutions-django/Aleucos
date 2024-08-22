@@ -1,0 +1,27 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: database
+    environment:
+      - POSTGRES_DB=aleucos
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+    ports:
+      - "5439:5432"
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    networks:
+      - dev
+
+  backend: 
+    build: . 
+    entrypoint: /entrypoint.sh
+    ports: 
+      - "8000:8000"
+    depends_on:
+      - db
+    networks:
+      - dev
+
+networks:
+  dev:
