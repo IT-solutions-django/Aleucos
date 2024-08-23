@@ -88,27 +88,6 @@ DATABASES = {
     }
 }
 
-# Для запуска всего проекта в Docker
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'aleucos',
-#         'USER': 'admin', 
-#         'PASSWORD': 'admin', 
-#         'HOST': "db", 
-#         'PORT': "5432" 
-#     }
-# }
-
-# Для Sqlite
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
-
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 

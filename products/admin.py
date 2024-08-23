@@ -69,7 +69,6 @@ class ProductAdmin(admin.ModelAdmin):
                 price_before_200k = Decimal(price_before_200k).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
                 price_after_200k = Decimal(price_after_200k).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
                 price_after_500k = Decimal(price_after_500k).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-
                 brand, _ = Brand.objects.get_or_create(title=brand_title)
                 
                 try:
