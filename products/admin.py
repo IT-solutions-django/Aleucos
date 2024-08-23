@@ -3,8 +3,11 @@ from django.urls import path
 from django.shortcuts import redirect, render
 from django.db.utils import IntegrityError
 from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile 
+from openpyxl_image_loader import SheetImageLoader
 from decimal import Decimal, getcontext, ROUND_HALF_UP
 from openpyxl.reader.excel import load_workbook
+import io
 
 from .forms import XlsxImportForm
 from .models import Brand, Product 
@@ -18,7 +21,7 @@ class BrandAdmin(admin.ModelAdmin):
 
 @admin.register(Product) 
 class ProductAdmin(admin.ModelAdmin): 
-    list_display = ['barcode', 'brand', 'title', 'volume', 'weight', 
+    list_display = ['barcode', 'brand', 'title', 'volume', 'weight', 'photo',
                     'price_before_200k', 'price_after_200k', 'price_after_500k'] 
     list_filter = ['brand', 'volume', 'weight', 
                     'price_before_200k', 'price_after_200k', 'price_after_500k'] 
@@ -40,11 +43,12 @@ class ProductAdmin(admin.ModelAdmin):
         if request.method == 'POST':
 
             xlsx_file = request.FILES['xlsx_file']
-            workbook = load_workbook(filename=xlsx_file, read_only=True, data_only=True)
+            workbook = load_workbook(filename=xlsx_file, data_only=True)
             worksheet = workbook.worksheets[1]
+            image_loader = SheetImageLoader(worksheet)
 
             updated_products_count = 0
-            for row in worksheet.iter_rows(min_row=4, values_only=True):
+            for i, row in enumerate(worksheet.iter_rows(min_row=4, values_only=True), 4):
                 barcode = row[0]
                 brand_title = row[1]
                 title = row[2]
@@ -62,6 +66,15 @@ class ProductAdmin(admin.ModelAdmin):
                     break
                 if not self.validate_row(request, title, barcode, price_before_200k, price_after_200k, price_after_500k): 
                     continue
+
+                try:
+                    image = image_loader.get(f'E{i}')
+                    image_stream = io.BytesIO()
+                    image.save(image_stream, format='PNG')
+                    image_stream.seek(0)
+                    photo = ContentFile(image_stream.read(), f'{barcode}.png')
+                except (KeyError, ValueError):
+                    photo = None  
 
                 getcontext().clamp = 1
                 if weight is not None:
@@ -110,7 +123,7 @@ class ProductAdmin(admin.ModelAdmin):
         elif price_before_200k is None or price_after_200k is None or price_after_500k is None: 
             self.message_user(request, f'У товара {title} со штрихкодом {barcode} отсутствует цена', level='error')
             return False
-        elif not barcode: 
+        elif not barcode or str(barcode) == '0': 
             self.message_user(request, f'У товара {title} отсутствует штрихкод', level='error')
             return False
         elif not str(barcode).strip().isnumeric(): 
