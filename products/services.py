@@ -97,7 +97,7 @@ def convert_float_to_decimal(value: float) -> Decimal:
     return value.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
 
-def validate_product_data(barcode: str, title: str, price_before_200k: float, price_after_200k: float, price_after_500k: float) -> None:
+def validate_product_data(barcode: str, title: str, price_before_200k: float, price_after_200k: float, price_after_500k: float):
     if not title:
         raise ProductImportError(f'У товара со штрихкодом {barcode} отсутствует название')
     elif any(price in (None, 0) for price in (price_before_200k, price_after_200k, price_after_500k)):
