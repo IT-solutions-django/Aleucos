@@ -17,7 +17,7 @@ class Product(models.Model):
     description = models.CharField(max_length=200, null=True) 
     photo = models.ImageField(upload_to='products', null=False) 
     volume = models.CharField(max_length=100, null=True) 
-    weight = models.DecimalField(decimal_places=2, max_digits=4, 
+    weight = models.DecimalField(decimal_places=2, max_digits=4, null=True,
                                  validators=(MinValueValidator(Decimal(0), 'Weight cannot be negative'),))
     notes = models.CharField(max_length=30, null=True, blank=True)
     price_before_200k = models.DecimalField(decimal_places=2, max_digits=8) 
