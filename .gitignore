@@ -157,4 +157,6 @@ postgres_data/
 
 .idea/
 
-media/
+media/products/* 
+media/tmp/* 
+!media/products/default.png
