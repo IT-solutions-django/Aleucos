@@ -15,6 +15,3 @@ services:
     image: redis:alpine
     ports:
       - "6390:6379" 
-
-  backend: 
-    

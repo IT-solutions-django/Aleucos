@@ -1,14 +1,23 @@
 # Aleucos 
 
 Проект реализует функционал по загрузке данных из xlsx-файла. Загрузить данные можно, перейдя в административную панель Django и выбрав раздел Products. Там будет кнопка "Импортировать записи из XLSX".
+### 1. Клонирование репозитория 
+Клонируйте репозиторий на локальный компьютер:
+``` 
+git clone https://github.com/PakSerg/Aleucos.git
+```
+Перейдите в папку с проектом: 
+```
+cd Aleucos
+```
 
-### 1. Запуск PostgreSQL в docker-compose 
+### 2. Запуск PostgreSQL и Redis в Docker
 
 ```
-docker-compose up --build
+docker-compose up -d --build
 ``` 
 
-### 2. Создание и активация виртуального окружения
+### 3. Создание и активация виртуального окружения
 
 ```
 # Для Windows
@@ -21,19 +30,19 @@ source venv/bin/activate
 
 ``` 
 
-### 3. Установка зависимостей
+### 4. Установка зависимостей
 
 ```
 pip install -r requirements.txt
 ``` 
 
-### 4. Применение миграций
+### 5. Применение миграций
 
 ```
 python manage.py migrate
 ``` 
 
-### 5. Загрузка фикстур
+### 6. Загрузка фикстур
 
 ```
 python manage.py loaddata fixtures\user.json
@@ -42,18 +51,20 @@ python manage.py loaddata fixtures\user.json
 - username = admin 
 - password = admin
 
-### 6. Запуск проекта
+### 7. Запуск проекта
 Запуск Celery: 
 ```
-celery -A Aleucos worker -l info -P solo
+# Для Windows
+start /B celery -A Aleucos worker -l info -P solo
 ``` 
 Запуск Flower (если необходимо): 
 ``` 
-celery -A Aleucos flower -l info    
+# Для Windows
+start /B celery -A Aleucos flower -l info   
 ```  
 Запуск сервера на локальной машине:
 
 ```
 python manage.py runserver
 ``` 
-Административная панель будет доступна по адресу `127.0.0.1:8000/admin`, а Flower – по адресу `127.0.0.1:5555`.
+Административная панель будет доступна по адресу `127.0.0.1:8000/admin`, а Flower – по адресу `127.0.0.1:5555`. 
