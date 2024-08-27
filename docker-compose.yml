@@ -14,4 +14,4 @@ services:
   redis:
     image: redis:alpine
     ports:
-      - "6390:6379"
+      - "6390:6379" 

@@ -1,10 +1,13 @@
 from django.contrib import admin
 from django.urls import path
 from django.shortcuts import redirect, render
+from django.core.files.storage import default_storage
+from django.conf import settings
+import os
 
 from .forms import XlsxImportForm
 from .models import Brand, Product 
-from .services import import_products_from_xlsx, ProductImportError
+from .tasks import import_products_from_xlsx_task
 
 
 @admin.register(Brand)
@@ -32,17 +35,25 @@ class ProductAdmin(admin.ModelAdmin):
 
     def import_products_from_xlsx(self, request):
         context = admin.site.each_context(request)
+        context['form'] = XlsxImportForm()
+        
         if request.method == 'POST':
             xlsx_file = request.FILES['xlsx_file']
+            filename = f'tmp/{xlsx_file.name}'
 
-            updated_products_count, errors = import_products_from_xlsx(xlsx_file)
+            try:
+                if default_storage.exists(filename): 
+                    default_storage.delete(filename)
+            except PermissionError: 
+                self.message_user(request, 'Подождите немного, загрузка данных прошлого xlsx-файла ещё не окончена', level='error')
+                return render(request, 'products/add_products_form.html', context=context)
+            
+            xlsx_file_path = default_storage.save(filename, xlsx_file)
+            xlsx_file_full_path = os.path.join(settings.MEDIA_ROOT, xlsx_file_path)
 
-            if errors:
-                for error in errors:
-                    self.message_user(request, error, level='error')
+            import_products_from_xlsx_task.delay(xlsx_file_full_path, request.user.pk)
 
-            self.message_user(request, f'Добавлено или обновлено {updated_products_count} товаров')
+            self.message_user(request, 'Импорт товаров запущен в фоновом режиме. Уведомления доступны в разделе Home - Recent actions')
             return redirect('admin:products_product_changelist')
 
-        context['form'] = XlsxImportForm()
         return render(request, 'products/add_products_form.html', context=context)

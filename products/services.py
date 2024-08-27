@@ -6,12 +6,15 @@ from decimal import Decimal, getcontext, ROUND_HALF_UP
 from openpyxl.reader.excel import load_workbook
 import io
 from django.core.files.uploadedfile import UploadedFile
+from django.contrib.admin.models import LogEntry, DELETION
+from django.contrib.contenttypes.models import ContentType
+from django.core.files.storage import default_storage
 
 from .models import Product, Brand
 from .exceptions import ProductImportError, EndOfTable
 
 
-def import_products_from_xlsx(xlsx_file: UploadedFile) -> tuple[int, list[str]]:
+def import_products_from_xlsx(xlsx_file: UploadedFile, user_id: int) -> int:
     workbook = load_workbook(filename=xlsx_file, data_only=True)
     worksheet = workbook.worksheets[1]
     image_loader = SheetImageLoader(worksheet)
@@ -26,9 +29,15 @@ def import_products_from_xlsx(xlsx_file: UploadedFile) -> tuple[int, list[str]]:
         except EndOfTable: 
             break
         except ProductImportError as e:
-            errors.append(str(e))
+            LogEntry.objects.log_action(
+                user_id=user_id,
+                content_type_id=ContentType.objects.get_for_model(Product).pk,
+                object_id=None,
+                object_repr=str(e),
+                action_flag=DELETION
+            )
 
-    return updated_products_count, errors
+    return updated_products_count
 
 
 def process_product_row(index: int, row: tuple, image_loader: SheetImageLoader) -> None:
@@ -50,7 +59,7 @@ def process_product_row(index: int, row: tuple, image_loader: SheetImageLoader) 
     
     validate_product_data(barcode, title, price_before_200k, price_after_200k, price_after_500k)
 
-    photo = get_image(barcode, index, image_loader)
+    photo = get_image_or_none(barcode, index, image_loader)
     if weight is not None:
         weight = convert_float_to_decimal(weight)
     price_before_200k = convert_float_to_decimal(price_before_200k)
@@ -76,18 +85,19 @@ def process_product_row(index: int, row: tuple, image_loader: SheetImageLoader) 
                 'is_in_stock': is_in_stock
             }
         )
+
     except (IntegrityError, ValidationError, TypeError) as e:
         raise ProductImportError(f'Ошибка в строке {index}: {str(e)}')
     
 
-def get_image(barcode: str, row_index: int, image_loader: SheetImageLoader) -> ContentFile | None:
+def get_image_or_none(barcode: str, row_index: int, image_loader: SheetImageLoader) -> ContentFile | None:
     try:
         image = image_loader.get(f'E{row_index}')
         image_stream = io.BytesIO()
         image.save(image_stream, format='PNG')
         image_stream.seek(0)
         return ContentFile(image_stream.read(), f'{barcode}.png')
-    except (KeyError, ValueError):
+    except Exception:
         return None
     
 
@@ -97,7 +107,7 @@ def convert_float_to_decimal(value: float) -> Decimal:
     return value.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
 
-def validate_product_data(barcode: str, title: str, price_before_200k: float, price_after_200k: float, price_after_500k: float):
+def validate_product_data(barcode: str, title: str, price_before_200k: float, price_after_200k: float, price_after_500k: float) -> None:
     if not title:
         raise ProductImportError(f'У товара со штрихкодом {barcode} отсутствует название')
     elif any(price in (None, 0) for price in (price_before_200k, price_after_200k, price_after_500k)):
@@ -106,3 +116,17 @@ def validate_product_data(barcode: str, title: str, price_before_200k: float, pr
         raise ProductImportError(f'У товара {title} отсутствует штрихкод')
     elif not str(barcode).strip().isnumeric():
         raise ProductImportError(f'У товара неверный штрихкод: {barcode}')
+    
+
+def truncate_products_and_brands() -> None: 
+    delete_all_product_photos()
+    Brand.objects.all().delete()
+    Product.objects.all().delete()
+
+
+def delete_all_product_photos() -> None:
+    products = Product.objects.all()
+    for product in products:
+        if product.photo:
+            if default_storage.exists(product.photo.name):
+                default_storage.delete(product.photo.name)
