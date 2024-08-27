@@ -12,6 +12,7 @@ from django.core.files.storage import default_storage
 
 from .models import Product, Brand
 from .exceptions import ProductImportError, EndOfTable
+from Aleucos import settings
 
 
 def import_products_from_xlsx(xlsx_file: UploadedFile, user_id: int) -> int:
@@ -20,7 +21,6 @@ def import_products_from_xlsx(xlsx_file: UploadedFile, user_id: int) -> int:
     image_loader = SheetImageLoader(worksheet)
 
     updated_products_count = 0
-    errors = []
 
     for index, row in enumerate(worksheet.iter_rows(min_row=4, values_only=True), 4):
         try:
@@ -60,6 +60,8 @@ def process_product_row(index: int, row: tuple, image_loader: SheetImageLoader) 
     validate_product_data(barcode, title, price_before_200k, price_after_200k, price_after_500k)
 
     photo = get_image_or_none(barcode, index, image_loader)
+    if photo is None: 
+        photo = settings.DEFAULT_IMAGE_PATH
     if weight is not None:
         weight = convert_float_to_decimal(weight)
     price_before_200k = convert_float_to_decimal(price_before_200k)
