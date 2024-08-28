@@ -10,8 +10,30 @@ services:
       - "5439:5432"
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
+    networks:
+      - dev
 
   redis:
     image: redis:alpine
     ports:
       - "6390:6379" 
+    networks:
+      - dev
+
+  backend: 
+    build: . 
+    entrypoint: /entrypoint.sh
+    ports: 
+      - "8000:8000"
+      - "5555:5555"
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./media:/media
+    networks:
+      - dev
+
+
+networks:
+  dev:

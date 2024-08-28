@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-+h&p&bd5(yw&^ka!&-v@kz6!za%#qpzrvtky&9r(x#@)e)7bw(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -83,8 +83,8 @@ DATABASES = {
         'NAME': 'aleucos',
         'USER': 'admin', 
         'PASSWORD': 'admin', 
-        'HOST': "localhost", 
-        'PORT': "5439" 
+        'HOST': "db", 
+        'PORT': "5432" 
     }
 }
 
@@ -136,8 +136,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # Redis 
-REDIS_HOST = '127.0.0.1' 
-REDIS_PORT = '6390' 
+REDIS_HOST = 'redis' 
+REDIS_PORT = '6379' 
 
 
 # Celery
