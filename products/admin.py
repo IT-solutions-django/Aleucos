@@ -7,7 +7,9 @@ import os
 from .forms import XlsxImportForm
 from .models import Brand, Product 
 from .tasks import import_products_from_xlsx_task
-from .filters import PriceRangeFilter, WeightRangeFilter
+from .filters import (PriceRangeFilter, WeightRangeFilter, 
+                      FirstLetterFilter, HasNotesFilter, 
+                      RemainsRangeFilter, HasPhotoFilter)
 
 
 @admin.register(Brand)
@@ -19,13 +21,18 @@ class BrandAdmin(admin.ModelAdmin):
 
 @admin.register(Product) 
 class ProductAdmin(admin.ModelAdmin): 
-    list_display = ['barcode', 'brand', 'description', 'title', 'volume', 'weight', 'photo',
+    list_display = ['barcode', 'brand', 'title', 'description', 'volume', 'weight', 'photo',
                     'price_before_200k', 'price_after_200k', 'price_after_500k'] 
     search_fields = ['brand__title', 'title', 'barcode']
     list_filter = (
         'is_in_stock',
         PriceRangeFilter,
         WeightRangeFilter,
+        HasNotesFilter, 
+        RemainsRangeFilter,
+        HasPhotoFilter,
+        FirstLetterFilter,
+        'brand',
     )
 
     change_list_template = 'products/product_change_list.html'
