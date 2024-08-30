@@ -129,6 +129,6 @@ def truncate_products_and_brands() -> None:
 def delete_all_product_photos() -> None:
     products = Product.objects.all()
     for product in products:
-        if product.photo:
+        if product.photo and product.photo != settings.DEFAULT_IMAGE_PATH:
             if default_storage.exists(product.photo.name):
                 default_storage.delete(product.photo.name)
