@@ -20,6 +20,21 @@ services:
     networks:
       - dev
 
+  elasticsearch: 
+    image: elasticsearch:8.7.1
+    container_name: elasticsearch 
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false 
+      - network.host=0.0.0.0
+    volumes:
+      - ./es_data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    networks:
+      - dev
+
   backend: 
     build: . 
     entrypoint: /entrypoint.sh
@@ -29,6 +44,7 @@ services:
     depends_on:
       - db
       - redis
+      - elasticsearch
     volumes:
       - ./media:/media
     networks:

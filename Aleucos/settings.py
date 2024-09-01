@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'django_elasticsearch_dsl',
+
     'products',
 ]
 
@@ -76,7 +78,6 @@ WSGI_APPLICATION = 'Aleucos.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# Для запуска PostgreSQL в Docker
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -87,6 +88,34 @@ DATABASES = {
         'PORT': "5432" 
     }
 }
+
+# Для запуска PostgreSQL вне Docker
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'aleucos',
+#         'USER': 'admin', 
+#         'PASSWORD': 'admin', 
+#         'HOST': "localhost", 
+#         'PORT': "5439" 
+#     }
+# }
+
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': 'http://elasticsearch:9200', 
+        'timeout': 60,
+    }
+}
+
+# Для запуска Django вне Docker
+# ELASTICSEARCH_DSL = {
+#     'default': {
+#         'hosts': 'http://localhost:9200', 
+#         'timeout': 60,
+#     }
+# }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -138,6 +167,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Redis 
 REDIS_HOST = 'redis' 
 REDIS_PORT = '6379' 
+
+# Для запуска Redis вне Docker
+# REDIS_HOST = 'localhost' 
+# REDIS_PORT = '6390' 
 
 
 # Celery

@@ -1,6 +1,8 @@
 from django.db import models 
 from django.core.validators import MinValueValidator
 from decimal import Decimal
+from django.db.models.signals import pre_delete
+from django.dispatch.dispatcher import receiver
 
 
 class Brand(models.Model): 
@@ -29,3 +31,10 @@ class Product(models.Model):
 
     def __str__(self) -> str:
         return f'{self.brand} | {self.title}'
+    
+
+
+@receiver(pre_delete, sender=Product)
+def image_model_delete(sender, instance, **kwargs):
+    if instance.photo.name:
+        instance.photo.delete(False)

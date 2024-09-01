@@ -17,7 +17,7 @@ python manage.py migrate
 python manage.py loaddata fixtures/user.json
 python manage.py collectstatic --noinput
 
-celery -A Aleucos worker -l info -P solo &
+celery -A Aleucos worker -l info -P prefork  &
 celery -A Aleucos flower -l info &
 gunicorn Aleucos.wsgi:application --bind 0.0.0.0:8000 &
 

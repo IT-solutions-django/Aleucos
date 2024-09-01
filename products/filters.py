@@ -48,23 +48,6 @@ class WeightRangeFilter(SimpleListFilter):
         return queryset
     
 
-class FirstLetterFilter(SimpleListFilter):
-    title = 'title initial'
-    parameter_name = 'title_initial' 
- 
-    def lookups(self, request, model_admin): 
-        initials = set()
-        for title in Product.objects.values_list('title', flat=True):
-            if title:
-                initials.add(title[0].upper()) 
-        return sorted((letter, letter) for letter in initials)
-
-    def queryset(self, request, queryset): 
-        if self.value():
-            return queryset.filter(title__startswith=self.value().upper())
-        return queryset
-    
-
 class HasNotesFilter(SimpleListFilter):
     title = 'has image'
     parameter_name = 'has_image'

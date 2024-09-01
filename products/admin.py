@@ -8,8 +8,7 @@ from .forms import XlsxImportForm
 from .models import Brand, Product 
 from .tasks import import_products_from_xlsx_task
 from .filters import (PriceRangeFilter, WeightRangeFilter, 
-                      FirstLetterFilter, HasNotesFilter, 
-                      RemainsRangeFilter, HasPhotoFilter)
+                      HasNotesFilter,  RemainsRangeFilter, HasPhotoFilter)
 
 
 @admin.register(Brand)
@@ -31,7 +30,6 @@ class ProductAdmin(admin.ModelAdmin):
         HasNotesFilter, 
         RemainsRangeFilter,
         HasPhotoFilter,
-        FirstLetterFilter,
         'brand',
     )
 

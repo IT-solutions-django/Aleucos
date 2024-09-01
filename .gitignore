@@ -155,8 +155,13 @@ cython_debug/
 # Postgres volume 
 postgres_data/
 
+# PyCharm 
 .idea/
 
+# Media
 media/products/* 
 media/tmp/* 
 !media/products/default.png
+
+# ElasticSearch
+es_data/
