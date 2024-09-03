@@ -95,17 +95,17 @@
 
                             <div class="col-md-3 mb-4">
                                 <div class="card h-100">
-                                    <img src="{{ product.photo.url }}" class="card-img-top" alt="{{ product.title }}">
+                                    <img src="{{ product.photo.url }}" class="card-img-top" alt="{{ product.title }}" style="height: 200px; width: 100%; object-fit: contain;">
                                     <div class="card-body">
                                         <h5 class="card-title">{{ product.title }}</h5>
 
-                                        <p class="card-title"><i>{{ product.brand }}</i></p>
-
                                         <p class="card-text">{{ product.description }}</p>
 
-                                        <p class="card-text">{{ product.price_before_200k }} ₽</p>
+                                        <p class="card-text h5">{{ product.price_before_200k }} ₽</p>
 
                                         <p class="card-text"><i>{{ product.category }}</i></p>
+
+                                        <p class="card-title"><i>{{ product.brand }}</i></p>
 
                                             {% if product.notes != "None" %}
                                                 <p class="card-text"><b>{{ product.notes }}</b></p>

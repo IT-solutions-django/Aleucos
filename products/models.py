@@ -4,6 +4,7 @@ from decimal import Decimal
 from django.db.models.signals import pre_delete, pre_save
 from django.dispatch.dispatcher import receiver
 import random
+from Aleucos.settings import DEFAULT_IMAGE_PATH
 
 
 class Brand(models.Model): 
@@ -54,7 +55,8 @@ class Product(models.Model):
 @receiver(pre_delete, sender=Product)
 def image_delete(sender, instance, **kwargs):
     if instance.photo.name:
-        instance.photo.delete(False)
+        if instance.photo.name != DEFAULT_IMAGE_PATH:
+            instance.photo.delete(False)
 
 @receiver(pre_save, sender=Product)
 def save_category(sender, instance: Product, **kwargs):
