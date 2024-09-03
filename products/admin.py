@@ -5,13 +5,20 @@ from django.core.files.storage import default_storage
 from django.conf import settings
 import os
 from .forms import XlsxImportForm
-from .models import Brand, Product 
+from .models import Brand, Product, Category
 from .tasks import import_products_from_xlsx_task
 from .filters import (PriceRangeFilter, WeightRangeFilter, 
                       HasNotesFilter,  RemainsRangeFilter, HasPhotoFilter)
 
 
 @admin.register(Brand)
+class BrandAdmin(admin.ModelAdmin): 
+    list_display = ['pk', 'title']
+    list_filter = ['title']
+    search_fields = ['title']
+
+
+@admin.register(Category)
 class BrandAdmin(admin.ModelAdmin): 
     list_display = ['pk', 'title']
     list_filter = ['title']

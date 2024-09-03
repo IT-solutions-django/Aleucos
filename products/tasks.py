@@ -3,7 +3,7 @@ from django.core.files.uploadedfile import UploadedFile
 from django.contrib.admin.models import LogEntry, ADDITION
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
-from .services import import_products_from_xlsx, truncate_products_and_brands, ElasticSearchService
+from .services import ProductImporter, ElasticSearchService
 from .models import Product
 
 
@@ -15,8 +15,8 @@ def import_products_from_xlsx_task(xlsx_file_path: str, user_id: int) -> None:
     with open(xlsx_file_path, 'rb') as f:
         xlsx_file = UploadedFile(f)
 
-        truncate_products_and_brands()  
-        imported_products_count = import_products_from_xlsx(xlsx_file, user_id) 
+        ProductImporter.truncate_products_and_brands()  
+        imported_products_count = ProductImporter.import_products_from_xlsx(xlsx_file, user_id) 
 
     ElasticSearchService.add_all_products_to_index()
     

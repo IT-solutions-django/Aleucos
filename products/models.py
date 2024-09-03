@@ -1,12 +1,20 @@
 from django.db import models 
 from django.core.validators import MinValueValidator
 from decimal import Decimal
-from django.db.models.signals import pre_delete
+from django.db.models.signals import pre_delete, pre_save
 from django.dispatch.dispatcher import receiver
+import random
 
 
 class Brand(models.Model): 
     title = models.CharField(max_length=60, null=False)
+
+    def __str__(self) -> str: 
+        return self.title
+    
+
+class Category(models.Model): 
+    title = models.CharField(max_length=80, null=False, unique=True) 
 
     def __str__(self) -> str: 
         return self.title
@@ -17,6 +25,7 @@ class Product(models.Model):
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE, null=False, related_name='products') 
     title = models.CharField(max_length=200, null=False) 
     description = models.CharField(max_length=200, null=True, blank=True) 
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, related_name='categories')
     photo = models.ImageField(upload_to='products', null=False) 
     volume = models.CharField(max_length=100, null=True) 
     weight = models.DecimalField(decimal_places=2, max_digits=4, null=True, blank=True,
@@ -25,16 +34,28 @@ class Product(models.Model):
     price_before_200k = models.DecimalField(decimal_places=2, max_digits=8) 
     price_after_200k = models.DecimalField(decimal_places=2, max_digits=8) 
     price_after_500k = models.DecimalField(decimal_places=2, max_digits=8) 
-    amount = models.PositiveIntegerField(default=0)
     is_in_stock = models.BooleanField(default=False)
     remains = models.PositiveIntegerField(default=0)
 
     def __str__(self) -> str:
         return f'{self.brand} | {self.title}'
     
+    def save(self, *args, **kwargs) -> None:
+        if self.barcode is None:
+            categories = Category.objects.all()
+            
+            if categories.exists():
+                self.category = random.choice(categories)
+        
+        super(Product, self).save(*args, **kwargs)
+    
 
 
 @receiver(pre_delete, sender=Product)
-def image_model_delete(sender, instance, **kwargs):
+def image_delete(sender, instance, **kwargs):
     if instance.photo.name:
         instance.photo.delete(False)
+
+@receiver(pre_save, sender=Product)
+def save_category(sender, instance: Product, **kwargs):
+    instance.category = random.choice(Category.objects.all())
