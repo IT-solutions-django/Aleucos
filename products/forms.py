@@ -75,6 +75,16 @@ class SearchAndFilterForm(forms.Form):
         label='В наличии',
         widget=forms.CheckboxInput()
     )
+
+    sections = forms.MultipleChoiceField(
+        choices=(
+            ('новинки', 'Новинки'),
+            ('акции', 'Акции'),
+            ('скидки', 'Скидки'),
+        ),
+        widget=forms.CheckboxSelectMultiple(), 
+        required=False
+    )
  
     def clean_price_max(self): 
         cd = self.cleaned_data

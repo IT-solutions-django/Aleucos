@@ -68,6 +68,13 @@
                     </div>
 
                     <div class="mt-4">
+                        <h5>Разделы</h5>
+                        <div>
+                            {{ form.sections }}  
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
                         <h5>Производитель</h5>
                         <div>
                             {% for brand in form.brands|slice:":15" %}
