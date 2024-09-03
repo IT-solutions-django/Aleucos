@@ -21,7 +21,7 @@ echo "Elasticsearch is up!"
 
 
 python manage.py migrate
-python manage.py loaddata fixtures/user.json
+python manage.py loaddata fixtures/user.json products/fixtures/category.json
 python manage.py collectstatic --noinput
 
 python manage.py search_index --rebuild -f

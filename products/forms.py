@@ -8,8 +8,17 @@ class XlsxImportForm(forms.Form):
     xlsx_file = forms.FileField() 
 
 
-class SearchAndFilterForm(forms.Form):    
-    max_product_price = get_max_product_price()
+class SearchAndFilterForm(forms.Form):
+    max_product_price = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        self.max_product_price = get_max_product_price()
+        self.fields['price_max'].widget.attrs['placeholder'] = f'{self.max_product_price} ₽'
+        
+        self.fields['categories'].choices = [(category.id, category.title) for category in get_all_model_objects(Category)]
+        self.fields['brands'].choices = [(brand.id, brand.title) for brand in get_all_model_objects(Brand)]
 
     q = forms.CharField(
         max_length=100, 
@@ -21,9 +30,8 @@ class SearchAndFilterForm(forms.Form):
         })
     )
 
-    categories = forms.MultipleChoiceField( 
-        choices=((brand.id, brand.title) for brand in get_all_model_objects(Category)), 
-        widget=forms.CheckboxSelectMultiple(), 
+    categories = forms.MultipleChoiceField(
+        widget=forms.CheckboxSelectMultiple(),
         required=False
     )
 
@@ -35,7 +43,7 @@ class SearchAndFilterForm(forms.Form):
         widget=forms.NumberInput(
             attrs={ 
                 'class': 'form-control', 
-                'placeholder': f'0 ₽', 
+                'placeholder': '0 ₽', 
                 'min': 0,
                 'step': 100,
                 'type': 'text',
@@ -50,20 +58,18 @@ class SearchAndFilterForm(forms.Form):
         widget=forms.NumberInput(
             attrs={ 
                 'class': 'form-control', 
-                'placeholder': f'{max_product_price} ₽', 
                 'min': 0,
                 'step': 100,
             }
         ), 
     )
 
-    brands = forms.MultipleChoiceField( 
-        choices=((brand.id, brand.title) for brand in get_all_model_objects(Brand)), 
-        widget=forms.CheckboxSelectMultiple(), 
+    brands = forms.MultipleChoiceField(
+        widget=forms.CheckboxSelectMultiple(),
         required=False
     )
 
-    is_in_stock = forms.BooleanField( 
+    is_in_stock = forms.BooleanField(
         required=False,
         label_suffix='',
         label='В наличии',
