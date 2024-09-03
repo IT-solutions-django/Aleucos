@@ -19,11 +19,12 @@ while ! nc -z redis 6379; do
 done
 echo "Elasticsearch is up!"
 
-python manage.py search_index --rebuild -f
 
 python manage.py migrate
 python manage.py loaddata fixtures/user.json
 python manage.py collectstatic --noinput
+
+python manage.py search_index --rebuild -f
 
 celery -A Aleucos worker -l info -P prefork  &
 celery -A Aleucos flower -l info &
