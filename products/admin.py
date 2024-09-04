@@ -38,7 +38,7 @@ class ImportStatusAdmin(admin.ModelAdmin):
 @admin.register(Product) 
 class ProductAdmin(admin.ModelAdmin): 
     list_display = ['barcode', 'brand', 'title', 'description', 'volume', 'weight', 'photo',
-                    'price_before_200k', 'price_after_200k', 'price_after_500k'] 
+                    'price_before_200k', 'is_in_stock', 'remains', 'created_at'] 
     search_fields = ['brand__title', 'title', 'barcode']
     list_filter = (
         'is_in_stock',

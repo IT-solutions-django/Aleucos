@@ -1,3 +1,4 @@
+import random
 from django.core.files.base import ContentFile 
 from django.db.utils import IntegrityError
 from django.core.exceptions import ValidationError
@@ -13,7 +14,7 @@ import io
 import os 
 from loguru import logger
 
-from .models import Product, Brand, ImportStatus
+from .models import Category, Product, Brand, ImportStatus
 from .exceptions import ProductImportError, EndOfTable
 from .documents import ProductDocument
 from Aleucos import settings
@@ -50,7 +51,7 @@ class ProductImporter:
         title = row[2]
         description = str(row[3])
         photo = row[4]
-        volume = str(row[5])
+        volume = row[5]
         weight = row[6]
         notes = row[7]
         price_before_200k = row[9]
@@ -91,7 +92,9 @@ class ProductImporter:
                     'price_before_200k': price_before_200k,
                     'price_after_200k': price_after_200k,
                     'price_after_500k': price_after_500k,
-                    'is_in_stock': is_in_stock
+                    'is_in_stock': is_in_stock, 
+                    'category': random.choice(Category.objects.all()),
+                    'remains': random.randint(0, 100) if is_in_stock else 0,
                 }
             )
 

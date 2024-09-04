@@ -125,13 +125,17 @@
 
                                         <p class="card-text h5">{{ product.price_before_200k }} ₽</p>
 
+                                        <p class="card-text small">Осталось {{ product.remains }} штук</p>
+
                                         <p class="card-text"><i>{{ product.category }}</i></p>
 
                                         <p class="card-title"><i>{{ product.brand }}</i></p>
 
-                                            {% if product.notes %}
-                                                <p class="card-text"><b>{{ product.notes }}</b></p>
-                                            {% endif %}
+                                        {% if product.notes %}
+                                            <p class="card-text"><b>{{ product.notes }}</b></p>
+                                        {% endif %}
+
+                                        <p class="card-text small">Осталось {{ product.remains }} штук</p>
                                             
                                         <a href="#" class="btn btn-primary">В корзину</a>
                                     </div>

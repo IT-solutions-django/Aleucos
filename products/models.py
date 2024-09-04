@@ -37,6 +37,8 @@ class Product(models.Model):
     price_after_500k = models.DecimalField(decimal_places=2, max_digits=8) 
     is_in_stock = models.BooleanField(default=False)
     remains = models.PositiveIntegerField(default=0)
+    is_published = models.BooleanField(default=1)
+    created_at = models.DateTimeField(auto_now_add=True )
 
     class Meta: 
         ordering = ['-barcode']
@@ -60,10 +62,6 @@ def image_delete(sender, instance, **kwargs):
     if instance.photo.name:
         if instance.photo.name != DEFAULT_IMAGE_PATH:
             instance.photo.delete(False)
-
-@receiver(pre_save, sender=Product)
-def save_category(sender, instance: Product, **kwargs):
-    instance.category = random.choice(Category.objects.all())
 
 
 class ImportStatus(models.Model): 
