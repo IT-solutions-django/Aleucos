@@ -28,7 +28,7 @@ class ProductImporter:
 
         updated_products_count = 0
 
-        for index, row in enumerate(worksheet.iter_rows(min_row=4, max_row=500, values_only=True), 4):
+        for index, row in enumerate(worksheet.iter_rows(min_row=4, values_only=True), 4):
             try:
                 ProductImporter.process_product_row(index, row, image_loader)
 
