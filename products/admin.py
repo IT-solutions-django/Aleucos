@@ -3,8 +3,10 @@ from django.urls import path
 from django.shortcuts import redirect, render
 from django.core.files.storage import default_storage
 from django.conf import settings
+from django.http import FileResponse, HttpResponse
+from django.contrib.admin.views.decorators import staff_member_required
+from django.utils.decorators import method_decorator
 import os
-from django.http import FileResponse
 from .forms import XlsxImportForm
 from .models import Brand, Product, Category, ImportStatus
 from .tasks import import_products_from_xlsx_task
@@ -50,6 +52,17 @@ class ProductAdmin(admin.ModelAdmin):
 
     change_list_template = 'products/product_change_list.html'
 
+    def get_urls(self):
+        urls = super().get_urls()
+
+        my_urls = [
+            path('import-products-from-xlsx/', self.import_products_from_xlsx),
+            path('view-logs/', self.view_logs_file),
+            path('status-of-import/', self.view_import_status)
+        ]
+        return my_urls + urls
+
+    @method_decorator(staff_member_required)
     def view_logs_file(self, request) -> FileResponse | None:
         log_file_path = os.path.join('logs', 'logs.log')
 
@@ -64,22 +77,14 @@ class ProductAdmin(admin.ModelAdmin):
         except Exception: 
             self.message_user(request, 'Необработанное исключение', level='error')
             
-    def view_import_status(self, request): 
+    @method_decorator(staff_member_required)
+    def view_import_status(self, request) -> HttpResponse: 
         context = admin.site.each_context(request) 
         context['import_statuses'] = ImportStatusService.get_all_statuses()
         return render(request, 'products/status_of_import.html', context)
-
-    def get_urls(self):
-        urls = super().get_urls()
-
-        my_urls = [
-            path('import-products-from-xlsx/', self.import_products_from_xlsx),
-            path('view-logs/', self.view_logs_file),
-            path('status-of-import/', self.view_import_status)
-        ]
-        return my_urls + urls
-
-    def import_products_from_xlsx(self, request):
+    
+    @method_decorator(staff_member_required)
+    def import_products_from_xlsx(self, request) -> HttpResponse:
         context = admin.site.each_context(request)
         context['form'] = XlsxImportForm()
         

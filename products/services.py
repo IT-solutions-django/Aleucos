@@ -45,20 +45,20 @@ class ProductImporter:
 
     @staticmethod
     def process_product_row(index: int, row: tuple, image_loader: SheetImageLoader) -> None:
-        barcode = str(row[0])
-        brand_title = str(row[1])
-        title = str(row[2])
+        barcode = row[0]
+        brand_title = row[1]
+        title = row[2]
         description = str(row[3])
         photo = row[4]
         volume = str(row[5])
         weight = row[6]
-        notes = str(row[7])
+        notes = row[7]
         price_before_200k = row[9]
         price_after_200k = row[10]
         price_after_500k = row[11]
         is_in_stock = True if str(row[12]) == '0' else False
 
-        if not brand_title and not title and not barcode:
+        if brand_title is None and title is None and barcode is None:
             raise EndOfTable()
 
         ProductImporter.validate_product_data(barcode, title, price_before_200k, price_after_200k, price_after_500k)
@@ -75,7 +75,7 @@ class ProductImporter:
         price_after_200k = ProductImporter.convert_str_to_decimal(str(price_after_200k))
         price_after_500k = ProductImporter.convert_str_to_decimal(str(price_after_500k))
 
-        brand, _ = Brand.objects.get_or_create(title=brand_title)
+        brand, _ = Brand.objects.get_or_create(title=str(brand_title))
 
         try:
             Product.objects.update_or_create(
@@ -123,14 +123,14 @@ class ProductImporter:
         return value.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
     @staticmethod
-    def validate_product_data(barcode: str | None,
+    def validate_product_data(barcode: str | float | None,
                               title: str | None,
                               price_before_200k: float | None,
                               price_after_200k: float | None,
                               price_after_500k: float | None) -> None:
-        if not title:
+        if title is None:
             raise ProductImportError(f'У товара со штрихкодом {barcode} отсутствует название')
-        elif not barcode or str(barcode) == '0':
+        elif barcode is None or str(barcode) == '0':
             raise ProductImportError(f'У товара {title} отсутствует штрихкод')
         elif any(price in (None, 0) for price in (price_before_200k, price_after_200k, price_after_500k)):
             raise ProductImportError(f'У товара {title} со штрихкодом {barcode} отсутствует цена')
@@ -145,7 +145,7 @@ class ProductImporter:
 
 class ElasticSearchService: 
     @staticmethod
-    def truncate_products_index() -> None: 
+    def truncate_products_index() -> None:
         ProductDocument().search().query('match_all').delete() 
 
     @staticmethod 

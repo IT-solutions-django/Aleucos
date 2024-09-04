@@ -16,4 +16,5 @@ class ProductDocument(Document):
         model = Product 
         fields = ['title', 'description', 'notes']
 
-    ignore_signals = True
+        ignore_signals = True
+        auto_refresh = False

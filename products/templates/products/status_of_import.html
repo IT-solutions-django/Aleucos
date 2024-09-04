@@ -7,7 +7,7 @@
     <ul>
         {% for status in import_statuses %}
 
-            <li>{{ status }}</li>
+            <li>{{status.time | date:"H:i"}} {{ status }}</li>
 
         {% endfor %}
     </ul>
