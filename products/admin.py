@@ -4,11 +4,13 @@ from django.shortcuts import redirect, render
 from django.core.files.storage import default_storage
 from django.conf import settings
 import os
+from django.http import FileResponse
 from .forms import XlsxImportForm
-from .models import Brand, Product, Category
+from .models import Brand, Product, Category, ImportStatus
 from .tasks import import_products_from_xlsx_task
 from .filters import (PriceRangeFilter, WeightRangeFilter, 
                       HasNotesFilter,  RemainsRangeFilter, HasPhotoFilter)
+from .services import ImportStatusService
 
 
 @admin.register(Brand)
@@ -19,10 +21,16 @@ class BrandAdmin(admin.ModelAdmin):
 
 
 @admin.register(Category)
-class BrandAdmin(admin.ModelAdmin): 
+class CategoryAdmin(admin.ModelAdmin): 
     list_display = ['pk', 'title']
     list_filter = ['title']
     search_fields = ['title']
+
+
+@admin.register(ImportStatus)
+class ImportStatusAdmin(admin.ModelAdmin): 
+    list_display = ['pk', 'text', 'time']
+    list_filter = ['text']
 
 
 @admin.register(Product) 
@@ -42,11 +50,32 @@ class ProductAdmin(admin.ModelAdmin):
 
     change_list_template = 'products/product_change_list.html'
 
+    def view_logs_file(self, request) -> FileResponse | None:
+        log_file_path = os.path.join('logs', 'logs.log')
+
+        try:
+            response = FileResponse(open(log_file_path, 'rb'))
+            return response
+        except FileNotFoundError:
+            self.message_user(request, 'Файл с логами не найден.', level='error')
+            return redirect('admin:products_product_changelist')
+        except PermissionError:
+            self.message_user(request, 'Ошибка доступа', level='error')
+        except Exception: 
+            self.message_user(request, 'Необработанное исключение', level='error')
+            
+    def view_import_status(self, request): 
+        context = admin.site.each_context(request) 
+        context['import_statuses'] = ImportStatusService.get_all_statuses()
+        return render(request, 'products/status_of_import.html', context)
+
     def get_urls(self):
         urls = super().get_urls()
 
         my_urls = [
             path('import-products-from-xlsx/', self.import_products_from_xlsx),
+            path('view-logs/', self.view_logs_file),
+            path('status-of-import/', self.view_import_status)
         ]
         return my_urls + urls
 
@@ -70,7 +99,7 @@ class ProductAdmin(admin.ModelAdmin):
 
             import_products_from_xlsx_task.delay(xlsx_file_full_path, request.user.pk)
 
-            self.message_user(request, 'Импорт товаров запущен в фоновом режиме. Уведомления доступны в разделе Home - Recent actions')
+            self.message_user(request, 'Импорт товаров запущен в фоновом режиме. Логи будут доступны по окончании процесса')
             return redirect('admin:products_product_changelist')
 
         return render(request, 'products/add_products_form.html', context=context)

@@ -1,0 +1,19 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+
+    <h1>Прогресс загрузки данных из xlsx-файла</h1> 
+
+    <ul>
+        {% for status in import_statuses %}
+
+            <li>{{ status }}</li>
+
+        {% endfor %}
+    </ul>
+    
+    {% if not import_statuses %} 
+        <h2>На данный момент ничего не загружается</h2> 
+    {% endif %}
+    
+{% endblock %}

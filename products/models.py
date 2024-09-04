@@ -38,6 +38,9 @@ class Product(models.Model):
     is_in_stock = models.BooleanField(default=False)
     remains = models.PositiveIntegerField(default=0)
 
+    class Meta: 
+        ordering = ['-barcode']
+
     def __str__(self) -> str:
         return f'{self.brand} | {self.title}'
     
@@ -61,3 +64,11 @@ def image_delete(sender, instance, **kwargs):
 @receiver(pre_save, sender=Product)
 def save_category(sender, instance: Product, **kwargs):
     instance.category = random.choice(Category.objects.all())
+
+
+class ImportStatus(models.Model): 
+    text = models.CharField(max_length=200, null=False) 
+    time = models.TimeField(auto_now_add=True)
+
+    def __str__(self) -> str: 
+        return self.text

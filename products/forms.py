@@ -1,6 +1,6 @@
 from django import forms
 
-from products.services import get_all_model_objects, get_max_product_price
+from .services import get_all_model_objects, get_max_product_price
 from .models import Brand, Category
 
 

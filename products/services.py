@@ -2,27 +2,24 @@ from django.core.files.base import ContentFile
 from django.db.utils import IntegrityError
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import UploadedFile
-from django.contrib.admin.models import LogEntry, DELETION
-from django.contrib.contenttypes.models import ContentType
 from django.core.files.storage import default_storage
 from openpyxl_image_loader import SheetImageLoader
 from decimal import Decimal, getcontext, ROUND_HALF_UP
 from openpyxl.reader.excel import load_workbook
-from elasticsearch.helpers import BulkIndexError
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import models 
 from django.db.models.query import QuerySet
 import io
 import os 
+from loguru import logger
 
-from .models import Product, Brand
+from .models import Product, Brand, ImportStatus
 from .exceptions import ProductImportError, EndOfTable
 from .documents import ProductDocument
 from Aleucos import settings
 
 
 class ProductImporter:
-
     @staticmethod
     def import_products_from_xlsx(xlsx_file: UploadedFile, user_id: int) -> int:
         workbook = load_workbook(filename=xlsx_file, data_only=True)
@@ -31,20 +28,18 @@ class ProductImporter:
 
         updated_products_count = 0
 
-        for index, row in enumerate(worksheet.iter_rows(min_row=4, values_only=True), 4):
+        for index, row in enumerate(worksheet.iter_rows(min_row=4, max_row=500, values_only=True), 4):
             try:
                 ProductImporter.process_product_row(index, row, image_loader)
+
                 updated_products_count += 1
+                if updated_products_count % 100 == 0: 
+                    ImportStatusService.add_new_status(f'Обработано {updated_products_count} товаров')
+
             except EndOfTable:
                 break
             except ProductImportError as e:
-                LogEntry.objects.log_action(
-                    user_id=user_id,
-                    content_type_id=ContentType.objects.get_for_model(Product).pk,
-                    object_id=None,
-                    object_repr=str(e),
-                    action_flag=DELETION
-                )
+                logger.error(str(e))
 
         return updated_products_count
 
@@ -99,10 +94,10 @@ class ProductImporter:
                     'is_in_stock': is_in_stock
                 }
             )
+
+            logger.info(f'Товар "{title}" сохранён в базу данных')
         except (IntegrityError, ValidationError, TypeError) as e:
             raise ProductImportError(f'Ошибка в строке {index}: {str(e)}')
-        except BulkIndexError as e:
-            print(f'BulkIndexError: title={title}')
 
     @staticmethod
     def get_image_or_none(barcode: str, row_index: int, image_loader: SheetImageLoader) -> ContentFile | None:
@@ -135,10 +130,10 @@ class ProductImporter:
                               price_after_500k: float | None) -> None:
         if not title:
             raise ProductImportError(f'У товара со штрихкодом {barcode} отсутствует название')
-        elif any(price in (None, 0) for price in (price_before_200k, price_after_200k, price_after_500k)):
-            raise ProductImportError(f'У товара {title} со штрихкодом {barcode} отсутствует цена')
         elif not barcode or str(barcode) == '0':
             raise ProductImportError(f'У товара {title} отсутствует штрихкод')
+        elif any(price in (None, 0) for price in (price_before_200k, price_after_200k, price_after_500k)):
+            raise ProductImportError(f'У товара {title} со штрихкодом {barcode} отсутствует цена')
         elif not str(barcode).strip().isnumeric():
             raise ProductImportError(f'У товара неверный штрихкод: {barcode}')
 
@@ -156,6 +151,18 @@ class ElasticSearchService:
     @staticmethod 
     def add_all_products_to_index() -> None: 
         ProductDocument().update(Product.objects.all())
+
+
+class ImportStatusService: 
+    @staticmethod 
+    def add_new_status(text: str) -> None: 
+        ImportStatus.objects.create(text=text).save()
+
+    def get_all_statuses() -> QuerySet[ImportStatus]: 
+        return ImportStatus.objects.all().order_by('time')
+    
+    def delete_all_statuses() -> None: 
+        ImportStatus.objects.all().delete()
 
 
 def get_max_product_price() -> Decimal: 
