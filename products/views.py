@@ -81,7 +81,7 @@ class ProductsListView(View):
 
 class DownloadPriceListView(View): 
     def get(self, request) -> FileResponse | HttpResponse: 
-        price_list_path = os.path.join(MEDIA_ROOT, 'tmpf', 'price_list.xlsx') 
+        price_list_path = os.path.join(MEDIA_ROOT, 'tmp', 'price_list.xlsx') 
 
         try:
             response = FileResponse(open(price_list_path, 'rb'))
