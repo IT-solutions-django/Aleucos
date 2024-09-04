@@ -63,7 +63,7 @@ class ProductAdmin(admin.ModelAdmin):
         return my_urls + urls
 
     @method_decorator(staff_member_required)
-    def view_logs_file(self, request) -> FileResponse | None:
+    def view_logs_file(self, request) -> FileResponse | HttpResponse:
         log_file_path = os.path.join('logs', 'logs.log')
 
         try:
@@ -71,11 +71,11 @@ class ProductAdmin(admin.ModelAdmin):
             return response
         except FileNotFoundError:
             self.message_user(request, 'Файл с логами не найден.', level='error')
-            return redirect('admin:products_product_changelist')
         except PermissionError:
             self.message_user(request, 'Ошибка доступа', level='error')
         except Exception: 
             self.message_user(request, 'Необработанное исключение', level='error')
+        return redirect('admin:products_product_changelist')
             
     @method_decorator(staff_member_required)
     def view_import_status(self, request) -> HttpResponse: 
@@ -90,7 +90,7 @@ class ProductAdmin(admin.ModelAdmin):
         
         if request.method == 'POST':
             xlsx_file = request.FILES['xlsx_file']
-            filename = f'tmp/{xlsx_file.name}'
+            filename = os.path.join('tmp', 'price_list.xlsx')
 
             try:
                 if default_storage.exists(filename): 

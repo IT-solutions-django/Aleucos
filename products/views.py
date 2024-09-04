@@ -1,10 +1,19 @@
-from django.shortcuts import render
+from django.http import FileResponse, HttpResponse
+from django.shortcuts import render, redirect
 from django.views import View
-from elasticsearch_dsl.query import MultiMatch, Q
+from elasticsearch_dsl.query import MultiMatch
+from Aleucos.settings import MEDIA_ROOT
+from django.contrib import messages
+import os
 from .models import Product
 from .forms import SearchAndFilterForm
 from .services import get_paginated_collection
 from .documents import ProductDocument
+
+
+class HomeView(View):
+    def get(self, request): 
+        return redirect('products:products_list')
 
 
 class ProductsListView(View):
@@ -67,4 +76,20 @@ class ProductsListView(View):
             'products': paginated_products,
         }
 
-        return render(request, self.template_name, context)
+        return render(request, self.template_name, context) 
+    
+
+class DownloadPriceListView(View): 
+    def get(self, request) -> FileResponse | HttpResponse: 
+        price_list_path = os.path.join(MEDIA_ROOT, 'tmpf', 'price_list.xlsx') 
+
+        try:
+            response = FileResponse(open(price_list_path, 'rb'))
+            return response
+        except FileNotFoundError:
+            messages.error(request, 'Ошибка: файл не найден', extra_tags=messages.ERROR)
+        except PermissionError:
+            messages.error(request, 'Ошибка доступа', extra_tags=messages.ERROR)
+        except Exception: 
+            messages.error(request, 'Ошибка', extra_tags=messages.ERROR)
+        return redirect('products:products_list')

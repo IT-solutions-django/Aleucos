@@ -11,7 +11,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
-import os
+from loguru import logger
+from django.contrib import messages
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -78,6 +79,7 @@ WSGI_APPLICATION = 'Aleucos.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -100,6 +102,7 @@ DATABASES = {
 #         'PORT': "5439" 
 #     }
 # }
+
 
 ELASTICSEARCH_DSL = {
     'default': {
@@ -181,3 +184,17 @@ CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json' 
 CELERY_RESULT_SERIALIZER = 'json' 
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+
+
+# Loguru 
+logger.add("logs/logs.log", format='{time} {level} {message}', rotation="10 MB", compression="zip", level="DEBUG")
+
+
+# Messages
+MESSAGE_TAGS = {
+    messages.DEBUG: 'alert-info',
+    messages.INFO: 'alert-info',
+    messages.SUCCESS: 'alert-success',
+    messages.WARNING: 'alert-warning',
+    messages.ERROR: 'alert-danger',
+}
