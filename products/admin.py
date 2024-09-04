@@ -56,9 +56,9 @@ class ProductAdmin(admin.ModelAdmin):
         urls = super().get_urls()
 
         my_urls = [
-            path('import-products-from-xlsx/', self.import_products_from_xlsx),
-            path('view-logs/', self.view_logs_file),
-            path('status-of-import/', self.view_import_status)
+            path('import-products-from-xlsx/', self.import_products_from_xlsx, name='import_products_from_xlsx'),
+            path('view-logs/', self.view_logs_file, name='view_logs'),
+            path('status-of-import/', self.view_import_status, name='status_of_import')
         ]
         return my_urls + urls
 
@@ -105,6 +105,6 @@ class ProductAdmin(admin.ModelAdmin):
             import_products_from_xlsx_task.delay(xlsx_file_full_path, request.user.pk)
 
             self.message_user(request, 'Импорт товаров запущен в фоновом режиме. Логи будут доступны по окончании процесса')
-            return redirect('admin:products_product_changelist')
+            return redirect('admin:status_of_import')
 
         return render(request, 'products/add_products_form.html', context=context)
