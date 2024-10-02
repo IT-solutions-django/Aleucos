@@ -4,14 +4,14 @@ from .models import Product
 
 
 class PriceRangeFilter(SimpleListFilter):
-    title = 'price range'
+    title = 'Ценовой диапазон'
     parameter_name = 'price_range'
 
     def lookups(self, request, model_admin):
         return (
-            ('low', 'Low (0-500₽)'),
-            ('medium', 'Medium (500-1000₽)'),
-            ('high', 'High (>1000₽)'), 
+            ('low', 'Низкая (0-500₽)'),
+            ('medium', 'Средняя (500-1000₽)'),
+            ('high', 'Высокая (>1000₽)'), 
         )
 
     def queryset(self, request, queryset):
@@ -25,15 +25,15 @@ class PriceRangeFilter(SimpleListFilter):
 
 
 class WeightRangeFilter(SimpleListFilter):
-    title = 'weight range'
+    title = 'Диапазон веса'
     parameter_name = 'weight_range' 
 
     def lookups(self, request, model_admin):
         return (
-            ('light', 'Light (<0.2 kg)'), 
-            ('medium', 'Medium (0.2-0.6 kg)'),
-            ('heavy', 'Heavy (>0.6 kg)'),
-            ('unknown', 'Unknown')
+            ('light', 'Легкий (<0.2 кг)'), 
+            ('medium', 'Средний (0.2-0.6 кг)'),
+            ('heavy', 'Тяжёлый (>0.6 кг)'),
+            ('unknown', 'Неизвестно')
         )
 
     def queryset(self, request, queryset):
@@ -49,13 +49,13 @@ class WeightRangeFilter(SimpleListFilter):
     
 
 class HasNotesFilter(SimpleListFilter):
-    title = 'has image'
-    parameter_name = 'has_image'
+    title = 'Наличие заметок'
+    parameter_name = 'has_notes'
 
     def lookups(self, request, model_admin):
         return (
-            ('yes', 'Yes'), 
-            ('no', 'No'),
+            ('yes', 'Есть'), 
+            ('no', 'Нет'),
         )
 
     def queryset(self, request, queryset):
@@ -67,14 +67,14 @@ class HasNotesFilter(SimpleListFilter):
     
 
 class RemainsRangeFilter(SimpleListFilter):
-    title = 'remains range'
+    title = 'Остатки'
     parameter_name = 'remains_range'
 
     def lookups(self, request, model_admin):
         return (
-            ('low', 'Low (0-200)'),
-            ('medium', 'Medium (200-800)'),
-            ('high', 'High (>800)'), 
+            ('low', 'Низкие (0-200)'),
+            ('medium', 'Средние (200-800)'),
+            ('high', 'Высокие (>800)'), 
         )
 
     def queryset(self, request, queryset):
@@ -88,13 +88,13 @@ class RemainsRangeFilter(SimpleListFilter):
     
 
 class HasPhotoFilter(SimpleListFilter):
-    title = 'has photo'
+    title = 'Наличие фото'
     parameter_name = 'has_photo'
 
     def lookups(self, request, model_admin):
         return (
-            ('yes', 'Yes'), 
-            ('no', 'No'),
+            ('yes', 'Есть'), 
+            ('no', 'Нет'),
         )
 
     def queryset(self, request, queryset):

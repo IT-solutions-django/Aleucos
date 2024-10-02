@@ -165,3 +165,10 @@ media/tmp/*
 
 # ElasticSearch
 es_data/
+
+media/catalog/catalog_for_export.xlsx
+media/catalog/catalog.xlsx
+media/users/
+
+logs/
+Aleucos/amocrm_tokens/

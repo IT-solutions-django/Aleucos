@@ -1,13 +1,15 @@
-from django.http import FileResponse, HttpResponse
+from django.http import FileResponse, HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.views import View
 from elasticsearch_dsl.query import MultiMatch
-from Aleucos.settings import MEDIA_ROOT
+from Aleucos import settings
 from django.contrib import messages
 import os
+
+from carts.services import Cart
 from .models import Product
 from .forms import SearchAndFilterForm
-from .services import get_paginated_collection
+from .services import get_paginated_collection, CatalogExporter
 from .documents import ProductDocument
 
 
@@ -21,7 +23,6 @@ class ProductsListView(View):
 
     def get(self, request, *args, **kwargs):
         form = SearchAndFilterForm(request.GET)
-
         if form.is_valid():
             cd = form.cleaned_data
 
@@ -74,17 +75,20 @@ class ProductsListView(View):
         context = {
             'form': form,
             'products': paginated_products,
+            'request_get': request.GET.urlencode(),  
+            'barcodes_in_cart': request.cart[Cart.KeyNames.PRODUCTS].keys() if request.cart.get(Cart.KeyNames.PRODUCTS) else None
         }
 
         return render(request, self.template_name, context) 
     
 
-class DownloadPriceListView(View): 
+class DownloadCatalogView(View): 
     def get(self, request) -> FileResponse | HttpResponse: 
-        price_list_path = os.path.join(MEDIA_ROOT, 'tmp', 'price_list.xlsx') 
+
+        filename = CatalogExporter.export_catalog_to_xlsx()
 
         try:
-            response = FileResponse(open(price_list_path, 'rb'))
+            response = FileResponse(open(filename, 'rb'))
             return response
         except FileNotFoundError:
             messages.error(request, 'Ошибка: файл не найден', extra_tags=messages.ERROR)

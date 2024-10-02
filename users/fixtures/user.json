@@ -1,0 +1,168 @@
+[
+    {
+        "model": "users.user",
+        "pk": 1,
+        "fields": {
+            "last_login": "2024-09-10T06:38:12.494Z",
+            "is_superuser": true,
+            "is_staff": true,
+            "is_active": true,
+            "date_joined": "2024-08-09T15:29:34Z",
+            "phone": null,
+            "first_name": "Сергей",
+            "last_name": "Пак",
+            "patronymic": null,
+            "position": null,
+            "manager": null,
+            "email": "super@gmail.com",
+            "password": "pbkdf2_sha256$870000$uJkafcfkuFCG6BrlfZH8vY$7veVEhYlaxqqbU3V7+5MgmTyIGETpDH4+fd7RE+X/c4=",
+            "username": null,
+            "groups": [],
+            "user_permissions": []
+        }
+    },
+    {
+        "model": "users.user",
+        "pk": 2,
+        "fields": {
+            "last_login": "2024-09-10T07:04:10.360Z",
+            "is_superuser": false,
+            "is_staff": true,
+            "is_active": true,
+            "date_joined": "2024-09-10T05:51:19Z",
+            "phone": null,
+            "first_name": "Менеджер",
+            "last_name": "-",
+            "patronymic": null,
+            "position": null,
+            "manager": null,
+            "email": "manager@gmail.com",
+            "password": "pbkdf2_sha256$870000$uJkafcfkuFCG6BrlfZH8vY$7veVEhYlaxqqbU3V7+5MgmTyIGETpDH4+fd7RE+X/c4=",
+            "username": null,
+            "groups": [
+                2
+            ],
+            "user_permissions": []
+        }
+    },
+    {
+        "model": "users.user",
+        "pk": 3,
+        "fields": {
+            "last_login": "2024-09-10T06:43:06Z",
+            "is_superuser": false,
+            "is_staff": true,
+            "is_active": true,
+            "date_joined": "2024-09-10T05:52:22Z",
+            "phone": null,
+            "first_name": "Администратор",
+            "last_name": "-",
+            "patronymic": null,
+            "position": null,
+            "manager": null,
+            "email": "administrator@gmail.com",
+            "password": "pbkdf2_sha256$870000$uJkafcfkuFCG6BrlfZH8vY$7veVEhYlaxqqbU3V7+5MgmTyIGETpDH4+fd7RE+X/c4=",
+            "username": null,
+            "groups": [
+                1
+            ],
+            "user_permissions": []
+        }
+    },
+    {
+        "model": "users.user",
+        "pk": 4,
+        "fields": {
+            "last_login": null,
+            "is_superuser": false,
+            "is_staff": false,
+            "is_active": true,
+            "date_joined": "2024-09-10T06:28:30Z",
+            "phone": null,
+            "first_name": "Джон",
+            "last_name": "-",
+            "patronymic": null,
+            "position": null,
+            "manager": 7,
+            "email": "john@gmail.com",
+            "password": "pbkdf2_sha256$870000$K40lBOrR0SBp7d5Gg8XKNJ$VoVJs8VRuniprTbnit6hDIo5NLEXmAJgXg2NAJBi0+g=",
+            "username": null,
+            "groups": [
+                3
+            ],
+            "user_permissions": []
+        }
+    },
+    {
+        "model": "users.user",
+        "pk": 5,
+        "fields": {
+            "last_login": null,
+            "is_superuser": false,
+            "is_staff": false,
+            "is_active": true,
+            "date_joined": "2024-09-10T06:32:06Z",
+            "phone": null,
+            "first_name": "Мария",
+            "last_name": "-",
+            "patronymic": null,
+            "position": null,
+            "manager": 2,
+            "email": "maria@gmail.com",
+            "password": "pbkdf2_sha256$870000$ff3tM7NJQtBNnBHp92Vc8s$/2zOGX9AZQ/z5qrHM2mTp8v+5ZR7diqdIzixcHeONH4=",
+            "username": null,
+            "groups": [
+                3
+            ],
+            "user_permissions": []
+        }
+    },
+    {
+        "model": "users.user",
+        "pk": 6,
+        "fields": {
+            "last_login": null,
+            "is_superuser": false,
+            "is_staff": false,
+            "is_active": true,
+            "date_joined": "2024-09-10T06:32:47Z",
+            "phone": null,
+            "first_name": "Иван",
+            "last_name": "-",
+            "patronymic": null,
+            "position": null,
+            "manager": 2,
+            "email": "ivan@gmail.com",
+            "password": "pbkdf2_sha256$870000$ZKIKeNIOQ0MNIAiznJAJFu$qMe2MeEz9Z2ZFh8nx4WoLc12VZOIEb4I3k3ISfu3qpY=",
+            "username": null,
+            "groups": [
+                3
+            ],
+            "user_permissions": []
+        }
+    },
+    {
+        "model": "users.user",
+        "pk": 7,
+        "fields": {
+            "last_login": "2024-09-10T07:08:35.645Z",
+            "is_superuser": false,
+            "is_staff": true,
+            "is_active": true,
+            "date_joined": "2024-09-10T06:44:22Z",
+            "phone": null,
+            "first_name": "Другой менеджер",
+            "last_name": "-",
+            "patronymic": null,
+            "position": null,
+            "manager": null,
+            "email": "another_manager@gmail.com",
+            "password": "pbkdf2_sha256$870000$uJkafcfkuFCG6BrlfZH8vY$7veVEhYlaxqqbU3V7+5MgmTyIGETpDH4+fd7RE+X/c4=",
+            "username": null,
+            "groups": [
+                2
+            ],
+            "user_permissions": []
+        }
+    }
+]

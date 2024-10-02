@@ -20,15 +20,21 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from products.views import HomeView
+from amo_webhooks.views import status_lead_view
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('products/', include('products.urls', namespace='products')),
+    path('users/', include('users.urls', namespace='users')),
+    path('orders/', include('orders.urls', namespace='orders')),
+    path('carts/', include('carts.urls', namespace='carts')),
+    path('amocrm/', include('amo_webhooks.urls', namespace='amocrm')),
 
-    path('', HomeView.as_view(), name='home_view'), 
+
+    # path('', status_lead_view, name='status_lead_view'),
+    path('', HomeView.as_view(), name='home'), 
 ]
 
-if settings.DEBUG: 
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

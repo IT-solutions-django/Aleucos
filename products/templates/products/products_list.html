@@ -1,133 +1,97 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catalog</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const resetFiltersButton = document.getElementById("reset-filters-button");
+{% extends "base.html" %}
 
-            if (resetFiltersButton) {
-                resetFiltersButton.addEventListener("click", function(event) {
-                    event.preventDefault(); 
+{% block title %}Catalog{% endblock %}
 
-                    const form = document.querySelector("form");
-                    form.reset();
+{% block content %}
+    <form method="GET" action="{% url 'products:products_list' %}">
+        <div class="row">
 
-                    window.location.href = window.location.pathname;
-                });
-            }
-        });
-    </script>
-</head>
-<body>
-    <div class="container mt-5">
-
-        {% if messages %}
-            <div class="alert-container">
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                        {{ message }} 
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div> 
-                {% endfor %}
+            <div>
+                <a href="{% url 'users:registration_request' %}" class="btn btn-success mb-4">Оставить заявку</a>
             </div>
-        {% endif %}
 
-        <form method="GET" action="{% url 'products:products_list' %}">
-            <div class="row">
-                <div class="col-12 mb-4"> 
-
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5>Поиск</h5>
-                        <a href="{% url 'products:price_list_download' %}" class="btn btn-success">Скачать прайс-лист</a>
-                    </div> 
-                    
-                    <div class="mb-3">
-                        {{ form.q }} 
-                        <button class="btn btn-outline-secondary mt-2" type="submit">Поиск</button>
-                    </div>
- 
-                </div> 
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5>Поиск</h5>
+                <a href="{% url 'admin:export_catalog' %}" class="btn btn-success">Скачать каталог</a>
             </div> 
+        </div> 
 
-            <div class="row">
-                <div class="col-md-3">
-                    {% if form.price_max.errors %}
-                        <div class="text-danger">
-                            {% for error in form.price_max.errors %}
-                                <div>{{ error }}</div>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
 
-                    <div>
-                        <h5>Категория</h5>
-                        {{ form.categories }}
+        <div class="row">
+            <div class="col-md-3">
+                {% if form.price_max.errors %}
+                    <div class="text-danger">
+                        {% for error in form.price_max.errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
                     </div>
+                {% endif %}
 
-                    <div class="mt-4">
-                        <h5>Цена, Р</h5>
-                        <div class="form-row">
-                            <label>Мин. цена</label>
-                            <div class="col">
-                                {{ form.price_min }}
-                            </div>
-                            <label>Макс. цена</label>
-                            <div class="col">
-                                {{ form.price_max }}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mt-4">
-                        <h5>Разделы</h5>
-                        <div>
-                            {{ form.sections }}  
-                        </div>
-                    </div>
-
-                    <div class="mt-4">
-                        <h5>Производитель</h5>
-                        <div>
-                            {% for brand in form.brands|slice:":15" %}
-                                <div>{{ brand }}</div>
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    <div class="mt-4">
-                        <h5>Дополнительно</h5>
-                        <div>
-                            {{ form.is_in_stock }}  
-                            {{ form.is_in_stock.label_tag }}  
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary mt-4 mb-1">Применить фильтры</button>
-                    <button id="reset-filters-button" href="{% url 'products:products_list' %}" class="btn btn-secondary mt-1 mb-4">Сбросить фильтры</button>
+                <div>
+                    <h5>Категория</h5>
+                    {{ form.categories }}
                 </div>
 
-                <div class="col-md-9">
-                    <div class="row">
+                <div class="mt-4">
+                    <h5>Цена, Р</h5>
+                    <div class="form-row">
+                        <label>Мин. цена</label>
+                        <div class="col">
+                            {{ form.price_min }}
+                        </div>
+                        <label>Макс. цена</label>
+                        <div class="col">
+                            {{ form.price_max }}
+                        </div>
+                    </div>
+                </div>
 
-                        {% for product in products %} 
+                <div class="mt-4">
+                    <h5>Разделы</h5>
+                    <div>
+                        {{ form.sections }}  
+                    </div>
+                </div>
 
-                            <div class="col-md-3 mb-4">
-                                <div class="card h-100">
-                                    <img src="{{ product.photo.url }}" class="card-img-top" alt="{{ product.title }}" style="height: 200px; width: 100%; object-fit: contain;">
-                                    <div class="card-body">
-                                        <h5 class="card-title">{{ product.title }}</h5>
+                <div class="mt-4">
+                    <h5>Производитель</h5>
+                    <div>
+                        {% for brand in form.brands|slice:":15" %}
+                            <div>{{ brand }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
 
-                                        <p class="card-text">{{ product.description }}</p>
+                <div class="mt-4">
+                    <h5>Дополнительно</h5>
+                    <div>
+                        {{ form.is_in_stock }}  
+                        {{ form.is_in_stock.label_tag }}  
+                    </div>
+                </div>
 
-                                        <p class="card-text h5">{{ product.price_before_200k }} ₽</p>
+                <button type="submit" class="btn btn-success mt-4 mb-1">Применить фильтры</button>
+                <button id="reset-filters-button" href="{% url 'products:products_list' %}" class="btn btn-secondary mt-1 mb-4">Сбросить фильтры</button>
+            </div>
 
-                                        <p class="card-text small">Осталось {{ product.remains }} штук</p>
+            <div class="col-md-9">
+                <div class="row">
 
-                                        <p class="card-text"><i>{{ product.category }}</i></p>
+                    {% for product in products %} 
+
+                        {% if product.brand.is_published %}
+
+                        <div class="col-md-3 mb-4">
+                            <div class="card h-100">
+                                <div class="my-4">
+                                    <img src="{{ product.photo.url }}" class="card-img-top" alt="{{ product.barcode }}" style="height: 100px; width: 100%; object-fit: contain;">
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ product.title }}</h5>
+
+                                    <p class="card-text">{{ product.description }}</p>
+
+                                    <p class="card-text"><i>{{ product.category }}</i></p>
 
                                         <p class="card-title"><i>{{ product.brand }}</i></p>
 
@@ -135,29 +99,106 @@
                                             <p class="card-text"><b>{{ product.notes }}</b></p>
                                         {% endif %}
 
+                                    {% if request.user.is_authenticated %}
+
+                                        <p class="card-text h5">{{ product.price_before_200k }} ₽</p>
+
                                         <p class="card-text small">Осталось {{ product.remains }} штук</p>
-                                            
-                                        <a href="#" class="btn btn-primary">В корзину</a>
-                                    </div>
+
+                                        {% if product.barcode|slugify in barcodes_in_cart %}
+                                            <a href="#" id="{{ product.barcode }}" class="btn btn-secondary add-to-cart">Удалить из корзины</a>
+                                        {% else %}
+                                            <a href="#" id="{{ product.barcode }}" class="btn btn-primary add-to-cart">Добавить в корзину</a>        
+                                        {% endif %}
+
+                                        
+                                    {% endif %}
                                 </div>
                             </div>
+                        </div>
 
-                        {% empty %}
-                            <div class="mt-3 mx-3">
-                                <p class="h1">Ничего не найдено</p>
-                            </div>
-                        {% endfor %}
+                        {% endif %}
 
-                    </div>
+                    {% empty %}
+                        <div class="mt-3 mx-3">
+                            <p class="h1">Ничего не найдено</p>
+                        </div>
+                    {% endfor %}
+
                 </div>
             </div>
-        </form>
-    </div>
+        </div>
+    </form>
 
-    {% if products.paginator.num_pages > 1 %}
-        {% include "products/includes/pagination.html" with page=products %}
-    {% endif %}
+    {% include "products/includes/pagination.html" with page=products %}
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-</body>
-</html>
+{% endblock %}
+
+{% block script %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const resetFiltersButton = document.getElementById("reset-filters-button");
+
+        if (resetFiltersButton) {
+            resetFiltersButton.addEventListener("click", function(event) {
+                event.preventDefault(); 
+
+                const form = document.querySelector("form");
+                form.reset();
+
+                window.location.href = window.location.pathname;
+            });
+        }
+
+        const addToCartButtons = document.querySelectorAll(".add-to-cart");
+
+        addToCartButtons.forEach(button => {
+            button.addEventListener("click", function(event) {
+                event.preventDefault(); 
+
+                const card = this.closest(".card");
+                const barcode = button.id; 
+                const isAdding = button.textContent === "Добавить в корзину";
+
+                fetch("{% url 'carts:change' %}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                        "X-CSRFToken": "{{ csrf_token }}" 
+                    },
+                    body: new URLSearchParams({
+                        'barcode': barcode,
+                        'quantity': isAdding ? 1 : -1, 
+                        'append': isAdding 
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert("Ошибка: " + data.error);
+                    } else {
+                        console.log(data.cart)
+
+                        const quantityElement = card.querySelector('.quantity-in-cart');
+                        const newQuantity = data.cart.products[barcode]?.quantity || 0;
+
+                        if (quantityElement) {
+                            if (newQuantity == 0) {
+                                quantityElement.remove()
+                            }
+                            else {
+                                quantityElement.innerText = `В корзине: ${newQuantity} шт.`;
+                            }
+                        } 
+
+                        button.textContent = isAdding ? "Убрать из корзины" : "Добавить в корзину";
+                        button.classList.toggle('btn-primary');
+                        button.classList.toggle('btn-secondary');
+                    }
+                })
+                .catch(error => console.error("Ошибка при добавлении/удалении из корзины:", error));
+            });
+        });
+    });
+</script>
+{% endblock %}

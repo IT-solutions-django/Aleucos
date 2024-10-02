@@ -4,7 +4,7 @@ from .services import get_all_model_objects, get_max_product_price
 from .models import Brand, Category
 
 
-class XlsxImportForm(forms.Form):
+class XlsxImportProductsForm(forms.Form):
     xlsx_file = forms.FileField() 
 
 

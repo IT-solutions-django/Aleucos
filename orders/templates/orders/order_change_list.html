@@ -1,0 +1,18 @@
+{% extends 'admin/change_list.html' %}
+{% load admin_list %}
+
+{% block object-tools-items %}
+
+    {% if request.user.is_staff %}
+        <li>
+            <a href="import-order-from-xlsx/" class="addlink">Загрузить заказ из XLSX</a>
+        </li>
+
+        <li>
+            <a href="status-of-order-import/" class="addlink">Проверить статус загрузки</a>
+        </li>
+    {% endif %}
+    
+    {% change_list_object_tools %}
+{% endblock %}
+

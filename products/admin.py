@@ -2,17 +2,22 @@ from django.contrib import admin
 from django.urls import path
 from django.shortcuts import redirect, render
 from django.core.files.storage import default_storage
-from django.conf import settings
+from Aleucos import settings
 from django.http import FileResponse, HttpResponse
 from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.decorators import user_passes_test
 from django.utils.decorators import method_decorator
 import os
-from .forms import XlsxImportForm
-from .models import Brand, Product, Category, ImportStatus
+from .forms import XlsxImportProductsForm
+from .models import Brand, Product, Category, ImportProductsStatus
 from .tasks import import_products_from_xlsx_task
 from .filters import (PriceRangeFilter, WeightRangeFilter, 
                       HasNotesFilter,  RemainsRangeFilter, HasPhotoFilter)
-from .services import ImportStatusService
+from .services import ImportProductsStatusService, CatalogExporter
+
+
+def is_admin_or_superuser(user):
+    return user.is_superuser or user.groups.filter(name=settings.ADMINS_GROUP_NAME).exists()
 
 
 @admin.register(Brand)
@@ -29,16 +34,10 @@ class CategoryAdmin(admin.ModelAdmin):
     search_fields = ['title']
 
 
-@admin.register(ImportStatus)
-class ImportStatusAdmin(admin.ModelAdmin): 
-    list_display = ['pk', 'text', 'time']
-    list_filter = ['text']
-
-
 @admin.register(Product) 
 class ProductAdmin(admin.ModelAdmin): 
-    list_display = ['barcode', 'brand', 'title', 'description', 'volume', 'weight', 'photo',
-                    'price_before_200k', 'is_in_stock', 'remains', 'created_at'] 
+    list_display = ['pk', 'barcode', 'brand', 'title', 'volume', 'weight', 'photo', 'is_frozen',
+                    'price_before_200k', 'is_in_stock', 'remains'] 
     search_fields = ['brand__title', 'title', 'barcode']
     list_filter = (
         'is_in_stock',
@@ -56,13 +55,20 @@ class ProductAdmin(admin.ModelAdmin):
         urls = super().get_urls()
 
         my_urls = [
-            path('import-products-from-xlsx/', self.import_products_from_xlsx, name='import_products_from_xlsx'),
+            path('import_catalog/', self.import_catalog, name='import_catalog'),
+            path('export_catalog/', self.export_catalog, name='export_catalog'),
             path('view-logs/', self.view_logs_file, name='view_logs'),
-            path('status-of-import/', self.view_import_status, name='status_of_import')
+            path('status-of-products-import/', self.view_import_status, name='status_of_products_import')
         ]
         return my_urls + urls
+    
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        extra_context['is_admin_or_superuser'] = is_admin_or_superuser(request.user)
 
-    @method_decorator(staff_member_required)
+        return super().changelist_view(request, extra_context=extra_context)
+
+    @method_decorator(user_passes_test(is_admin_or_superuser), name='view_logs_file')
     def view_logs_file(self, request) -> FileResponse | HttpResponse:
         log_file_path = os.path.join('logs', 'logs.log')
 
@@ -77,20 +83,21 @@ class ProductAdmin(admin.ModelAdmin):
             self.message_user(request, 'Необработанное исключение', level='error')
         return redirect('admin:products_product_changelist')
             
-    @method_decorator(staff_member_required)
+    @method_decorator(user_passes_test(is_admin_or_superuser), name='view_import_status')
     def view_import_status(self, request) -> HttpResponse: 
         context = admin.site.each_context(request) 
-        context['import_statuses'] = ImportStatusService.get_all_statuses()
+        context['import_statuses'] = ImportProductsStatusService.get_all_statuses()
         return render(request, 'products/status_of_import.html', context)
     
-    @method_decorator(staff_member_required)
-    def import_products_from_xlsx(self, request) -> HttpResponse:
+    @method_decorator(user_passes_test(is_admin_or_superuser), name='import_products_from_xlsx')
+    def import_catalog(self, request) -> HttpResponse:
         context = admin.site.each_context(request)
-        context['form'] = XlsxImportForm()
+        context['form'] = XlsxImportProductsForm()
+        context['is_admin_or_superuser'] = is_admin_or_superuser(request.user)
         
         if request.method == 'POST':
             xlsx_file = request.FILES['xlsx_file']
-            filename = os.path.join('tmp', 'price_list.xlsx')
+            filename = os.path.join('catalog', settings.IMPORT_CATALOG_FILENAME)
 
             try:
                 if default_storage.exists(filename): 
@@ -102,9 +109,25 @@ class ProductAdmin(admin.ModelAdmin):
             xlsx_file_path = default_storage.save(filename, xlsx_file)
             xlsx_file_full_path = os.path.join(settings.MEDIA_ROOT, xlsx_file_path)
 
-            import_products_from_xlsx_task.delay(xlsx_file_full_path, request.user.pk)
+            import_products_from_xlsx_task.delay(xlsx_file_full_path)
 
             self.message_user(request, 'Импорт товаров запущен в фоновом режиме. Логи будут доступны по окончании процесса')
-            return redirect('admin:status_of_import')
+            return redirect('admin:status_of_products_import')
 
         return render(request, 'products/add_products_form.html', context=context)
+
+    @method_decorator(user_passes_test(is_admin_or_superuser), name='export_catalog')
+    def export_catalog(self, request) -> HttpResponse:
+        filename = CatalogExporter.export_catalog_to_xlsx()
+        try:
+            response = FileResponse(open(filename, 'rb'))
+            return response
+        except FileNotFoundError:
+            self.message_user(request, 'Файл с логами не найден', level='error')
+            return redirect('admin:products_product_changelist')
+        except PermissionError:
+            self.message_user(request, 'Файл с логами не найден', level='error')
+            return redirect('admin:products_product_changelist')
+        except Exception: 
+            self.message_user(request, 'Файл с логами не найден', level='error')
+            return redirect('admin:products_product_changelist')
