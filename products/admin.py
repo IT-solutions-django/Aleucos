@@ -118,16 +118,16 @@ class ProductAdmin(admin.ModelAdmin):
 
     @method_decorator(user_passes_test(is_admin_or_superuser), name='export_catalog')
     def export_catalog(self, request) -> HttpResponse:
-        filename = CatalogExporter.export_catalog_to_xlsx()
+        filename = os.path.join(settings.MEDIA_ROOT, 'catalog', settings.EXPORT_CATALOG_FILENAME)
         try:
             response = FileResponse(open(filename, 'rb'))
             return response
         except FileNotFoundError:
-            self.message_user(request, 'Файл с логами не найден', level='error')
+            self.message_user(request, 'Файл для экспорта не найден', level='error')
             return redirect('admin:products_product_changelist')
         except PermissionError:
-            self.message_user(request, 'Файл с логами не найден', level='error')
+            self.message_user(request, 'Файл для экспорта не найден', level='error')
             return redirect('admin:products_product_changelist')
         except Exception: 
-            self.message_user(request, 'Файл с логами не найден', level='error')
+            self.message_user(request, 'Файл для экспорта не найден', level='error')
             return redirect('admin:products_product_changelist')

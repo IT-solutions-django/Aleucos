@@ -81,19 +81,3 @@ class ProductsListView(View):
 
         return render(request, self.template_name, context) 
     
-
-class DownloadCatalogView(View): 
-    def get(self, request) -> FileResponse | HttpResponse: 
-
-        filename = CatalogExporter.export_catalog_to_xlsx()
-
-        try:
-            response = FileResponse(open(filename, 'rb'))
-            return response
-        except FileNotFoundError:
-            messages.error(request, 'Ошибка: файл не найден', extra_tags=messages.ERROR)
-        except PermissionError:
-            messages.error(request, 'Ошибка доступа', extra_tags=messages.ERROR)
-        except Exception: 
-            messages.error(request, 'Ошибка', extra_tags=messages.ERROR)
-        return redirect('products:products_list')

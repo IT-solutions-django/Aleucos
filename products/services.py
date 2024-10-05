@@ -177,6 +177,8 @@ class CatalogImporter:
 class CatalogExporter: 
     @staticmethod
     def export_catalog_to_xlsx() -> str:
+        logger.info('Начался экспорт каталога')
+
         catalog_template_path = os.path.join(settings.MEDIA_ROOT, 'catalog', settings.EXPORT_CATALOG_TEMPLATE_FILENAME)
         exported_catalog_path = os.path.join(settings.MEDIA_ROOT, 'catalog', settings.EXPORT_CATALOG_FILENAME)
 
@@ -190,7 +192,6 @@ class CatalogExporter:
 
         current_row_index = 4
         for product in products: 
-            image_url = f'http://127.0.0.1:8000/{settings.MEDIA_URL}{product.photo.name}/'
             image_path = os.path.join(settings.MEDIA_ROOT, product.photo.name)
             image = Image(image_path)
             image.width, image.height = 100, 100

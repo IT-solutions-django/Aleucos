@@ -26,6 +26,7 @@ python manage.py collectstatic --noinput
 python manage.py search_index --rebuild -f
 
 celery -A Aleucos worker -l info -P prefork  &
+celery -A Aleucos  beat -l info &
 celery -A Aleucos flower -l info &
 gunicorn Aleucos.wsgi:application --bind 0.0.0.0:8000 &
 

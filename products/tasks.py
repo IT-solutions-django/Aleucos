@@ -1,7 +1,7 @@
 from celery import shared_task 
 from django.core.files.uploadedfile import UploadedFile
 from loguru import logger
-from .services import CatalogImporter, ElasticSearchService, ImportProductsStatusService
+from .services import CatalogImporter, ElasticSearchService, ImportProductsStatusService, CatalogExporter
 from Aleucos import settings
 
 
@@ -46,3 +46,6 @@ def delete_import_statuses_task() -> None:
     ImportProductsStatusService.delete_all_statuses()
 
 
+@shared_task
+def export_catalog_task() -> None: 
+    CatalogExporter.export_catalog_to_xlsx()
