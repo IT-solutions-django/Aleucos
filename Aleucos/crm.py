@@ -17,19 +17,19 @@ class User(_User):
 
 
 class AmoCRM:
-    def __init__(self):
-        self.token_storage_path = os.path.join(os.path.dirname(__file__), 'amocrm_tokens')
-        os.makedirs(self.token_storage_path, exist_ok=True)
+    # def __init__(self):
+    #     self.token_storage_path = os.path.join(os.path.dirname(__file__), 'amocrm_tokens')
+    #     os.makedirs(self.token_storage_path, exist_ok=True)
 
-        tokens.default_token_manager(
-            client_id=os.getenv('AMOCRM_CLIENT_ID'),
-            client_secret=os.getenv('AMOCRM_CLIENT_SECRET'),
-            subdomain=os.getenv('AMOCRM_SUBDOMAIN'),
-            redirect_url=os.getenv('AMOCRM_REDIRECT_URL'),
-            storage=tokens.FileTokensStorage(self.token_storage_path),
-        )
+    #     tokens.default_token_manager(
+    #         client_id=os.getenv('AMOCRM_CLIENT_ID'),
+    #         client_secret=os.getenv('AMOCRM_CLIENT_SECRET'),
+    #         subdomain=os.getenv('AMOCRM_SUBDOMAIN'),
+    #         redirect_url=os.getenv('AMOCRM_REDIRECT_URL'),
+    #         storage=tokens.FileTokensStorage(self.token_storage_path),
+    #     )
 
-        self.pipeline = list(Pipeline.objects.all())[0] 
+    #     self.pipeline = list(Pipeline.objects.all())[0] 
 
     def get_lead_by_id(self, id: int) -> Lead: 
         return Lead.objects.get(object_id=id)        
