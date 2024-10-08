@@ -19,6 +19,8 @@ class ChangeCartView(View):
         raw_quantity = request.POST.get('quantity')
         append = bool(request.POST.get('append', False))
 
+        print(f'frfefrerf {append}')
+
         try:
             quantity = int(raw_quantity)
         except ValueError: 
@@ -35,12 +37,18 @@ class ChangeCartView(View):
             return JsonResponse({
                 'cart': cart.to_dict(), 
             })
-        if quantity < 0:
+        if quantity < 0 and append == False:
             cart.change(product=product, quantity=-1)
             return JsonResponse({
                 'cart': cart.to_dict(), 
             })
-        if product.remains - quantity < 0:
+        product_in_cart = cart[Cart.KeyNames.PRODUCTS].get(str(barcode))
+        if product_in_cart is None: 
+            new_quantity_in_cart = 1 
+        else: 
+            new_quantity_in_cart = product_in_cart[Cart.KeyNames.QUANTITY] + 1
+        if product.remains - new_quantity_in_cart < 0:
+            print('Товара маловато')
             return JsonResponse({
                 'error': f'количество товара ограничено: осталось {product.remains} единиц', 
                 'cart': cart.to_dict(), 

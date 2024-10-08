@@ -36,10 +36,13 @@ class Cart(UserDict):
 
         if append:
             self[k.PRODUCTS][barcode][k.QUANTITY] += quantity
+            print(f'append=true\nТекущее количество={self[k.PRODUCTS][barcode][k.QUANTITY]}')
         else:
             self[k.PRODUCTS][barcode][k.QUANTITY] = quantity
+            print(f'append=false\nТекущее количество={self[k.PRODUCTS][barcode][k.QUANTITY]}')
 
         if self[k.PRODUCTS][barcode][k.QUANTITY] <= 0:
+            print('Удаляем товар')
             del self[k.PRODUCTS][barcode]
         else:
             unit_price = self[k.PRODUCTS][barcode][k.UNIT_PRICE_BEFORE_200K]
@@ -113,9 +116,6 @@ class Cart(UserDict):
             },
             k.TOTAL_CART_PRICE: convert_value(self[k.TOTAL_CART_PRICE])
         }
-
-    # def to_json(self) -> str:
-    #     return json.dumps(self.to_dict())
 
 
 def flaot_to_decimal(number: float) -> Decimal: 

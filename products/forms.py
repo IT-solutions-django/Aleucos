@@ -25,15 +25,16 @@ class SearchAndFilterForm(forms.Form):
         required=False, 
         label='Введите запрос', 
         widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Найти товар'
+            'id': 'searchInput',
+            'class': 'navbar__search-input filter-input',
+            'placeholder': 'Поиск по сайту'
         })
     )
 
     categories = forms.MultipleChoiceField(
         widget=forms.CheckboxSelectMultiple(
             attrs={
-                'class': 'sidebar__section-item-label color-black'
+                'class': 'sidebar__section-checkbox filter-input'
             }
         ),
         required=False
@@ -46,7 +47,7 @@ class SearchAndFilterForm(forms.Form):
         label='Мин. цена',
         widget=forms.NumberInput(
             attrs={ 
-                'class': 'sidebar__price-input', 
+                'class': 'sidebar__price-input filter-input', 
                 'placeholder': 'От 0 ₽', 
                 'min': 0,
                 'step': 100,
@@ -60,7 +61,7 @@ class SearchAndFilterForm(forms.Form):
         required=False,
         widget=forms.NumberInput(
             attrs={ 
-                'class': 'sidebar__price-input', 
+                'class': 'sidebar__price-input filter-input', 
                 'min': 0,
                 'step': 100,
             }
@@ -70,7 +71,7 @@ class SearchAndFilterForm(forms.Form):
     brands = forms.MultipleChoiceField(
         widget=forms.CheckboxSelectMultiple(
             attrs={
-                'class': 'sidebar__section-checkbox'
+                'class': 'sidebar__section-checkbox filter-input'
             }
         ),
         required=False
@@ -82,19 +83,24 @@ class SearchAndFilterForm(forms.Form):
         label='В наличии',
         widget=forms.CheckboxInput(
             attrs={
-                'class': 'sidebar__section-checkbox'
+                'class': 'sidebar__section-checkbox filter-input'
             }
         )
     )
 
     sections = forms.ChoiceField(
         choices=(
+            ('все', 'все'),
             ('новинки', 'новинки'),
             ('акции', 'акции'),
             ('скидки', 'скидки'),
         ),
-        widget=forms.RadioSelect(), 
-        required=False
+        widget=forms.RadioSelect(
+            attrs={
+                'class': 'topic-input filter-input'
+            }, 
+        ), 
+        required=False, 
     )
  
     def clean_price_max(self): 
