@@ -20,7 +20,7 @@
 
         <div class="navbar__items_div">
             <div class="navbar__item">
-                <a href="#" class="color-black">Каталог</a>
+                <a href="{% url 'products:products_list' %}" class="color-black">Каталог</a>
             </div>
             <div class="navbar__item">
                 <a href="#" class="color-black">Сертификаты</a>
@@ -55,7 +55,7 @@
 
         <div class="header-div">
             <div class="header-label">
-                Каталог
+                <a href=href="{% url 'products:products_list' %}" class="color-black">Каталог</a>
             </div>
             <div class="breadcrumb">
                 <div class="breadcrumb-item-div">
@@ -64,7 +64,7 @@
                 </div>
                 
                 <div class="breadcrumb-item-div">
-                    <a href="#" class="breadcrumb-item">Каталог</a>
+                    <a href=href="{% url 'products:products_list' %}" class="breadcrumb-item">Каталог</a>
                 </div>
             </div>
         </div>
@@ -300,7 +300,7 @@
 
             <div class="footer__center">
                 <div class="footer__item">
-                    <a href="#" class="color-gray">Каталог</a>
+                    <a href=href="{% url 'products:products_list' %}" class="color-gray">Каталог</a>
                 </div>
                 <div class="footer__item">
                     <a href="#" class="color-gray">Сертификаты</a>
@@ -717,30 +717,8 @@ document.getElementById('showMoreBrandsButton').addEventListener('click', functi
 
 // Очистить все фильтры 
 document.getElementById('resetFiltersButton').addEventListener('click', function(event) {
-    event.preventDefault(); 
-    
-    let checkboxes = document.querySelectorAll('.sidebar__section-checkbox');
-    checkboxes.forEach(function(checkbox) {
-        checkbox.checked = false;
-    });
-
-    let priceInputs = document.querySelectorAll('.sidebar__price-input');
-    priceInputs.forEach(function(input) {
-        input.value = '';
-    });
-
-    let topicsInputs = document.querySelectorAll('.topic-input'); 
-    topicsInputs.forEach(function(radio) {
-        radio.checked = false;
-    });
-    firstTopicButton = document.querySelectorAll('.catalog__topics-item-div, .catalog__topics-active-item-div')[0];
-    selectTopic(firstTopicButton);
-
-    document.getElementById('hiddenCategories').style.display = 'none';
-    document.getElementById('hiddenBrands').style.display = 'none';
     window.location.href = window.location.pathname;
 
-    sendFiltersData();
 });
 
 // Выбрать раздел каталога
