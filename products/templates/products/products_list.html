@@ -240,17 +240,13 @@
                             {% for p in products.paginator.page_range %}
                                 {% if forloop.counter <= 5 %}
                                     {% if products.number == p %}
-                                        <a href="?page={{ p }}" class="color-white pagination-link">
-                                            <div class="pagination__page-number-div-active">
-                                                <p>{{ p }}</p>
-                                            </div>
-                                        </a>
+                                        <div class="pagination__page-number-div-active">
+                                            <p><a href="?page={{ p }}" class="color-white pagination-link">{{ p }}</a></p>
+                                        </div>
                                     {% else %}
-                                        <a href="?page={{ p }}" class="color-black pagination-link">
-                                            <div class="pagination__page-number-div">
-                                                <p>{{ p }}</p>
-                                            </div>
-                                        </a>
+                                        <div class="pagination__page-number-div">
+                                            <p><a href="?page={{ p }}" class="color-black pagination-link">{{ p }}</a></p>
+                                        </div>
                                     {% endif %}
                                 {% endif %}
                             {% endfor %}
@@ -259,17 +255,13 @@
                                     <p>...</p>
                                 </div>
                                 {% if products.number == products.paginator.num_pages %}
-                                    <a href="?page={{ products.paginator.num_pages }}" class="pagination-link color-white">
-                                        <div class="pagination__page-number-div-active">
-                                            <p>{{ products.paginator.num_pages }}</p>
-                                        </div>
-                                    </a>
+                                    <div class="pagination__page-number-div-active">
+                                        <p><a href="?page={{ products.paginator.num_pages }}" class="pagination-link color-white">{{ products.paginator.num_pages }}</a></p>
+                                    </div>
                                 {% else %}
-                                    <a href="?page={{ products.paginator.num_pages }}" class="pagination-link color-black">
-                                        <div class="pagination__page-number-div">
-                                            <p>{{ products.paginator.num_pages }}</p>
-                                        </div>
-                                    </a>
+                                    <div class="pagination__page-number-div">
+                                        <p><a href="?page={{ products.paginator.num_pages }}" class="pagination-link color-black">{{ products.paginator.num_pages }}</a></p>
+                                    </div>
                                 {% endif %}
                             {% endif %} 
                             {% if products.has_next %}
