@@ -39,10 +39,10 @@
 
         <div class="navbar__icons-div">
             <div class="navbar__icon">
-                <a href="{% url 'users:account' %}"><img src="{% static 'img/Depth 5, Frame 1.svg' %}" alt="account" width="40" height="40"></a>
+                <a href="{% if request.user.is_authenticated %}{% url 'users:account' %}{% else %}{% url 'users:login' %}{% endif %}"><img src="{% static 'img/Depth 5, Frame 1.svg' %}" alt="account" width="40" height="40"></a>
             </div>
             <div class="navbar__icon cart-icon">
-                <a href="{% url 'carts:cart_items' %}"><img src="{% static 'img/Depth 5, Frame 2.svg' %}" alt="cart" width="24" height="24">
+                <a href="{% if request.user.is_authenticated %}{% url 'carts:cart_items' %}{% else %}{% url 'users:login' %}{% endif %}"><img src="{% static 'img/Depth 5, Frame 2.svg' %}" alt="cart" width="24" height="24">
                     <div class="navbar__cart-icon-positions-counter-div" {% if request.cart.products|length == 0 %} style="display: none"; {% endif %}>
                         <p class="navbar__cart-icon-positions-counter-label">{{ request.cart.products|length }}</p>
                     </div>

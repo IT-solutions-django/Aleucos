@@ -75,7 +75,6 @@ class ProductsListView(View):
 
         for product in products:
             product.quantity_in_cart = request.cart[Cart.KeyNames.PRODUCTS].get(str(product.barcode), {}).get(Cart.KeyNames.QUANTITY, 0)
-            # product.quantity_in_cart = cart_data['products'].get(str(product.barcode), {}).get('quantity', 0)
 
         page_number = request.GET.get('page', 1) 
         paginator = Paginator(products, 16)  
@@ -87,8 +86,6 @@ class ProductsListView(View):
             'products': page_obj, 
             'products_in_cart': products_in_cart
         }
-
-        print(products_in_cart)
 
         return render(request, self.template_name, context) 
     

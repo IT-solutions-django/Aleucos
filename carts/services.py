@@ -97,6 +97,11 @@ class Cart(UserDict):
     def to_dict(self) -> dict:
         k = self.KeyNames
 
+        if k.PRODUCTS not in self:
+            self[k.PRODUCTS] = {}
+        if k.TOTAL_CART_PRICE not in self:
+            self[k.TOTAL_CART_PRICE] = 0
+
         def convert_value(value):
             if isinstance(value, Decimal):
                 return float(value)  

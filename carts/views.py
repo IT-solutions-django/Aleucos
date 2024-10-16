@@ -14,6 +14,7 @@ from loguru import logger
 @method_decorator(login_required, name='dispatch')
 class ChangeCartView(View):
     def post(self, request):
+        print(request.cart)
         cart = request.cart
         barcode = int(request.POST.get('barcode'))
         raw_quantity = request.POST.get('quantity')
@@ -42,6 +43,8 @@ class ChangeCartView(View):
             return JsonResponse({
                 'cart': cart.to_dict(), 
             })
+        if Cart.KeyNames.PRODUCTS not in cart:
+            cart[Cart.KeyNames.PRODUCTS] = {}
         product_in_cart = cart[Cart.KeyNames.PRODUCTS].get(str(barcode))
         if product_in_cart is None: 
             new_quantity_in_cart = 1 
