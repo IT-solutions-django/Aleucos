@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+{% load cart_tags %}
+
+{% block title %}Корзина{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="my-4">Ваша корзина</h2>
+
+    {% if cart.products %}
+
+    <div id="errors-container">
+
+    </div>
+
+    <div id="cartTableBlock">
+        <div class="d-flex justify-content-end">
+            <button onclick="flushCart()" class="btn btn-danger ms-3">Очистить корзину</button>
+        </div>
+        <h4 id="totalOrderPrice">Итого: {{ cart.total_price }} ₽</h4>
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Фото</th>
+                    <th scope="col">Название</th>
+                    <th scope="col">Штрихкод</th>
+                    <th scope="col">Цена за штуку</th>
+                    <th scope="col">Количество</th>
+                    <th scope="col">На складе</th>
+                    <th scope="col">Цена по позиции</th>
+                    <th scope="col">Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for barcode, item in cart.products.items %}
+                <tr data-barcode="{{ barcode }}">
+                    <td><img src="{{ barcode|product_image_url }}" alt="{{ barcode }}" class="img-thumbnail" style="height: 60px; width: 60px; object-fit: contain;"></td>
+                    <td>{{ barcode|product_title }}</td>
+                    <td>{{ barcode }}</td>
+                    <td>{{ item.unit_price }} ₽</td>
+                    <td>
+                        <div class="input-group">
+                            <input type="number" class="form-control form-control-sm" id="quantity-{{ barcode }}" value="{{ item.quantity }}" min="1" oninput="checkQuantity('{{ barcode }}')">
+                        </div>
+                    </td>
+                    <td>{{ barcode|product_remains }} шт.</td>
+                    <td>{{ item.total_product_price }} ₽</td>
+                    <td>
+                        <button class="btn btn-success btn-sm" data-barcode="{{ barcode }}" onclick="deleteFromCart('{{ barcode }}')">Удалить</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="d-flex justify-content-end mb-4">
+            <button onclick="checkCart()" class="btn btn-lg btn-success">Далее</button>
+        </div>
+
+        <div id="order-form" style="display: none;" class="mt-4">
+            <h4>Выберите условия доставки и способ оплаты</h4>
+            <form id="checkout-form" method="POST" action="{% url 'carts:create_order' %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="delivery-method" class="form-label">Метод доставки</label>
+                    <select class="form-select" id="delivery-terms" name="delivery_terms" required>
+                        {% for term in delivery_terms %}
+                            <option value="{{ term.id }}">{{ term.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="payment-method" class="form-label">Способ оплаты</label>
+                    <select class="form-select" id="payment-method" name="payment_method" required>
+                        {% for method in payment_methods %}
+                            <option value="{{ method.id }}">{{ method.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="comment" class="form-label">Комментарий к заказу</label>
+                    <textarea class="form-control" id="comment" name="comment" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Оформить заказ</button>
+            </form>
+        </div>
+
+    </div>
+
+    {% else %}
+        <div class="mb-4">
+            <p>Ваша корзина пуста.</p>
+        </div>
+        
+        <div class="my-4">
+            <a href="{% url 'products:products_list' %}" class="btn btn-success">Перейти к каталогу</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+const checkQuantity = (barcode) => {
+    const quantityInput = document.getElementById(`quantity-${barcode}`);
+    let value = quantityInput.value;
+    
+    value = value.replace(/[^\d]/g, '');
+    
+    quantityInput.value = value;
+    value = parseInt(value);
+    updateQuantity(barcode);
+};
+
+let timeout = null;
+
+const updateQuantity = (barcode) => {
+    const quantityInput = document.getElementById(`quantity-${barcode}`);
+
+    if (timeout) {
+        clearTimeout(timeout);
+    }
+
+    timeout = setTimeout(() => {
+        const newQuantity = quantityInput.value;
+
+        fetch("{% url 'carts:change' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: new URLSearchParams({
+                'barcode': barcode,
+                'quantity': newQuantity
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert("Ошибка: " + data.error);
+            } 
+            const totalPriceElement = document.getElementById("totalOrderPrice");
+            if (totalPriceElement) {
+                totalPriceElement.textContent = `Итого: ${data.cart.total_price} ₽`;
+            }
+
+            updateCartDisplay(data.cart);
+            
+        })
+        .catch(error => console.error("Ошибка при обновлении количества:", error));
+    }, 200); 
+};
+
+const flushCart = () => {
+    fetch("{% url 'carts:flush_cart' %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: new URLSearchParams({})
+    })
+    .then(data => {
+        if (data.error) {
+            alert("Ошибка при очистке корзины:", data.error);
+        } else {
+            const emptyMessage = document.createElement('p');
+            emptyMessage.textContent = 'Ваша корзина пуста.';
+            cartTableBlock.insertAdjacentElement('afterend', emptyMessage);
+            cartTableBlock.remove();
+        }
+    })
+    .catch(error => console.error("Ошибка при отправке запроса:", error));
+};
+const deleteFromCart = (barcode) => {
+    fetch("{% url 'carts:change' %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: new URLSearchParams({
+            'barcode': barcode,
+            'quantity': -1
+        })
+    })
+    .then(response => response.json())  
+    .then(data => {
+        if (data.error) {
+            alert("Ошибка при очистке корзины:", data.error);
+        } else {
+            cart = data.cart 
+
+            const row = document.querySelector(`tr[data-barcode="${barcode}"]`);
+            console.log(row);
+            if (row) {
+                row.remove();
+            }
+
+            const totalPriceElement = document.getElementById("totalOrderPrice");
+            if (totalPriceElement) {
+                console.log(cart)
+                totalPriceElement.textContent = `Итого: ${cart.total_price} ₽`;
+            }
+
+            const cartTableBlock = document.getElementById("cartTableBlock");
+            if (!cartTableBlock || !document.querySelector('tbody').children.length) {
+                const emptyMessage = document.createElement('p');
+                emptyMessage.textContent = 'Ваша корзина пуста';
+                cartTableBlock.insertAdjacentElement('afterend', emptyMessage);
+                cartTableBlock.remove();
+            }
+        }
+    })
+    .catch(error => console.error("Ошибка при отправке запроса:", error));
+};
+
+function checkCart() {
+    fetch('{% url "carts:check_cart" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({})
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('order-form').style.display = 'block';
+        } else {
+            let errorsContainer = document.getElementById('errors-container');
+            errorsContainer.innerHTML = '';  
+
+            data.errors.forEach(error => {
+                let errorItem = document.createElement('p');
+                errorItem.innerText = error;
+                errorsContainer.appendChild(errorItem);
+            });
+        }
+    })
+    .catch(error => console.error('Ошибка:', error));
+}
+
+const updateCartDisplay = (cart) => {
+    for (const barcode in cart.products) {
+        const row = document.querySelector(`tr[data-barcode="${barcode}"]`);
+        if (row) {
+            const product = cart.products[barcode];
+            
+            const productUnitPrice = row.querySelector('td:nth-child(4)');
+            productUnitPrice.textContent = `${product.unit_price} ₽`;
+
+            const quantityInput = row.querySelector(`input[id="quantity-${barcode}"]`);
+            quantityInput.value = product.quantity;
+
+            const productTotalPrice = row.querySelector('td:nth-child(7)');
+            productTotalPrice.textContent = `${product.total_product_price} ₽`;
+        }
+    }
+};
+
+</script>
+{% endblock %}
+ 

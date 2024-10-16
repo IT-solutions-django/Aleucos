@@ -1,6 +1,7 @@
 {% extends 'admin/base_site.html' %}
 
 {% block content %}
+    {% if is_admin_or_superuser  %}
     <div>
         <form action="." method="POST" enctype="multipart/form-data">
             {{ form.as_p }}
@@ -8,5 +9,5 @@
             <input type="submit" value="Импортировать из XLSX">
         </form>
     </div>
-    <br />
+    {% endif %}
 {% endblock %}

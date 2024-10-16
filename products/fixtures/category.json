@@ -1,1 +1,107 @@
-[{"model": "products.category", "pk": 1, "fields": {"title": "Уход за телом"}}, {"model": "products.category", "pk": 2, "fields": {"title": "Уход за кожей лица"}}, {"model": "products.category", "pk": 3, "fields": {"title": "Уход за волосами"}}, {"model": "products.category", "pk": 4, "fields": {"title": "Декоративная косметика"}}, {"model": "products.category", "pk": 5, "fields": {"title": "Маски для лица"}}, {"model": "products.category", "pk": 6, "fields": {"title": "Очищение"}}, {"model": "products.category", "pk": 7, "fields": {"title": "Для детей"}}, {"model": "products.category", "pk": 8, "fields": {"title": "Для мужчин"}}, {"model": "products.category", "pk": 9, "fields": {"title": "Антивозрастной уход"}}, {"model": "products.category", "pk": 10, "fields": {"title": "Защита от солнца"}}, {"model": "products.category", "pk": 11, "fields": {"title": "Для ванны и душа"}}, {"model": "products.category", "pk": 12, "fields": {"title": "Парфюмерия"}}, {"model": "products.category", "pk": 13, "fields": {"title": "Для чувствительной кожи"}}, {"model": "products.category", "pk": 14, "fields": {"title": "Натуральное"}}, {"model": "products.category", "pk": 15, "fields": {"title": "Уход за губами"}}]
+[
+    {
+        "model": "products.category",
+        "pk": 1,
+        "fields": {
+            "title": "Уход за телом"
+        }
+    },
+    {
+        "model": "products.category",
+        "pk": 2,
+        "fields": {
+            "title": "Уход за кожей лица"
+        }
+    },
+    {
+        "model": "products.category",
+        "pk": 3,
+        "fields": {
+            "title": "Уход за волосами"
+        }
+    },
+    {
+        "model": "products.category",
+        "pk": 4,
+        "fields": {
+            "title": "Декоративная косметика"
+        }
+    },
+    {
+        "model": "products.category",
+        "pk": 5,
+        "fields": {
+            "title": "Маски для лица"
+        }
+    },
+    {
+        "model": "products.category",
+        "pk": 6,
+        "fields": {
+            "title": "Очищение"
+        }
+    },
+    {
+        "model": "products.category",
+        "pk": 7,
+        "fields": {
+            "title": "Для детей"
+        }
+    },
+    {
+        "model": "products.category",
+        "pk": 8,
+        "fields": {
+            "title": "Для мужчин"
+        }
+    },
+    {
+        "model": "products.category",
+        "pk": 9,
+        "fields": {
+            "title": "Антивозрастной уход"
+        }
+    },
+    {
+        "model": "products.category",
+        "pk": 10,
+        "fields": {
+            "title": "Защита от солнца"
+        }
+    },
+    {
+        "model": "products.category",
+        "pk": 11,
+        "fields": {
+            "title": "Для ванны и душа"
+        }
+    },
+    {
+        "model": "products.category",
+        "pk": 12,
+        "fields": {
+            "title": "Парфюмерия"
+        }
+    },
+    {
+        "model": "products.category",
+        "pk": 13,
+        "fields": {
+            "title": "Для чувствительной кожи"
+        }
+    },
+    {
+        "model": "products.category",
+        "pk": 14,
+        "fields": {
+            "title": "Натуральное"
+        }
+    },
+    {
+        "model": "products.category",
+        "pk": 15,
+        "fields": {
+            "title": "Уход за губами"
+        }
+    }
+]

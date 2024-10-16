@@ -4,7 +4,7 @@ from .services import get_all_model_objects, get_max_product_price
 from .models import Brand, Category
 
 
-class XlsxImportForm(forms.Form):
+class XlsxImportProductsForm(forms.Form):
     xlsx_file = forms.FileField() 
 
 
@@ -14,8 +14,8 @@ class SearchAndFilterForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        self.max_product_price = get_max_product_price()
-        self.fields['price_max'].widget.attrs['placeholder'] = f'{self.max_product_price} ₽'
+        self.max_product_price = round(get_max_product_price(), 0)
+        self.fields['price_max'].widget.attrs['placeholder'] = f'До {self.max_product_price} ₽'
         
         self.fields['categories'].choices = [(category.id, category.title) for category in get_all_model_objects(Category)]
         self.fields['brands'].choices = [(brand.id, brand.title) for brand in get_all_model_objects(Brand)]
@@ -25,13 +25,18 @@ class SearchAndFilterForm(forms.Form):
         required=False, 
         label='Введите запрос', 
         widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Найти товар'
+            'id': 'searchInput',
+            'class': 'navbar__search-input filter-input',
+            'placeholder': 'Поиск по сайту'
         })
     )
 
     categories = forms.MultipleChoiceField(
-        widget=forms.CheckboxSelectMultiple(),
+        widget=forms.CheckboxSelectMultiple(
+            attrs={
+                'class': 'sidebar__section-checkbox filter-input'
+            }
+        ),
         required=False
     )
 
@@ -42,11 +47,10 @@ class SearchAndFilterForm(forms.Form):
         label='Мин. цена',
         widget=forms.NumberInput(
             attrs={ 
-                'class': 'form-control', 
-                'placeholder': '0 ₽', 
+                'class': 'sidebar__price-input filter-input', 
+                'placeholder': 'От 0 ₽', 
                 'min': 0,
                 'step': 100,
-                'type': 'text',
             }
         ), 
     )
@@ -57,7 +61,7 @@ class SearchAndFilterForm(forms.Form):
         required=False,
         widget=forms.NumberInput(
             attrs={ 
-                'class': 'form-control', 
+                'class': 'sidebar__price-input filter-input', 
                 'min': 0,
                 'step': 100,
             }
@@ -65,7 +69,11 @@ class SearchAndFilterForm(forms.Form):
     )
 
     brands = forms.MultipleChoiceField(
-        widget=forms.CheckboxSelectMultiple(),
+        widget=forms.CheckboxSelectMultiple(
+            attrs={
+                'class': 'sidebar__section-checkbox filter-input'
+            }
+        ),
         required=False
     )
 
@@ -73,17 +81,26 @@ class SearchAndFilterForm(forms.Form):
         required=False,
         label_suffix='',
         label='В наличии',
-        widget=forms.CheckboxInput()
+        widget=forms.CheckboxInput(
+            attrs={
+                'class': 'sidebar__section-checkbox filter-input'
+            }
+        )
     )
 
-    sections = forms.MultipleChoiceField(
+    sections = forms.ChoiceField(
         choices=(
-            ('новинки', 'Новинки'),
-            ('акции', 'Акции'),
-            ('скидки', 'Скидки'),
+            ('все', 'все'),
+            ('новинки', 'новинки'),
+            ('акции', 'акции'),
+            ('скидки', 'скидки'),
         ),
-        widget=forms.CheckboxSelectMultiple(), 
-        required=False
+        widget=forms.RadioSelect(
+            attrs={
+                'class': 'topic-input filter-input'
+            }, 
+        ), 
+        required=False, 
     )
  
     def clean_price_max(self): 

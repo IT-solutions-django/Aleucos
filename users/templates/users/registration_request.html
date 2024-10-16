@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Личный кабинет{% endblock %}
+
+{% block content %}
+
+    <div class="mb-4">
+        <h2>Оставьте заявку</h2>
+    </div>
+
+    <form method="post" action="{{ rquest.path }}">
+        {% csrf_token %}
+        <div class="mb-3 font-no fs-6">
+            <div>
+                <label>Имя</label>
+            </div>
+            {{ form.name }}
+        </div>
+
+        <div class="mb-3 font-no fs-6">
+            <div>
+                <label>Фамилия</label>
+            </div>
+            {{ form.last_name }}
+        </div>
+
+        <div class="mb-3 font-no fs-6">
+            <div>
+                <label>Отчество</label>
+            </div>
+            {{ form.patronymic }}
+        </div>
+
+        <div class="mb-3 font-no fs-6">
+            <div>
+                <label>Номер телефона</label>
+            </div>
+            {{ form.phone }}
+        </div>
+
+        <div class="mb-4 font-no fs-6">
+            <div>
+                <label>Электронная почта</label>
+            </div>
+            {{ form.email }}
+        </div>
+
+        <div>
+            <button type="submit" class="btn btn-dark">Оставить заявку</button>
+        </div>
+    </form>
+    
+
+{% endblock %}

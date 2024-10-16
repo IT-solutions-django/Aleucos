@@ -1,159 +1,734 @@
+{% load static %}
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catalog</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const resetFiltersButton = document.getElementById("reset-filters-button");
+    <title>Каталог</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 
-            if (resetFiltersButton) {
-                resetFiltersButton.addEventListener("click", function(event) {
-                    event.preventDefault(); 
-
-                    const form = document.querySelector("form");
-                    form.reset();
-
-                    window.location.href = window.location.pathname;
-                });
-            }
-        });
-    </script>
+    <link rel="stylesheet" href="{% static 'css/reset.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <div class="container mt-5">
+    <nav class="navbar">
+        <a href="{% url 'products:products_list' %}">
+            <img src="{% static 'img/Слой 1.svg' %}" alt="Aleucos" width="80" height="62.48">
+        </a>
 
-        {% if messages %}
-            <div class="alert-container">
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                        {{ message }} 
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div> 
-                {% endfor %}
+
+        <div class="navbar__items_div">
+            <div class="navbar__item">
+                <a href="{% url 'products:products_list' %}" class="color-black">Каталог</a>
             </div>
-        {% endif %}
+            <div class="navbar__item">
+                <a href="#" class="color-black">Сертификаты</a>
+            </div>
+            <div class="navbar__item">
+                <a href="#" class="color-black">Вопрос-ответ</a>
+            </div>
+            <div class="navbar__item">
+                <a href="#" class="color-black">Контакты</a>
+            </div>
+        </div>
 
-        <form method="GET" action="{% url 'products:products_list' %}">
-            <div class="row">
-                <div class="col-12 mb-4"> 
 
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5>Поиск</h5>
-                        <a href="{% url 'products:price_list_download' %}" class="btn btn-success">Скачать прайс-лист</a>
-                    </div> 
-                    
-                    <div class="mb-3">
-                        {{ form.q }} 
-                        <button class="btn btn-outline-secondary mt-2" type="submit">Поиск</button>
+        <form id="filter-form" action="{% url 'products:filters' %}" class="navbar__search-form">
+        {{ form.q }}
+
+        <div class="navbar__icons-div">
+            <div class="navbar__icon">
+                <a href="{% if request.user.is_authenticated %}{% url 'users:account' %}{% else %}{% url 'users:login' %}{% endif %}"><img src="{% static 'img/Depth 5, Frame 1.svg' %}" alt="account" width="40" height="40"></a>
+            </div>
+            <div class="navbar__icon cart-icon">
+                <a href="{% if request.user.is_authenticated %}{% url 'carts:cart_items' %}{% else %}{% url 'users:login' %}{% endif %}"><img src="{% static 'img/Depth 5, Frame 2.svg' %}" alt="cart" width="24" height="24">
+                    <div class="navbar__cart-icon-positions-counter-div" {% if request.cart.products|length == 0 %} style="display: none"; {% endif %}>
+                        <p class="navbar__cart-icon-positions-counter-label">{{ request.cart.products|length }}</p>
                     </div>
- 
-                </div> 
-            </div> 
+                </a>
+            </div>
+        </div>
+    </nav>
 
-            <div class="row">
-                <div class="col-md-3">
-                    {% if form.price_max.errors %}
-                        <div class="text-danger">
-                            {% for error in form.price_max.errors %}
-                                <div>{{ error }}</div>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
+    <main class="main-content">
 
+        <div class="header-div">
+            <div class="header-label">
+                <a href="{% url 'products:products_list' %}" class="color-black">Каталог</a>
+            </div>
+            <div class="breadcrumb">
+                <div class="breadcrumb-item-div">
+                    <a href="#" class="breadcrumb-item">Главная</a>
+                    <img src="{% static 'img/Frame.svg' %}" alt="cart" width="16" height="16" class="breadcrumb-divider">
+                </div>
+                
+                <div class="breadcrumb-item-div">
+                    <a href=href="{% url 'products:products_list' %}" class="breadcrumb-item">Каталог</a>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="content d-flex">
+            <div class="sidebar-div">
+                <div id="sidebar__categories-div" class="sidebar__section-div">
+                    <div class="sidebar__section-header-div">
+                        <p class="sidebar__section-header-label">Категория</p>                        
+                    </div>
                     <div>
-                        <h5>Категория</h5>
-                        {{ form.categories }}
-                    </div>
-
-                    <div class="mt-4">
-                        <h5>Цена, Р</h5>
-                        <div class="form-row">
-                            <label>Мин. цена</label>
-                            <div class="col">
-                                {{ form.price_min }}
-                            </div>
-                            <label>Макс. цена</label>
-                            <div class="col">
-                                {{ form.price_max }}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mt-4">
-                        <h5>Разделы</h5>
-                        <div>
-                            {{ form.sections }}  
-                        </div>
-                    </div>
-
-                    <div class="mt-4">
-                        <h5>Производитель</h5>
-                        <div>
-                            {% for brand in form.brands|slice:":15" %}
-                                <div>{{ brand }}</div>
+                        <div class="sidebar__section">
+                            {% for category in form.categories %}
+                                {% if forloop.counter <= 8 %}
+                                    <div class="sidebar__section-item-div">
+                                        <label class="sidebar__brand-item-label">
+                                            {{ category }}
+                                        </label>
+                                    </div>
+                                {% endif %}
                             {% endfor %}
                         </div>
-                    </div>
-
-                    <div class="mt-4">
-                        <h5>Дополнительно</h5>
-                        <div>
-                            {{ form.is_in_stock }}  
-                            {{ form.is_in_stock.label_tag }}  
+                        <div id="hiddenCategories" style="display: none;">
+                            {% for category in form.categories %}
+                                {% if forloop.counter > 8 %}
+                                    <div class="sidebar__section-item-div">
+                                        <label class="sidebar__brand-item-label">
+                                            {{ category }}
+                                        </label>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <div class="sidebar__section-item-div">
+                            <p><a id="showMoreCategoriesButton" class="sidebar__section-item-label color-blue" onclick="">Посмотреть все</a></p>
                         </div>
                     </div>
-
-                    <button type="submit" class="btn btn-primary mt-4 mb-1">Применить фильтры</button>
-                    <button id="reset-filters-button" href="{% url 'products:products_list' %}" class="btn btn-secondary mt-1 mb-4">Сбросить фильтры</button>
                 </div>
 
-                <div class="col-md-9">
-                    <div class="row">
+                
 
-                        {% for product in products %} 
+                <div class="sidebar__section-div">
+                    <div class="sidebar__section-header-div">
+                        <p class="sidebar__section-header-label">Цена, ₽</p>                        
+                    </div>
+                    <div class="sidebar__price-inputs-div">
+                        {{ form.price_min }}
+                        {{ form.price_max }}
+                    </div>
+                </div>
 
-                            <div class="col-md-3 mb-4">
-                                <div class="card h-100">
-                                    <img src="{{ product.photo.url }}" class="card-img-top" alt="{{ product.title }}" style="height: 200px; width: 100%; object-fit: contain;">
-                                    <div class="card-body">
-                                        <h5 class="card-title">{{ product.title }}</h5>
+                <div class="sidebar__section-div">
+                    <div class="sidebar__section-header-div">
+                        <p class="sidebar__section-header-label">Производитель</p>                        
+                    </div>
 
-                                        <p class="card-text">{{ product.description }}</p>
+                    <div>
 
-                                        <p class="card-text h5">{{ product.price_before_200k }} ₽</p>
+                        {% for brand in form.brands %}
+                            {% if forloop.counter <= 8 %}
+                                <div class="sidebar__section-item-div">
+                                    <label class="sidebar__brand-item-label">
+                                        {{ brand }}
+                                    </label>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
 
-                                        <p class="card-text"><i>{{ product.category }}</i></p>
+                        <div id="hiddenBrands" style="display: none;">
+                            {% for brand in form.brands %}
+                                {% if forloop.counter > 8 %}
+                                    <div class="sidebar__section-item-div">
+                                        <label class="sidebar__brand-item-label">
+                                            {{ brand }}
+                                        </label>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="sidebar__section-item-div">
+                            <p><a id="showMoreBrandsButton" class="sidebar__section-item-label color-blue">Посмотреть все</a></p>
+                        </div>
+                    </div>
+                </div>
 
-                                        <p class="card-title"><i>{{ product.brand }}</i></p>
+                <div class="sidebar__section-div">
+                    <div class="sidebar__section-header-div">
+                        <p class="sidebar__section-header-label">Наличие</p>  
+                    </div>                      
+                    <div>
+                        <div class="sidebar__section-item-div">
+                            <label class="sidebar__brand-item-label">
+                                {{ form.is_in_stock }}
+                                {{ form.is_in_stock.label }}
+                            </label>
+                        </div>
+                    </div>
+                </div>
 
-                                            {% if product.notes %}
-                                                <p class="card-text"><b>{{ product.notes }}</b></p>
+                <div class="sidebar__section-div">
+                    <div id="resetFiltersButton" class="sidebar__reset-filters-div">
+                        <div>Очистить всё</div>
+                    </div>
+                </div>
+        </div>
+
+        <div class="catalog__content">
+            <div>
+                <div class="catalog__topics-div">
+                    {% for section in form.sections %}
+                        <div class="{% if section.choice_label == 'все' %}catalog__topics-active-item-div{% else %}catalog__topics-item-div{% endif %}">
+                            <p>
+                                {{ section }}
+                            </p>
+                        </div>
+                    {% endfor %}
+                </form>
+                </div>
+            </div>
+            <div>
+                <div class="catalog__section">
+                    <div class="catalog__section-header-div">
+                        <p class="catalog__section-header-label">Товары</p>
+                    </div>
+                    <div id="productGrid" class="catalog__product-grid">
+                        {% for product in products %}
+                            <div class="catalog__card">
+                                <div class="catalog__card-image-div">
+                                    <img src="{{ product.photo.url }}" alt="cart" class="catalog__cart-image">
+                                </div>
+                                <div>
+                                    <div class="catalog__card-title-div truncate-text">
+                                        <p>{{ product.title }}</p>
+                                    </div>
+                                    <div>
+                                        {% if request.user.is_authenticated %}
+                                            <div class="catalog__card-price-div">
+                                                <p class="catalog__card-price-label">{{ product.price_before_200k }} ₽</p>
+                                            </div>
+                                            {% if product.quantity_in_cart != 0 %}
+                                                <div class="catalog__card-quantity-controls-div">
+                                                    <button id="{{ product.barcode }}" class="catalog__card-cart-control-minus">
+                                                        <img src="{% static 'img/Vector (1).svg' %}" alt="cart">
+                                                    </button>
+                                                    <span>{{ product.quantity_in_cart }}</span>
+                                                    <button id="{{ product.barcode }}" class="catalog__card-cart-control-plus">
+                                                        <img src="{% static 'img/Vector (2).svg' %}" alt="cart">
+                                                    </button>
+                                                </div>
+                                            {% else %}
+                                                <div class="catalog__card-add-to-cart-div">
+                                                    <div id="{{ product.barcode }}" class="catalog__card-add-to-cart-label add-to-cart">В корзину</div>
+                                                </div>
                                             {% endif %}
-                                            
-                                        <a href="#" class="btn btn-primary">В корзину</a>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
-
-                        {% empty %}
-                            <div class="mt-3 mx-3">
-                                <p class="h1">Ничего не найдено</p>
-                            </div>
-                        {% endfor %}
-
+                    {% endfor %}
                     </div>
                 </div>
+
+                <div class="pagination-div">                    
+                    <div id="pagination" class="pagination__controls-div">
+                        {% if products.paginator.num_pages > 1 %} 
+                            {% if products.has_previous %}
+                                <div class="pagination__page-control-div">
+                                    <p><a href="?page={{ products.previous_page_number }}" class="pagination-link color-black">Предыдущая</a></p>
+                                </div>
+                            {% endif %}
+                            {% for p in products.paginator.page_range %}
+                                {% if forloop.counter <= 5 %}
+                                    {% if products.number == p %}
+                                        <div class="pagination__page-number-div-active">
+                                            <p><a href="?page={{ p }}" class="color-white pagination-link">{{ p }}</a></p>
+                                        </div>
+                                    {% else %}
+                                        <div class="pagination__page-number-div">
+                                            <p><a href="?page={{ p }}" class="color-black pagination-link">{{ p }}</a></p>
+                                        </div>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                            {% if products.paginator.num_pages > 5 %}
+                                <div class="pagination__page-number-div">
+                                    <p>...</p>
+                                </div>
+                                {% if products.number == products.paginator.num_pages %}
+                                    <div class="pagination__page-number-div-active">
+                                        <p><a href="?page={{ products.paginator.num_pages }}" class="pagination-link color-white">{{ products.paginator.num_pages }}</a></p>
+                                    </div>
+                                {% else %}
+                                    <div class="pagination__page-number-div">
+                                        <p><a href="?page={{ products.paginator.num_pages }}" class="pagination-link color-black">{{ products.paginator.num_pages }}</a></p>
+                                    </div>
+                                {% endif %}
+                            {% endif %} 
+                            {% if products.has_next %}
+                                <div class="pagination__page-control-div">
+                                    <p><a href="?page={{ products.next_page_number }}" class="pagination-link color-black">Следующая</a></p>
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+
+                    <div class="catalog__section-header-div" id="noProductsFoundLabel" style="display: none;">
+                        <p class="catalog__empty-catalog-label">Ничего не найдено...</p>
+                    </div>
+                </div>
+
             </div>
-        </form>
-    </div>
+        </div>
 
-    {% if products.paginator.num_pages > 1 %}
-        {% include "products/includes/pagination.html" with page=products %}
-    {% endif %}
+    </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <footer class="footer">
+        <div class="footer__content">
+            <div class="footer__left">
+                <a href="#!">
+                    <p class="footer__copyright-label">© 2024 Aleucos</p>
+                </a>
+            </div>
+
+            <div class="footer__center">
+                <div class="footer__item">
+                    <a href="{% url 'products:products_list' %}" class="color-gray">Каталог</a>
+                </div>
+                <div class="footer__item">
+                    <a href="#" class="color-gray">Сертификаты</a>
+                </div>
+                <div class="footer__item">
+                    <a href="#" class="color-gray">Вопрос-ответ</a>
+                </div>
+                <div class="footer__item">
+                    <a href="#" class="color-gray">Контакты</a>
+                </div>
+                <div class="footer__item">
+                    <a href="#" class="color-gray">Политика конфиденциальности</a>
+                </div>
+            </div>
+
+            <div class="footer__right">
+                <div class="footer__icon">
+                    <a href="#!">
+                        <img src="{% static 'img/Subtract.svg' %}" alt="telegram">
+                    </a>
+                </div>
+                <div class="footer__icon">
+                    <a href="#!">
+                        <img src="{% static 'img/Subtract (1).svg' %}" alt="instagram">
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
+<script>
+// Ввод фильтров
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const filters = document.querySelectorAll('.filter-input');
+    let typingTimer;
+    
+    filters.forEach(function(filter) {
+        filter.addEventListener('change', function() {
+            sendFiltersData();
+        });
+    });
+
+    searchInput.addEventListener('input', function() {
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(function() {
+            sendFiltersData(); 
+        }, 300);
+    });
+});
+
+// Сохранить фильтры при пагинации
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('filter-form');
+    const paginationContainer = document.getElementById('pagination');
+
+    paginationContainer.addEventListener('click', function (event) {
+        if (event.target.tagName === 'A' && event.target.classList.contains('pagination-link')) {
+            event.preventDefault(); 
+
+            const formData = new FormData(form);
+            const url = form.action;
+
+            const params = new URLSearchParams();
+            formData.forEach((value, key) => {
+                params.append(key, value);
+            });
+
+            const pageUrl = `${event.target.href}&${params.toString()}`;
+
+            window.location.href = pageUrl;
+        }
+    });
+});
+
+// Отправить запрос с фильтрами
+function sendFiltersData() {
+    const form = document.getElementById('filter-form');
+
+    const formData = new FormData(form);
+    const url = form.action; 
+
+    const params = new URLSearchParams();
+    formData.forEach((value, key) => {
+        params.append(key, value);
+    });
+
+    fetch(`${url}?${params.toString()}`, {
+        method: 'GET',
+    })
+    .then(response => response.json()) 
+    .then(data => {
+        updateCatalog(data);
+    })
+    .catch(error => {
+        console.error('Ошибка:', error);
+    });
+}
+
+// Перерисовать каталог
+function updateCatalog(data) {
+    const productGrid = document.getElementById('productGrid');
+    const paginationContainer = document.getElementById('pagination');
+    const emptyCatalogLabel = document.getElementById('noProductsFoundLabel');
+    productGrid.innerHTML = null;
+    paginationContainer.innerHTML = null;
+
+    if (!data.products) {
+        emptyCatalogLabel.style.display = 'block';
+        return;
+    } else {
+        emptyCatalogLabel.style.display = 'none';
+    }
+
+    data.products.forEach(product => {
+        const productCard = document.createElement('div');
+        productCard.classList.add('catalog__card');
+
+        productCard.innerHTML = `
+    <div class="catalog__card">
+        <div class="catalog__card-image-div">
+            <img src="/media/${product.fields.photo}" alt="cart" class="catalog__cart-image">
+        </div>
+        <div>
+            <div class="catalog__card-title-div truncate-text">
+                <p>${product.fields.title}</p>
+            </div>
+            <div>
+                <div class="catalog__card-price-div">
+                    <p class="catalog__card-price-label">${product.fields.price_before_200k} ₽</p>
+                </div>
+                ${data.cart.products[product.fields.barcode] ? `
+                    <div class="catalog__card-quantity-controls-div">
+                        <button id="${product.fields.barcode}" class="catalog__card-cart-control-minus">
+                            <img src="/static/img/Vector (1).svg" alt="cart">
+                        </button>
+                        <span>${data.cart.products[product.fields.barcode].quantity}</span>
+                        <button id="${product.fields.barcode}" class="catalog__card-cart-control-plus">
+                            <img src="/static/img/Vector (2).svg" alt="cart">
+                        </button>
+                    </div>
+                ` : `
+                    <div class="catalog__card-add-to-cart-div">
+                        <div id="${product.fields.barcode}" class="catalog__card-add-to-cart-label add-to-cart">В корзину</div>
+                    </div>
+                `}
+            </div>
+        </div>
+    </div>
+`;
+        productGrid.appendChild(productCard);
+    });
+    updatePagination(data);
+}
+
+// Обновить элементы управления пагинацией
+function updatePagination(data) {
+    const paginationContainer = document.getElementById('pagination');
+    const totalPages = data.total_pages;
+    const currentPage = data.current_page;
+    
+    paginationContainer.innerHTML = '';
+
+    if (totalPages == 1) {
+        return;
+    }
+
+    if (data.has_previous) {
+        const prevPage = document.createElement('div');
+        prevPage.classList.add('pagination__page-control-div');
+        prevPage.innerHTML = '<p><a class="pagination-link color-black" href="?page=' + (data.current_page - 1) + '">Предыдущая</a></p>';
+        paginationContainer.appendChild(prevPage);
+    }
+
+    for (let i = 1; i <= totalPages; i++) {
+        if (i <= 5) {  
+            const pageDiv = document.createElement('div');
+            if (i === currentPage) {
+                pageDiv.classList.add('pagination__page-number-div-active');
+                pageDiv.innerHTML = '<p><a href="?page=' + i + '" class="pagination-link color-white">' + i + '</a></p>';
+            } else {
+                pageDiv.classList.add('pagination__page-number-div');
+                pageDiv.innerHTML = '<p><a href="?page=' + i + '" class="pagination-link color-black">' + i + '</a></p>';
+            }
+            paginationContainer.appendChild(pageDiv);
+        } else if (i === 6) { 
+            const dotsDiv = document.createElement('div');
+            dotsDiv.classList.add('pagination__page-number-div');
+            dotsDiv.innerHTML = '<p>...</p>';
+            paginationContainer.appendChild(dotsDiv);
+        }
+    }
+    if (data.total_pages > 5) {
+        const lastPageDiv = document.createElement('div');
+        if (currentPage === totalPages) {
+            lastPageDiv.classList.add('pagination__page-number-div-active');
+            lastPageDiv.innerHTML = '<p><a class="pagination-link color-white" href="?page=' + totalPages + '">' + totalPages + '</a></p>';
+        } else {
+            lastPageDiv.classList.add('pagination__page-number-div');
+            lastPageDiv.innerHTML = '<p><a class="pagination-link color-black" href="?page=' + totalPages + '">' + totalPages + '</a></p>';
+        }
+        paginationContainer.appendChild(lastPageDiv);
+    }
+    if (data.has_next) {
+        const nextPage = document.createElement('div');
+        nextPage.classList.add('pagination__page-control-div');
+        nextPage.innerHTML = '<p><a class="pagination-link color-black" href="?page=' + (data.current_page + 1) + '">Следующая</a></p>';
+        paginationContainer.appendChild(nextPage);
+    }
+}
+
+// Добавить товар в корзину
+document.addEventListener("click", function(event) {
+    const button = event.target.closest(".add-to-cart");
+    if (button) {
+        event.preventDefault(); 
+        const card = button.closest(".card");
+        const barcode = button.id; 
+        const addToCartDivBackup = button.parentElement.cloneNode(deep=true);
+
+        const cartControls = document.createElement('div'); 
+        cartControls.classList.add('catalog__card-quantity-controls-div');
+        cartControls.innerHTML = `
+            <button id="${barcode}" class="catalog__card-cart-control-minus">
+                <img src="{% static 'img/Vector (1).svg' %}" alt="cart">
+            </button>
+            <span>1</span>
+            <button id="${barcode}" class="catalog__card-cart-control-plus">
+                <img src="{% static 'img/Vector (2).svg' %}" alt="cart">
+            </button>
+        `;
+        button.parentElement.insertAdjacentElement('afterend', cartControls);
+        button.parentElement.remove();
+
+        fetch("{% url 'carts:change' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": "{{ csrf_token }}" 
+            },
+            body: new URLSearchParams({
+                'barcode': barcode,
+                'quantity': 1, 
+                'append': true 
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert("Ошибка: " + data.error);
+
+                cartControls.insertAdjacentElement('beforebegin', addToCartDivBackup);
+                cartControls.remove()
+            } 
+            updateCartIcon(Object.keys(data.cart.products).length);
+        })
+        .catch(error => console.error("Ошибка при добавлении/удалении из корзины:", error));
+    }
+});
+
+function throttle(func, delay) {
+    let lastCall = 0;
+    return function(...args) {
+        const now = (new Date()).getTime();
+        if (now - lastCall < delay) {
+            return;
+        }
+        lastCall = now;
+        return func(...args);
+    };
+}
+
+// Увеличить количество товара в корзине 
+document.addEventListener("click", function(event) {
+    const plusButton = event.target.closest(".catalog__card-cart-control-plus");
+    if (plusButton) {
+        event.preventDefault();
+        throttle(increaseQuantity(plusButton), 500);  
+    }
+});
+function increaseQuantity(plusButton) {
+    plusButton.disabled = true;
+
+    const barcode = plusButton.id;
+    const quantityBlock = plusButton.previousElementSibling;
+    let oldQuantity = parseInt(quantityBlock.textContent);
+    quantity = oldQuantity + 1;
+    if (quantity < 1) {
+        quantity = 1;
+    }
+    quantityBlock.textContent = quantity;
+
+    fetch("{% url 'carts:change' %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: new URLSearchParams({
+            'barcode': barcode,
+            'quantity': 1, 
+            'append': true 
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        plusButton.disabled = false;
+        if (data.error) {
+            alert(data.error);
+            quantityBlock.textContent = oldQuantity;
+        }
+    })
+    .catch(error => {
+        console.error("Ошибка при добавлении/удалении из корзины:", error)
+        plusButton.disabled = false;
+    });
+}
+
+// Уменьшить количество товара в корзине 
+document.addEventListener("click", function(event) {
+    const minusButton = event.target.closest(".catalog__card-cart-control-minus");
+    if (minusButton) {
+        event.preventDefault();
+        throttle(decreaseQuantity(minusButton), 500);  
+    }
+});
+function decreaseQuantity(minusButton) {
+    minusButton.disabled = true;
+
+    const barcode = minusButton.id;
+    const quantityBlock = minusButton.nextElementSibling;
+    let quantity = parseInt(quantityBlock.textContent);
+    quantity -= 1;
+    if (quantity < 1) {
+        const addToCartButton = document.createElement('div'); 
+        addToCartButton.classList.add('catalog__card-add-to-cart-div');
+        addToCartButton.innerHTML = `
+            <div id="${barcode}" class="catalog__card-add-to-cart-label add-to-cart">В корзину</div>
+        `;
+        minusButton.parentElement.insertAdjacentElement('afterend', addToCartButton);
+        minusButton.parentElement.remove();
+    }
+    quantityBlock.textContent = quantity;
+
+    fetch("{% url 'carts:change' %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: new URLSearchParams({
+            'barcode': barcode,
+            'quantity': -1, 
+            'append': true 
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        minusButton.disabled = false;
+        updateCartIcon(Object.keys(data.cart.products).length);
+    })
+    .catch(error => {
+        console.error("Ошибка при добавлении/удалении из корзины:", error)
+        minusButton.disabled = false;
+    });
+}
+
+// Обновить счётчик позиций на иконке корзины
+function updateCartIcon(count) {
+    console.log('Функция сработала')
+
+    const cartIcon = document.querySelector('.navbar__cart-icon-positions-counter-div');
+    const cartCounterLabel = document.querySelector('.navbar__cart-icon-positions-counter-label');
+    if (count > 0) {
+        cartIcon.style.display = 'flex';
+        cartCounterLabel.textContent = count; 
+    } else {
+        cartIcon.style.display = 'none';
+        cartCounterLabel.textContent = '0'; 
+    }
+}
+
+// Показать больше категорий
+document.getElementById('showMoreCategoriesButton').addEventListener('click', function(event) {
+    event.preventDefault(); 
+    const hiddenCategories = document.getElementById('hiddenCategories');
+    
+    if (hiddenCategories.style.display === 'none') {
+        hiddenCategories.style.display = 'block';
+        this.textContent = 'Скрыть'; 
+    } else {
+        hiddenCategories.style.display = 'none';
+        this.textContent = 'Посмотреть все'; 
+    }
+});
+
+// Показать больше брендов
+document.getElementById('showMoreBrandsButton').addEventListener('click', function(event) {
+    event.preventDefault(); 
+    const hiddenBrands = document.getElementById('hiddenBrands');
+    
+    if (hiddenBrands.style.display === 'none') {
+        hiddenBrands.style.display = 'block';
+        this.textContent = 'Скрыть'; 
+    } else {
+        hiddenBrands.style.display = 'none';
+        this.textContent = 'Посмотреть все'; 
+    }
+});
+
+// Очистить все фильтры 
+document.getElementById('resetFiltersButton').addEventListener('click', function(event) {
+    window.location.href = window.location.pathname;
+
+});
+
+// Выбрать раздел каталога
+topicsButtons = document.querySelectorAll('.catalog__topics-item-div, .catalog__topics-active-item-div');
+topicsButtons.forEach(topicButton => {
+    topicButton.addEventListener('click', function(event) {
+        selectTopic(topicButton);
+    });
+})
+function selectTopic(topicButton) {
+    const items = document.querySelectorAll('.catalog__topics-item-div, .catalog__topics-active-item-div');
+
+    items.forEach(item => {
+        item.classList.remove('catalog__topics-active-item-div');
+        item.classList.add('catalog__topics-item-div');
+    });
+
+    topicButton.classList.remove('catalog__topics-item-div');
+    topicButton.classList.add('catalog__topics-active-item-div');
+}
+</script>

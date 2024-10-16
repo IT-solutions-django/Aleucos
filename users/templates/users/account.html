@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Личный кабинет{% endblock %}
+
+{% block content %}
+
+    <h2>Личный кабинет</h2>
+
+    <div class="mb-4">
+        <div class="d-flex justify-content-end">
+            <div class="btn-group">
+                <a href="{% url 'users:password_change' %}" class="btn btn-outline-primary">Сменить пароль</a>
+                
+                <a href="{% url 'users:login' %}" class="btn btn-outline-secondary">Сменить аккаунт</a>
+
+                <form method="post" action="{% url 'users:logout' %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-danger">Выйти из аккаунта</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <h3 class="my-4">Менеджер</h3>
+        {% if manager %}
+            <div class="card mb-3">
+                <div class="row g-0">
+                    <div class="col-md-2">
+                        {% if manager.photo %}
+                            <img src="{{ manager.photo.url }}" class="img-fluid rounded-start" style="height: 200px; width: 100%; object-fit: contain;" alt="Фотография менеджера">
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card-body">
+                            <p>Имя: {{ manager.first_name }} {{ manager.last_name }} {{ manager.patronymic }}</p>
+                            <p>Должность: {{ manager.position }}</p>
+                            <p>Email: {{ manager.email }}</p>
+                            <p>Телефон: {{ manager.phone }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <p>Менеджер пока не назначен.</p>
+        {% endif %}
+    </div>
+
+    <div class="mb-4">
+        <h3 class="mb-4">Ваши заказы</h3>
+
+        {% for order in orders %}
+            <div class="card mb-3">
+                <div class="card-header">
+                    <p class="h5">Заказ №{{ order.number }}</p>
+                </div>
+
+                <div class="card-body">
+                    <div>
+                        <p>Дата оформления: {{ order.created_at|date:"d.m.Y H:i" }}</p>
+                        <p>Статус: {{ order.status }}</p>
+                    </div>
+                
+                    <table class="table table-sm table-bordered">
+                        <thead>
+                            <tr>
+                                <th scope="col">Производитель</th>
+                                <th scope="col">Товар</th>
+                                <th scope="col">Количество</th>
+                                <th scope="col">Цена за шт.</th>
+                                <th scope="col">Цена по позиции</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items.all %}
+                                <tr>
+                                    <td>{{ item.product.brand }}</td>
+                                    <td>{{ item.product.title }}</td>
+                                    <td>{{ item.quantity }} шт.</td>
+                                    <td>{{ item.unit_price }} ₽</td>
+                                    <td>{{ item.total_price }} ₽</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+            </div>
+                <div class="card-header">
+                    <p class="h5">Итого: {{ order.total_price }} ₽</p>
+                </div>
+
+            </div>
+        {% empty %}
+            <p>У вас нет заказов.</p>
+        {% endfor %}
+
+    </div>
+{% endblock %}

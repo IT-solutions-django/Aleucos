@@ -2,17 +2,25 @@
 {% load admin_list %}
 
 {% block object-tools-items %}
-    <li>
-        <a href="import-products-from-xlsx/" class="addlink">Импортировать записи из XLSX</a>
-    </li>
 
-    <li>
-        <a href="status-of-import/" class="addlink">Проверить статус импорта</a>
-    </li>
+    {% if is_admin_or_superuser %}
+        <li>
+            <a href="import_catalog/" class="addlink">Импорт каталога</a>
+        </li>
 
-    <li>
-        <a href="view-logs" class="addLink">Скачать логи</a>
-    </li>
+        <li>
+            <a href="export_catalog/" class="addlink">Экспорт каталога</a>
+        </li>
+
+        <li>
+            <a href="status-of-products-import/" class="addlink">Статус импорта</a>
+        </li>
+
+        <li>
+            <a href="view-logs" class="addLink">Скачать логи</a>
+        </li>
+    {% endif %}
+    
     {% change_list_object_tools %}
 {% endblock %}
 
