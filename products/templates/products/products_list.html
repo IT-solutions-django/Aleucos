@@ -201,6 +201,27 @@
                                     <div class="catalog__card-title-div truncate-text">
                                         <p>{{ product.title }}</p>
                                     </div>
+                                    <div class="catalog__card-info-div">
+                                        <p>{{ product.brand }}</p> 
+                                    </div>
+                                    <div class="catalog__card-info-div">
+                                        <p>{{ product.category }}</p>
+                                    </div>
+                                    <div class="catalog__card-description-div truncate-text">
+                                        <small>{{ product.description }}</small>
+                                    </div>
+                                    <div class="catalog__card-info-div">
+                                        <small>Объём: {% if product.volume %}{{ product.volume }}{% else %}-{% endif %}</small> 
+                                    </div>
+                                    <div class="catalog__card-info-div">
+                                        <small>Вес: {% if product.weight %}{{ product.weight }}{% else %}-{% endif %}</small> 
+                                    </div>
+                                    <div class="catalog__card-info-div">
+                                        <small>Заметки: {% if product.notes %}{{ product.notes }}{% else %}-{% endif %}</small> 
+                                    </div>
+                                    <div class="catalog__card-info-div">
+                                        <small>Осталось {{ product.remains }} шт.</small> 
+                                    </div>
                                     <div>
                                         {% if request.user.is_authenticated %}
                                             <div class="catalog__card-price-div">
