@@ -172,3 +172,7 @@ media/users/
 
 logs/
 Aleucos/amocrm_tokens/
+
+celerybeat-schedule.bak
+celerybeat-schedule.dat
+celerybeat-schedule.dir

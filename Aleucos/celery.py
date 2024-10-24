@@ -12,6 +12,6 @@ app.autodiscover_tasks()
 app.conf.beat_schedule = {
     'export_catalog_every_15_minutes': {
         'task': 'products.tasks.export_catalog_task',
-        'schedule': crontab(minute='*/10'),  
+        'schedule': 30,  
     },
 }
