@@ -105,11 +105,6 @@
 const checkQuantity = (barcode) => {
     const quantityInput = document.getElementById(`quantity-${barcode}`);
     let value = quantityInput.value;
-    
-    value = value.replace(/[^\d]/g, '');
-    
-    quantityInput.value = value;
-    value = parseInt(value);
     updateQuantity(barcode);
 };
 

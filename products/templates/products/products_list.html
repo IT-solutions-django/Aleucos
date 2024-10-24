@@ -225,7 +225,7 @@
                                     <div>
                                         {% if request.user.is_authenticated %}
                                             <div class="catalog__card-price-div">
-                                                <p class="catalog__card-price-label">{{ product.price_before_200k }} ₽</p>
+                                                <p class="catalog__card-price-label">{{ product.price_before_200k|floatformat:2 }} ₽</p>
                                             </div>
                                             {% if product.quantity_in_cart != 0 %}
                                                 <div class="catalog__card-quantity-controls-div">
@@ -447,7 +447,7 @@ function updateCatalog(data) {
             </div>
             <div>
                 <div class="catalog__card-price-div">
-                    <p class="catalog__card-price-label">${product.fields.price_before_200k} ₽</p>
+                    <p class="catalog__card-price-label">${parseFloat(product.fields.price_before_200k).toFixed(2)} ₽</p>
                 </div>
                 ${data.cart.products[product.fields.barcode] ? `
                     <div class="catalog__card-quantity-controls-div">

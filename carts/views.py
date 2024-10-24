@@ -51,7 +51,8 @@ class ChangeCartView(View):
         else: 
             new_quantity_in_cart = product_in_cart[Cart.KeyNames.QUANTITY] + 1
         if product.remains - new_quantity_in_cart < 0:
-            print('Товара маловато')
+            print(product.remains)
+            print(new_quantity_in_cart)
             return JsonResponse({
                 'error': f'количество товара ограничено: осталось {product.remains} единиц', 
                 'cart': cart.to_dict(), 
