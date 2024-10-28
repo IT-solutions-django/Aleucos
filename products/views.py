@@ -9,6 +9,7 @@ from django.core.paginator import Paginator
 from .models import Product
 from .forms import SearchAndFilterForm
 from .services import get_paginated_collection, CatalogExporter
+from django.core.serializers.json import DjangoJSONEncoder
 from .documents import ProductDocument
 
 
@@ -146,6 +147,8 @@ class CatalogFiltersView(View):
                 'products': None,
             })
         
+        products = products.select_related('brand').all()
+        
         page_number = request.GET.get('page', 1) 
         paginator = Paginator(products, 16)  
         page_obj = paginator.get_page(page_number)
@@ -155,10 +158,24 @@ class CatalogFiltersView(View):
                 'products': None,
             })
 
-        products_json = serializers.serialize('json', page_obj.object_list)
+        products_json = [
+        {
+            'barcode': product.barcode,
+            'title': product.title,
+            'description': product.description,
+            'photo': product.photo.url,
+            'brand': product.brand.title, 
+            'category': product.category.title, 
+            'price_before_200k': product.price_before_200k, 
+            'volume': product.volume, 
+            'weight': product.weight, 
+            'notes': product.notes, 
+            'remains': product.remains,
+        }
+        for product in page_obj.object_list]
 
         return JsonResponse({
-            'products': json.loads(products_json),
+            'products': products_json,
             'has_next': page_obj.has_next(),  
             'has_previous': page_obj.has_previous(),  
             'current_page': page_obj.number,  
