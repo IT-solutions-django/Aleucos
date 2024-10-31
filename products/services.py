@@ -15,7 +15,6 @@ from django.db.models import Q
 import io
 import os 
 from loguru import logger
-
 from .models import Category, Product, Brand, ImportProductsStatus
 from .exceptions import ProductImportError, EndOfTable
 from .documents import ProductDocument
@@ -151,7 +150,7 @@ class CatalogImporter:
     def convert_str_to_decimal(value: str) -> Decimal:
         getcontext().clamp = 1
         value = Decimal(float(str(value).replace(',', '.')))
-        return value.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        return value.quantize(Decimal('0.000001'), rounding=ROUND_HALF_UP)
 
     @staticmethod
     def validate_product_data(barcode: str | float | None,

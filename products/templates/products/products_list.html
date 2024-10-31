@@ -201,10 +201,31 @@
                                     <div class="catalog__card-title-div truncate-text">
                                         <p>{{ product.title }}</p>
                                     </div>
+                                    <div class="catalog__card-info-div">
+                                        <p>{{ product.brand }}</p> 
+                                    </div>
+                                    <div class="catalog__card-info-div">
+                                        <p>{{ product.category }}</p>
+                                    </div>
+                                    <div class="catalog__card-description-div truncate-text">
+                                        <small>{{ product.description }}</small>
+                                    </div>
+                                    <div class="catalog__card-info-div">
+                                        <small>Объём: {% if product.volume %}{{ product.volume }}{% else %}-{% endif %}</small> 
+                                    </div>
+                                    <div class="catalog__card-info-div">
+                                        <small>Вес: {% if product.weight %}{{ product.weight }}{% else %}-{% endif %}</small> 
+                                    </div>
+                                    <div class="catalog__card-info-div">
+                                        <small>Заметки: {% if product.notes %}{{ product.notes }}{% else %}-{% endif %}</small> 
+                                    </div>
+                                    <div class="catalog__card-info-div">
+                                        <small>Осталось {{ product.remains }} шт.</small> 
+                                    </div>
                                     <div>
                                         {% if request.user.is_authenticated %}
                                             <div class="catalog__card-price-div">
-                                                <p class="catalog__card-price-label">{{ product.price_before_200k }} ₽</p>
+                                                <p class="catalog__card-price-label">{{ product.price_before_200k|floatformat:2 }} ₽</p>
                                             </div>
                                             {% if product.quantity_in_cart != 0 %}
                                                 <div class="catalog__card-quantity-controls-div">
@@ -415,32 +436,55 @@ function updateCatalog(data) {
         const productCard = document.createElement('div');
         productCard.classList.add('catalog__card');
 
+        console.log(product.title)
+
         productCard.innerHTML = `
     <div class="catalog__card">
         <div class="catalog__card-image-div">
-            <img src="/media/${product.fields.photo}" alt="cart" class="catalog__cart-image">
+            <img src="${product.photo}" alt="cart" class="catalog__cart-image">
         </div>
         <div>
             <div class="catalog__card-title-div truncate-text">
-                <p>${product.fields.title}</p>
+                <p>${product.title}</p>
+            </div>
+            <div class="catalog__card-info-div">
+                <p>${product.brand}</p>
+            </div>
+            <div class="catalog__card-info-div">
+                <p>${product.category}</p>
+            </div>
+            <div class="catalog__card-description-div truncate-text">
+                <p>${product.description}</p>
+            </div>
+            <div class="catalog__card-info-div">
+                <small>Объём: ${product.volume ? product.volume : '-'}</small> 
+            </div>
+            <div class="catalog__card-info-div">
+                <small>Вес: ${product.weight ? product.weight : '-'}</small> 
+            </div>
+            <div class="catalog__card-info-div">
+                <small>Заметки: ${product.notes ? product.notes : '-'}</small> 
+            </div>
+            <div class="catalog__card-info-div">
+                <small>Осталось: ${product.remains} шт.</small> 
             </div>
             <div>
                 <div class="catalog__card-price-div">
-                    <p class="catalog__card-price-label">${product.fields.price_before_200k} ₽</p>
+                    <p class="catalog__card-price-label">${parseFloat(product.price_before_200k).toFixed(2)} ₽</p>
                 </div>
-                ${data.cart.products[product.fields.barcode] ? `
+                ${data.cart.products[product.barcode] ? `
                     <div class="catalog__card-quantity-controls-div">
-                        <button id="${product.fields.barcode}" class="catalog__card-cart-control-minus">
+                        <button id="${product.barcode}" class="catalog__card-cart-control-minus">
                             <img src="/static/img/Vector (1).svg" alt="cart">
                         </button>
-                        <span>${data.cart.products[product.fields.barcode].quantity}</span>
-                        <button id="${product.fields.barcode}" class="catalog__card-cart-control-plus">
+                        <span>${data.cart.products[product.barcode].quantity}</span>
+                        <button id="${product.barcode}" class="catalog__card-cart-control-plus">
                             <img src="/static/img/Vector (2).svg" alt="cart">
                         </button>
                     </div>
                 ` : `
                     <div class="catalog__card-add-to-cart-div">
-                        <div id="${product.fields.barcode}" class="catalog__card-add-to-cart-label add-to-cart">В корзину</div>
+                        <div id="${product.barcode}" class="catalog__card-add-to-cart-label add-to-cart">В корзину</div>
                     </div>
                 `}
             </div>

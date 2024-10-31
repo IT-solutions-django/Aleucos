@@ -5,7 +5,6 @@ from decimal import Decimal, getcontext, ROUND_HALF_UP
 from openpyxl.reader.excel import load_workbook
 from loguru import logger
 from django.db.models.query import QuerySet
-
 from .exceptions import OrderImportError, EndOfTable, CustomerDataError
 from .models import OrderStatus, Order, OrderItem, ImportOrderStatus
 from products.models import Product
@@ -157,5 +156,3 @@ class ImportOrderStatusService:
 
     def get_all_statuses_of_order(order: Order=None) -> QuerySet | None: 
         return ImportOrderStatus.objects.all().filter(order=Order)
-    
-

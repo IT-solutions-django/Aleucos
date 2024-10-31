@@ -124,4 +124,4 @@ class Cart(UserDict):
 
 
 def flaot_to_decimal(number: float) -> Decimal: 
-    return Decimal(number).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+    return Decimal(number).quantize(Decimal('0.000001'), rounding=ROUND_HALF_UP)

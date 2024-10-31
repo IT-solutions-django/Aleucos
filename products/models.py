@@ -42,9 +42,9 @@ class Product(models.Model):
     weight = models.DecimalField(_('Вес'), decimal_places=2, max_digits=4, null=True, blank=True,
                                  validators=(MinValueValidator(Decimal(0), _('Вес не может быть отрицательным')),))
     notes = models.CharField(_('Заметки'), max_length=30, null=True, blank=True)
-    price_before_200k = models.DecimalField(_('Цена до 200 тыс'), decimal_places=2, max_digits=8) 
-    price_after_200k = models.DecimalField(_('Цена после 200 тыс'), decimal_places=2, max_digits=8) 
-    price_after_500k = models.DecimalField(_('Цена после 500 тыс'), decimal_places=2, max_digits=8) 
+    price_before_200k = models.DecimalField(_('Цена до 200 тыс'), decimal_places=6, max_digits=14) 
+    price_after_200k = models.DecimalField(_('Цена после 200 тыс'), decimal_places=6, max_digits=14) 
+    price_after_500k = models.DecimalField(_('Цена после 500 тыс'), decimal_places=6, max_digits=14) 
     is_in_stock = models.BooleanField(_('В наличии'), default=False)
     remains = models.PositiveIntegerField(_('Остаток на складе'), default=0)
     created_at = models.DateTimeField(_('Дата создания'), auto_now_add=True)

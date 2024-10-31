@@ -8,7 +8,6 @@ from django.dispatch import receiver
 from Aleucos.crm import crm
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MaxValueValidator, MinValueValidator
-
 from users.models import User
 from products.models import Product
 

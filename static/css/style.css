@@ -367,8 +367,14 @@ p {
     max-height: 150px;
 }
 .catalog__card-title-div {
-    margin-bottom: 16px;
+    margin-bottom: 4px;
     min-height: 48px;
+}
+.catalog__card-description-div {
+    height: 50px;
+}
+.catalog__card-info-div {
+    height: 30px;
 }
 .catalog__card-price-div {
     width: 99px;
