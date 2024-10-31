@@ -66,9 +66,6 @@ MIDDLEWARE = [
     'carts.middleware.CartMiddleware',
 ]
 
-# MIDDLEWARE_CLASSES = [
-#     'carts.middleware.CartMiddleware',
-# ]
 
 ROOT_URLCONF = 'Aleucos.urls'
 
@@ -187,12 +184,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # Redis 
-REDIS_HOST = 'redis' 
-REDIS_PORT = '6379' 
+# REDIS_HOST = 'redis' 
+# REDIS_PORT = '6379' 
 
 # Для запуска Redis вне Docker
-# REDIS_HOST = 'localhost' 
-# REDIS_PORT = '6390' 
+REDIS_HOST = 'localhost' 
+REDIS_PORT = '6390' 
 
 
 # Celery
@@ -206,7 +203,12 @@ CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
 
 # Loguru 
-logger.add("logs/logs.log", format='{time} {level} {message}', rotation="10 MB", compression="zip", level="DEBUG")
+logger.add("logs/logs.log", 
+           format='{time} {level} {message}', 
+           rotation="10 MB", 
+           retention="7 days",
+           compression="zip", 
+           level="DEBUG")
 
 
 # Messages
