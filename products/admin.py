@@ -98,7 +98,7 @@ class ProductAdmin(admin.ModelAdmin):
         
         if request.method == 'POST':
             xlsx_file = request.FILES['xlsx_file']
-            filename = os.path.join('catalog', Config.get_instance().export_catalog_filename)
+            filename = os.path.join('catalog', Config.get_instance().import_catalog_filename)
 
             try:
                 if default_storage.exists(filename): 
