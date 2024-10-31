@@ -5,6 +5,7 @@ from amocrm.v2 import Lead, Contact as _Contact, User as _User, custom_field, to
 from amocrm.v2.fields import _DateTimeField
 from loguru import logger
 from Aleucos import settings
+from configs.models import Config
 
 
 class Contact(_Contact):
@@ -71,10 +72,10 @@ class AmoCRM:
             pipeline=self.pipeline
         )
 
-        new_lead.status = Status.get_for(self.pipeline).get(query=settings.LEAD_STATUS_FIRST).id
-
+        new_lead.status = Status.get_for(self.pipeline).get(query=Config.get_instance().lead_status_first).id
         new_lead.save()
         order.id_in_amocrm = new_lead.id
+        order.save()
 
         try:
             contact = Contact.objects.get(query=user.get_fullname())

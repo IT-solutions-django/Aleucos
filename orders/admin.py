@@ -12,6 +12,7 @@ from .models import OrderStatus, Order, OrderItem, ImportOrderStatus, DeliveryTe
 from .tasks import import_orders_from_xlsx_task
 from Aleucos import settings
 from users.models import User
+from configs.models import Config
 
 
 @admin.register(OrderStatus)
@@ -35,7 +36,7 @@ class OrderAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         current_user = request.user
-        if request.user.groups.filter(name=settings.MANAGERS_GROUP_NAME).exists():
+        if request.user.groups.filter(name=Config.get_instance().managers_group_name).exists():
             customers = User.objects.filter(manager=current_user)
             return qs.filter(user__in=customers)
         return qs
@@ -79,7 +80,7 @@ class OrderAdmin(admin.ModelAdmin):
         context = admin.site.each_context(request) 
         current_user = request.user
 
-        if current_user.groups.filter(name=settings.MANAGERS_GROUP_NAME).exists():
+        if current_user.groups.filter(name=Config.get_instance().managers_group_name).exists():
             customers = User.objects.filter(manager=current_user)
             orders = Order.objects.filter(user__in=customers)
             import_statuses = ImportOrderStatus.objects.filter(order__in=orders)
