@@ -1,7 +1,7 @@
 from django.db import models
 
 
-def get_default_order_status_name_mapper():
+def get_default_order_status_name_mapper() -> dict[str, str]:
     return {
         'Первичный контакт': 'В обработке',
         'Рабочий контакт': 'В обработке',
@@ -15,7 +15,7 @@ def get_default_order_status_name_mapper():
     }
 
 
-class Settings(models.Model): 
+class Config(models.Model): 
     import_catalog_filename = models.CharField(
         'IMPORT_CATALOG_FILENAME', 
         max_length=150, 
@@ -76,4 +76,15 @@ class Settings(models.Model):
         verbose_name = "Настройки"
         verbose_name_plural = "Настройки"
 
+    def __str__(self) -> str: 
+        return 'Настройки'
+    
+    def save(self, *args, **kwargs):
+        if self.__class__.objects.count():
+            self.pk = self.__class__.objects.first().pk
+        super().save(*args, **kwargs)
 
+    @classmethod
+    def get_instance(cls) -> "Config":
+        instance, created = cls.objects.get_or_create(id=1)
+        return instance

@@ -10,6 +10,7 @@ from .models import OrderStatus, Order, OrderItem, ImportOrderStatus
 from products.models import Product
 from Aleucos import settings
 from users.models import User
+from configs.models import Config
 
 
 class OrderImporter:
@@ -36,7 +37,7 @@ class OrderImporter:
         
         order = Order.objects.create(
             user=user, 
-            status=OrderStatus.objects.get(title=settings.ORDER_STATUS_FIRST), 
+            status=OrderStatus.objects.get(title=Config.get_instance().order_status_first), 
             manager=user.manager,
         )
 

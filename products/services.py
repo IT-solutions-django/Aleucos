@@ -19,6 +19,7 @@ from .models import Category, Product, Brand, ImportProductsStatus
 from .exceptions import ProductImportError, EndOfTable
 from .documents import ProductDocument
 from Aleucos import settings
+from configs.models import Config
 
 
 class CatalogImporter:
@@ -178,8 +179,8 @@ class CatalogExporter:
     def export_catalog_to_xlsx() -> str:
         logger.info('Начался экспорт каталога')
 
-        catalog_template_path = os.path.join(settings.MEDIA_ROOT, 'catalog', settings.EXPORT_CATALOG_TEMPLATE_FILENAME)
-        exported_catalog_path = os.path.join(settings.MEDIA_ROOT, 'catalog', settings.EXPORT_CATALOG_FILENAME)
+        catalog_template_path = os.path.join(settings.MEDIA_ROOT, 'catalog', Config.get_instance().export_catalog_template_filename)
+        exported_catalog_path = os.path.join(settings.MEDIA_ROOT, 'catalog', Config.get_instance().export_catalog_filename)
 
         try:
             workbook = load_workbook(filename=catalog_template_path, data_only=True)

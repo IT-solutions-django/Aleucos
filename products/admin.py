@@ -14,10 +14,11 @@ from .tasks import import_products_from_xlsx_task
 from .filters import (PriceRangeFilter, WeightRangeFilter, 
                       HasNotesFilter,  RemainsRangeFilter, HasPhotoFilter)
 from .services import ImportProductsStatusService, CatalogExporter
+from configs.models import Config
 
 
 def is_admin_or_superuser(user):
-    return user.is_superuser or user.groups.filter(name=settings.ADMINS_GROUP_NAME).exists()
+    return user.is_superuser or user.groups.filter(name=Config.get_instance().admins_group_name).exists()
 
 
 @admin.register(Brand)
@@ -97,7 +98,7 @@ class ProductAdmin(admin.ModelAdmin):
         
         if request.method == 'POST':
             xlsx_file = request.FILES['xlsx_file']
-            filename = os.path.join('catalog', settings.IMPORT_CATALOG_FILENAME)
+            filename = os.path.join('catalog', Config.get_instance().export_catalog_filename)
 
             try:
                 if default_storage.exists(filename): 
@@ -118,7 +119,7 @@ class ProductAdmin(admin.ModelAdmin):
 
     @method_decorator(user_passes_test(is_admin_or_superuser), name='export_catalog')
     def export_catalog(self, request) -> HttpResponse:
-        filename = os.path.join(settings.MEDIA_ROOT, 'catalog', settings.EXPORT_CATALOG_FILENAME)
+        filename = os.path.join(settings.MEDIA_ROOT, 'catalog', Config.get_instance().export_catalog_filename)
         try:
             response = FileResponse(open(filename, 'rb'))
             return response

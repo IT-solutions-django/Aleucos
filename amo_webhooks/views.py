@@ -2,11 +2,11 @@ from django.http import HttpResponse, QueryDict
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from loguru import logger
-
 from Aleucos.crm import crm
 from Aleucos import settings
 from orders.models import Order, OrderStatus
 from users.models import User
+from configs.models import Config
 
 
 @require_POST
@@ -20,16 +20,15 @@ def status_lead_view(request):
     try:
         order: Order = Order.objects.get(number=lead.name)
 
-        if lead.status.name == settings.LEAD_STATUS_LAST: 
+        if lead.status.name == Config.get_instance().lead_status_last: 
             for order_item in order.items.all(): 
                 order_item.product.is_frozen = False 
                 order_item.product.save()
     except Order.DoesNotExist: 
         logger.error(f'Ошибка при обновлении статуса заказа: заказа с номером {lead.name} нет в базе данных')
 
-    new_status_name = settings.ORDER_STATUS_NAME_CONVERTER.get(lead.status.name)
+    new_status_name = Config.get_instance().order_status_name_mapper.get(lead.status.name)
     new_status, created = OrderStatus.objects.get_or_create(title=new_status_name)
-
     if created: 
         logger.info(f'Был создан новый статус заказа: {new_status_name}')
 

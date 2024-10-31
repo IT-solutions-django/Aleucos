@@ -46,6 +46,8 @@ INSTALLED_APPS = [
 
     'django_elasticsearch_dsl',
 
+    'configs',
+
     'products',
     'orders',
     'carts', 
@@ -103,7 +105,7 @@ DATABASES = {
     }
 }
 
-# Для запуска PostgreSQL вне Docker
+# Для локальной разработки
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
@@ -123,7 +125,7 @@ ELASTICSEARCH_DSL = {
     }
 }
 
-# Для запуска Django вне Docker
+# Для локальной разработки
 # ELASTICSEARCH_DSL = {
 #     'default': {
 #         'hosts': 'http://localhost:9200', 
@@ -184,12 +186,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # Redis 
-# REDIS_HOST = 'redis' 
-# REDIS_PORT = '6379' 
+REDIS_HOST = 'redis' 
+REDIS_PORT = '6379' 
 
-# Для запуска Redis вне Docker
-REDIS_HOST = 'localhost' 
-REDIS_PORT = '6390' 
+# Для локальной разработки
+# REDIS_HOST = 'localhost' 
+# REDIS_PORT = '6390' 
 
 
 # Celery
@@ -208,7 +210,8 @@ logger.add("logs/logs.log",
            rotation="10 MB", 
            retention="7 days",
            compression="zip", 
-           level="DEBUG")
+           level="DEBUG", 
+           enqueue=True)
 
 
 # Messages
@@ -226,32 +229,8 @@ ELASTICSEARCH_SYNC = True
 
 AUTH_USER_MODEL = 'users.User'
 LOGIN_REDIRECT_URL = '/'  
-LOGOUT_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/' 
 
-
-# Group names
-ADMINS_GROUP_NAME = 'Administrators'
-MANAGERS_GROUP_NAME = 'Managers'
-USERS_GROUP_NAME = 'Users' 
-
-# Статусы заказов. "статус в amoCRM": "статус в БД"
-ORDER_STATUS_NAME_CONVERTER = {
-    'Первичный контакт': 'В обработке', 
-    'Рабочий контакт': 'В обработке', 
-    'КП отправлено': 'В обработке', 
-    'Клиент прислал заказ': 'В обработке', 
-    'Товар собран': 'Комплектация заказа', 
-    'Оплата получена': 'Оплата получена', 
-    'Отгружено в рассрочку': 'Транспортировка', 
-    'Товар отправлен/передан': 'Транспортировка', 
-    'Товар отправлен/передан': 'Транспортировка', 
-    'Успешно реализовано': 'Заказ принят',
-}
-
-
-ORDER_STATUS_FIRST = 'В обработке'
-LEAD_STATUS_FIRST = 'Клиент прислал заказ'
-LEAD_STATUS_LAST = 'Успешно реализовано'
 
 # Email
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -265,8 +244,3 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 SERVER_EMAIL = EMAIL_HOST_USER
 EMAIL_ADMIN = EMAIL_HOST_USER
-
-
-IMPORT_CATALOG_FILENAME = 'catalog.xlsx'
-EXPORT_CATALOG_FILENAME = 'catalog_for_export.xlsx'
-EXPORT_CATALOG_TEMPLATE_FILENAME = 'catalog_template.xlsx'

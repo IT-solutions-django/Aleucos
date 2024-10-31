@@ -5,9 +5,9 @@ from django.dispatch import receiver
 from django.db import transaction
 from django.utils.translation import gettext_lazy as _
 from .services import generate_random_password
-from Aleucos.settings import USERS_GROUP_NAME
 from Aleucos.crm import crm
 from .tasks import send_email_to_new_user_task
+from configs.models import Config
 
 
 class Position(models.Model):
@@ -57,7 +57,7 @@ class User(AbstractUser):
 
 def set_password_and_mail_if_needed(user: User):
     try:
-        users_group = Group.objects.get(name=USERS_GROUP_NAME)
+        users_group = Group.objects.get(name=Config.get_instance().users_group_name)
         if users_group in user.groups.all():
             raw_password = generate_random_password()
 

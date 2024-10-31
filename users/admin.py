@@ -2,6 +2,7 @@ from django.contrib import admin
 from .filters import GroupFilter
 from .models import Position, UserProxy, StaffProxy, RegistrationRequest
 from Aleucos import settings
+from configs.models import Config
 
 
 @admin.register(UserProxy)
@@ -21,8 +22,11 @@ class UserAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
     def get_queryset(self, request):
-        qs = super().get_queryset(request).filter(groups__name=settings.USERS_GROUP_NAME)
-        if request.user.groups.filter(name=settings.MANAGERS_GROUP_NAME).exists():
+        users_group_name = Config.get_instance().users_group_name
+        managers_group_name = Config.get_instance().managers_group_name
+
+        qs = super().get_queryset(request).filter(groups__name=users_group_name)
+        if request.user.groups.filter(name=managers_group_name).exists():
             return qs.filter(manager=request.user)
         return qs 
     
@@ -45,7 +49,7 @@ class StaffAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
     def get_queryset(self, request):
-        qs = super().get_queryset(request).exclude(groups__name=settings.USERS_GROUP_NAME)
+        qs = super().get_queryset(request).exclude(groups__name=Config.get_instance().users_group_name)
         return qs 
 
 
