@@ -20,8 +20,6 @@ class ChangeCartView(View):
         raw_quantity = request.POST.get('quantity')
         append = bool(request.POST.get('append', False))
 
-        print(f'frfefrerf {append}')
-
         try:
             quantity = int(raw_quantity)
         except ValueError: 
@@ -168,7 +166,8 @@ class CreateOrderView(View):
             total_product_price = product_data[Cart.KeyNames.TOTAL_PRODUCT_PRICE] 
 
             OrderItem.objects.create(
-                product=product,
+                product_name=product.title,
+                brand_name=product.brand.title,
                 order=new_order, 
                 quantity=quantity, 
                 unit_price=unit_price, 
@@ -176,7 +175,6 @@ class CreateOrderView(View):
             )
 
             product.remains -= quantity
-            product.is_frozen = True
             product.save()
 
         request.cart.flush()

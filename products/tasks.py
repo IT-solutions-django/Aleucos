@@ -18,7 +18,7 @@ def import_products_from_xlsx_task(xlsx_file_path: str) -> None:
     with open(xlsx_file_path, 'rb') as f:
         xlsx_file = UploadedFile(f)
 
-        CatalogImporter.truncate_not_frozen_products_and_brands() 
+        CatalogImporter.truncate_products_and_brands() 
 
         log_text = 'Началась загрузка новых данных из файла'
         logger.info(log_text)

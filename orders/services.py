@@ -21,6 +21,7 @@ class OrderImporter:
         items_worksheet = workbook.worksheets[1]
 
         customer_email = customer_data_worksheet.cell(row=19, column=3).value
+        print(customer_email)
         if not customer_email: 
             log_text = 'Ошибка загрузки заказа: Email покупателя не указан'
             ImportOrderStatusService.add_new_status(log_text)
@@ -109,7 +110,8 @@ class OrderImporter:
 
         try:
             order_item = OrderItem(
-                product=product, 
+                product_name=product.title, 
+                brand_name=product.brand.title,
                 order=order, 
                 quantity=quantity, 
                 unit_price=unit_price, 
@@ -117,7 +119,6 @@ class OrderImporter:
             order_item.save()
 
             product.remains -= quantity 
-            product.is_frozen = True 
             product.save()
 
             log_text = f'Товар "{title}" ({quantity} штук) добавлен в заказ пользователя {order.user}'

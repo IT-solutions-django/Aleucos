@@ -103,7 +103,8 @@ def after_order_save(sender, instance, created, **kwargs):
 
 
 class OrderItem(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='order_items', verbose_name=_('Товар'))
+    product_name = models.CharField('Товар')
+    brand_name = models.CharField('Производитель', null=True, blank=True)
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items', verbose_name=_('Заказ'))
     quantity = models.PositiveIntegerField(_('Количество'), default=1)
     unit_price = models.DecimalField(_('Цена за единицу'), decimal_places=2, max_digits=14, default=0)
@@ -114,7 +115,7 @@ class OrderItem(models.Model):
         verbose_name_plural = _('Позиции заказов')
 
     def __str__(self) -> str:
-        return f'Заказ №{self.order.number} | {self.product} | {self.unit_price} Р | {self.quantity} шт.'
+        return f'Заказ №{self.order.number} | {self.product_name} | {self.unit_price} Р | {self.quantity} шт.'
 
     def save(self, *args, **kwargs):
         self.total_price = self.unit_price * self.quantity
@@ -124,20 +125,6 @@ class OrderItem(models.Model):
     def delete(self, *args, **kwargs):
         super().delete(*args, **kwargs)
         self.order.update_total_price()
-
-
-@receiver(pre_save, sender=OrderItem)
-def freeze_linked_product(sender, instance, **kwargs) -> None:
-    instance.product.is_frozen = True
-    instance.product.save()
-
-
-@receiver(pre_delete, sender=OrderItem)
-def unfreeze_linked_product(sender, instance, **kwargs):
-    product = instance.product
-    if product.order_items.count() == 1:
-        product.is_frozen = False
-        product.save()
 
 
 class ImportOrderStatus(models.Model):

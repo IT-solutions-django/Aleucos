@@ -48,7 +48,6 @@ class Product(models.Model):
     is_in_stock = models.BooleanField(_('В наличии'), default=False)
     remains = models.PositiveIntegerField(_('Остаток на складе'), default=0)
     created_at = models.DateTimeField(_('Дата создания'), auto_now_add=True)
-    is_frozen = models.BooleanField(_('Зафиксирован'), default=False)
 
     class Meta: 
         verbose_name = _('Товар')
@@ -65,14 +64,6 @@ class Product(models.Model):
             
             if categories.exists():
                 self.category = random.choice(categories)
-        
-        while_importing_catalog = kwargs.pop('while_importing_catalog', False)
-
-        # TODO: выкинуть это в фоновую задачу
-        # if not while_importing_catalog:
-        #     from .services import CatalogExcelService
-        #     CatalogExcelService.update_or_add_product_in_excel(self)
-
         super(Product, self).save(*args, **kwargs)
 
 

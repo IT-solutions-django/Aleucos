@@ -19,11 +19,6 @@ def status_lead_view(request):
 
     try:
         order: Order = Order.objects.get(number=lead.name)
-
-        if lead.status.name == Config.get_instance().lead_status_last: 
-            for order_item in order.items.all(): 
-                order_item.product.is_frozen = False 
-                order_item.product.save()
     except Order.DoesNotExist: 
         logger.error(f'Ошибка при обновлении статуса заказа: заказа с номером {lead.name} нет в базе данных')
 
