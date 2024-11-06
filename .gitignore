@@ -162,6 +162,7 @@ postgres_data/
 media/products/* 
 media/tmp/* 
 !media/products/default.png
+media/orders/*
 
 # ElasticSearch
 es_data/

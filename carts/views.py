@@ -176,6 +176,7 @@ class CreateOrderView(View):
 
             product.remains -= quantity
             product.save()
+        new_order.create_pdf_bill()
 
         request.cart.flush()
         messages.success(request, f'Заказ №{new_order.number} успешно создан!', extra_tags=messages.SUCCESS)

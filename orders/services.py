@@ -77,6 +77,7 @@ class OrderImporter:
                 order.total_price += item.total_price
 
         order.save()
+        order.create_pdf_bill()
 
         log_text = 'Загрузка заказа из файла завершена'
         logger.info(log_text)
