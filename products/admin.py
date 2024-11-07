@@ -117,7 +117,6 @@ class ProductAdmin(admin.ModelAdmin):
 
         return render(request, 'products/add_products_form.html', context=context)
 
-    @method_decorator(user_passes_test(is_admin_or_superuser), name='export_catalog')
     def export_catalog(self, request) -> HttpResponse:
         filename = os.path.join(settings.MEDIA_ROOT, 'catalog', Config.get_instance().export_catalog_filename)
         try:
