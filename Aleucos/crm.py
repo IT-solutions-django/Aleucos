@@ -30,7 +30,8 @@ class AmoCRM:
             storage=tokens.FileTokensStorage(self.token_storage_path),
         )
         if not tokens.default_token_manager._storage.get_access_token(): 
-            tokens.default_token_manager.init(code=os.getenv('AMOCRM_AUTHORIZATION_CODE'))
+            code = ''  # Присвоить значение при деплое
+            tokens.default_token_manager.init(code=code)
         self.pipeline = list(Pipeline.objects.all())[0] 
 
     def get_lead_by_id(self, id: int) -> Lead: 
@@ -95,5 +96,5 @@ class AmoCRM:
     def _round_price_to_int(price: Decimal | float) -> int: 
         return int(round(price))
 
-
+print(os.getenv('AMOCRM_AUTHORIZATION_CODE'))
 crm = AmoCRM()
