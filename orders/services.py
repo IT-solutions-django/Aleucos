@@ -23,68 +23,73 @@ class OrderImporter:
         customer_email = customer_data_worksheet.cell(row=19, column=3).value
         print(customer_email)
         if not customer_email: 
-            log_text = 'Ошибка загрузки заказа: Email покупателя не указан'
+            log_text = 'Ошибка! Заказ не был создан: Email покупателя не указан'
             ImportOrderStatusService.add_new_status(log_text)
             logger.error(log_text)
-            raise CustomerDataError(log_text)
+            return
 
         try:
             user = User.objects.get(email=customer_email)
         except User.DoesNotExist: 
-            log_text = f'Ошибка, пользователя с email {customer_email} не существует'
+            log_text = f'Ошибка! Заказ не был создан: пользователя с email {customer_email} не существует'
             ImportOrderStatusService.add_new_status(log_text)
             logger.error(log_text)
             return 
-        
-        order = Order.objects.create(
-            user=user, 
-            status=OrderStatus.objects.get(title=Config.get_instance().order_status_first), 
-            manager=user.manager,
-        )
 
-        log_text = f'Началась загрузка данных'
-        logger.info(log_text)
-        ImportOrderStatusService.add_new_status(log_text, order)
+        order_data = {
+            'user': user,
+            'status': OrderStatus.objects.get(title=Config.get_instance().order_status_first),
+            'manager': user.manager,
+            'items': [],
+            'total_price': 0
+        }
 
         for index, row in enumerate(items_worksheet.iter_rows(min_row=4, values_only=True), 4):
             try:
-                OrderImporter.process_order_row(index, row, order)
+                order_item_data = OrderImporter.process_order_row(index, row)
+                if order_item_data:
+                    order_data['items'].append(order_item_data)
             except EndOfTable:
                 break
             except OrderImportError as e:
-                log_text = str(e)
+                log_text = f'Ошибка! Заказ не был создан: {str(e)}'
                 logger.error(log_text)
-                ImportOrderStatusService.add_new_status(log_text, order)
+                ImportOrderStatusService.add_new_status(log_text)
+                return 
 
+        OrderImporter.calculate_total_price(order_data)
 
-        for item in order.items.all(): 
-            order.total_price += item.total_price
-
-        if order.total_price >= 200000: 
-            for order_item in order.items.all(): 
-                order_item.unit_price = order_item.product.price_after_200k
-                order_item.save() 
+        order = Order.objects.create(
+            user=order_data['user'],
+            status=order_data['status'],
+            manager=order_data['manager'],
+            total_price=order_data['total_price']
+        )
+        for item_data in order_data['items']:
+            OrderItem.objects.create(
+                order=order,
+                product_name=item_data['product_name'], 
+                brand_name=item_data['brand_name'], 
+                quantity=item_data['quantity'], 
+                unit_price=item_data['unit_price'], 
+                total_price=item_data['total_price']
+            )
+            product = Product.objects.get(barcode=item_data['barcode'])
+            product.remains -= item_data['quantity']
+            product.save()
             
-            for item in order.items.all(): 
-                order.total_price += item.total_price
-        
-        if order.total_price >= 500000: 
-            for order_item in order.items.all(): 
-                order_item.unit_price = order_item.product.price_after_500k 
-                order_item.save()
-            
-            for item in order.items.all(): 
-                order.total_price += item.total_price
-
+            log_text = f'В заказ добавлен товар {item_data["product_name"]} ({item_data["quantity"]} шт)'
+            logger.info(log_text)
+            ImportOrderStatusService.add_new_status(log_text, order)
         order.save()
         order.create_pdf_bill()
 
-        log_text = 'Загрузка заказа из файла завершена'
+        log_text = f'Заказ №{order.number} для клиента {order.user.email} был успешно создан!'
         logger.info(log_text)
         ImportOrderStatusService.add_new_status(log_text, order)
 
     @staticmethod
-    def process_order_row(index: int, row: tuple, order: Order) -> OrderItem | None:
+    def process_order_row(index: int, row: tuple) -> OrderItem | None:
         barcode = row[0]
         brand_title = row[1]
         title = row[2]
@@ -100,6 +105,8 @@ class OrderImporter:
             product = Product.objects.get(barcode=barcode)
         except Product.DoesNotExist: 
             raise OrderImportError(f'Товара со штрихкодом {barcode} не существует')
+        except Product.MultipleObjectsReturned: 
+            raise OrderImportError(f'В базе данных существует несколько товаров со штрихкодом {barcode}')
         
         if product.remains - quantity < 0: 
             raise OrderImportError(f'Товара со штрихкодом {barcode} недостаточно на складе ({product.remains} шт. есть, запрашивается {quantity} шт.)')
@@ -109,27 +116,32 @@ class OrderImporter:
         unit_price = price_before_200k  
         total_price = quantity * unit_price
 
-        try:
-            order_item = OrderItem(
-                product_name=product.title, 
-                brand_name=product.brand.title,
-                order=order, 
-                quantity=quantity, 
-                unit_price=unit_price, 
-                total_price=total_price)
-            order_item.save()
+        return {
+            'barcode': product.barcode,
+            'product_name': product.title,
+            'brand_name': product.brand.title,
+            'quantity': quantity,
+            'unit_price': unit_price,
+            'total_price': total_price
+        }
+    
+    @staticmethod
+    def calculate_total_price(order_data: dict) -> None:
+        total_price = sum(item['total_price'] for item in order_data['items'])
 
-            product.remains -= quantity 
-            product.save()
+        if total_price >= 200000:
+            for item in order_data['items']:
+                item['unit_price'] = Product.objects.get(barcode=item['barcode']).price_after_200k
+                item['total_price'] = item['quantity'] * item['unit_price']
+            total_price = sum(item['total_price'] for item in order_data['items'])
 
-            log_text = f'Товар "{title}" ({quantity} штук) добавлен в заказ пользователя {order.user}'
-            logger.info(log_text)
-            ImportOrderStatusService.add_new_status(log_text, order)
+        if total_price >= 500000:
+            for item in order_data['items']:
+                item['unit_price'] = Product.objects.get(barcode=item['barcode']).price_after_500k
+                item['total_price'] = item['quantity'] * item['unit_price']
+            total_price = sum(item['total_price'] for item in order_data['items'])
 
-            return order_item
-        except (IntegrityError, ValidationError, TypeError) as e:
-            raise OrderImportError(f'Ошибка в строке {index}: {str(e)}')
-
+        order_data['total_price'] = total_price
 
     @staticmethod
     def convert_str_to_decimal(value: str) -> Decimal:

@@ -13,12 +13,13 @@ def import_orders_from_xlsx_task(xlsx_file_path: str) -> None:
 
     with open(xlsx_file_path, 'rb') as f:
         xlsx_file = UploadedFile(f)
-
-        OrderImporter.import_order_from_xlsx(xlsx_file) 
-
+        
         log_text = 'Началась загрузка новых данных из файла'
         logger.info(log_text)
         ImportOrderStatusService.add_new_status(log_text)
+
+        OrderImporter.import_order_from_xlsx(xlsx_file) 
+
 
     log_text = 'Загрузка данных завершена'
     logger.info(log_text)

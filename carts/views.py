@@ -96,7 +96,7 @@ class CheckCartView(View):
 
         barcodes_to_remove = []
 
-        for barcode, product_data in cart[Cart.KeyNames.PRODUCTS].items():
+        for barcode, product_data in list(cart[Cart.KeyNames.PRODUCTS].items()):
             try:
                 product = Product.objects.get(barcode=barcode)
             except Product.DoesNotExist:
@@ -107,7 +107,7 @@ class CheckCartView(View):
             quantity = product_data[Cart.KeyNames.QUANTITY]
 
             if quantity > product.remains:
-                errors.append(f'Недостаточно товара "{product.title}" на складе: доступно {product.remains} шт., запрошено {quantity} шт.')
+                errors.append(f'Недостаточно товара "{product.title}" на складе: доступно {product.remains} шт., запрошено {quantity} шт. Недоступные товары не будут включены в заказ')
                 request.cart.change(product, product.remains) 
 
         for barcode in barcodes_to_remove: 
