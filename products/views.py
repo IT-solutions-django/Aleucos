@@ -13,11 +13,6 @@ from django.core.serializers.json import DjangoJSONEncoder
 from .documents import ProductDocument
 
 
-class HomeView(View):
-    def get(self, request): 
-        return redirect('products:products_list')
-
-
 class ProductsListView(View):
     template_name = 'products/products_list.html'
 

@@ -19,21 +19,16 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
-from products.views import HomeView
-from amo_webhooks.views import status_lead_view
-
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    path('', include('home.urls', namespace='home')),
     path('products/', include('products.urls', namespace='products')),
     path('users/', include('users.urls', namespace='users')),
     path('orders/', include('orders.urls', namespace='orders')),
     path('carts/', include('carts.urls', namespace='carts')),
     path('amocrm/', include('amo_webhooks.urls', namespace='amocrm')),
-
-
-    # path('', status_lead_view, name='status_lead_view'),
-    path('', HomeView.as_view(), name='home'), 
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

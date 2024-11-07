@@ -9,11 +9,11 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <link rel="stylesheet" href="{% static 'css/reset.css' %}">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/my_style.css' %}">
 </head>
 <body>
     <nav class="navbar">
-        <a href="{% url 'products:products_list' %}">
+        <a href="{% url 'home:home' %}">
             <img src="{% static 'img/Слой 1.svg' %}" alt="Aleucos" width="80" height="62.48">
         </a>
 
@@ -59,12 +59,12 @@
             </div>
             <div class="breadcrumb">
                 <div class="breadcrumb-item-div">
-                    <a href="#" class="breadcrumb-item">Главная</a>
+                    <a href="{% url 'home:home' %}" class="breadcrumb-item">Главная</a>
                     <img src="{% static 'img/Frame.svg' %}" alt="cart" width="16" height="16" class="breadcrumb-divider">
                 </div>
                 
                 <div class="breadcrumb-item-div">
-                    <a href=href="{% url 'products:products_list' %}" class="breadcrumb-item">Каталог</a>
+                    <a href="{% url 'products:products_list' %}" class="breadcrumb-item">Каталог</a>
                 </div>
             </div>
         </div>
