@@ -37,7 +37,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Product) 
 class ProductAdmin(admin.ModelAdmin): 
-    list_display = ['pk', 'barcode', 'brand', 'title', 'volume', 'weight', 'photo', 'is_frozen',
+    list_display = ['pk', 'barcode', 'brand', 'title', 'volume', 'weight', 'photo',
                     'price_before_200k', 'is_in_stock', 'remains'] 
     search_fields = ['brand__title', 'title', 'barcode']
     list_filter = (

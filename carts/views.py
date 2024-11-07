@@ -20,8 +20,6 @@ class ChangeCartView(View):
         raw_quantity = request.POST.get('quantity')
         append = bool(request.POST.get('append', False))
 
-        print(f'frfefrerf {append}')
-
         try:
             quantity = int(raw_quantity)
         except ValueError: 
@@ -98,7 +96,7 @@ class CheckCartView(View):
 
         barcodes_to_remove = []
 
-        for barcode, product_data in cart[Cart.KeyNames.PRODUCTS].items():
+        for barcode, product_data in list(cart[Cart.KeyNames.PRODUCTS].items()):
             try:
                 product = Product.objects.get(barcode=barcode)
             except Product.DoesNotExist:
@@ -109,7 +107,7 @@ class CheckCartView(View):
             quantity = product_data[Cart.KeyNames.QUANTITY]
 
             if quantity > product.remains:
-                errors.append(f'Недостаточно товара "{product.title}" на складе: доступно {product.remains} шт., запрошено {quantity} шт.')
+                errors.append(f'Недостаточно товара "{product.title}" на складе: доступно {product.remains} шт., запрошено {quantity} шт. Недоступные товары не будут включены в заказ')
                 request.cart.change(product, product.remains) 
 
         for barcode in barcodes_to_remove: 
@@ -168,7 +166,8 @@ class CreateOrderView(View):
             total_product_price = product_data[Cart.KeyNames.TOTAL_PRODUCT_PRICE] 
 
             OrderItem.objects.create(
-                product=product,
+                product_name=product.title,
+                brand_name=product.brand.title,
                 order=new_order, 
                 quantity=quantity, 
                 unit_price=unit_price, 
@@ -176,8 +175,8 @@ class CreateOrderView(View):
             )
 
             product.remains -= quantity
-            product.is_frozen = True
             product.save()
+        new_order.create_pdf_bill()
 
         request.cart.flush()
         messages.success(request, f'Заказ №{new_order.number} успешно создан!', extra_tags=messages.SUCCESS)

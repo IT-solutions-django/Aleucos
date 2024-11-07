@@ -92,12 +92,6 @@ class OrderAdmin(admin.ModelAdmin):
         return render(request, 'orders/status_of_import.html', context)
 
 
-
-@admin.register(OrderItem)
-class OrderItemAdmin(admin.ModelAdmin): 
-    list_display = ['pk', 'product', 'order', 'quantity', 'unit_price', 'total_price']
-
-
 @admin.register(PaymentMethod)
 class PaymentMethodAdmin(admin.ModelAdmin): 
     list_display = ['pk', 'title']
@@ -106,8 +100,3 @@ class PaymentMethodAdmin(admin.ModelAdmin):
 @admin.register(DeliveryTerm)
 class DeliveryTermAdmin(admin.ModelAdmin): 
     list_display = ['pk', 'title']
-
-
-# @admin.register(ImportOrderStatus)
-# class ImportOrderStatusAdmin(admin.ModelAdmin): 
-#     list_display = ['pk', 'text', 'time']

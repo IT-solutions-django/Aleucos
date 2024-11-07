@@ -9,16 +9,13 @@ from Aleucos import settings
 def import_products_from_xlsx_task(xlsx_file_path: str) -> None:
     settings.ELASTICSEARCH_SYNC = False
     ImportProductsStatusService.delete_all_statuses()
-    ElasticSearchService.truncate_products_index()
 
-    log_text = 'Началось удаление неактуальных данных'
+    log_text = 'Началось считывание данных'
     logger.info(log_text)
     ImportProductsStatusService.add_new_status(log_text)
 
     with open(xlsx_file_path, 'rb') as f:
         xlsx_file = UploadedFile(f)
-
-        CatalogImporter.truncate_not_frozen_products_and_brands() 
 
         log_text = 'Началась загрузка новых данных из файла'
         logger.info(log_text)

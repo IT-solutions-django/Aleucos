@@ -85,29 +85,6 @@ class CatalogImporter:
         brand, _ = Brand.objects.get_or_create(title=str(brand_title))
 
         try:
-            product = Product.objects.filter(barcode=barcode).first()
-
-            if product: 
-                if product.is_frozen: 
-                    product.brand=brand 
-                    product.title=title
-                    product.description=description
-                    product.photo = photo
-                    product.volume=volume 
-                    product.weight=weight,
-                    product.notes=notes,
-                    product.price_before_200k=price_before_200k,
-                    product.price_after_200k=price_after_200k,
-                    product.price_after_500k=price_after_500k,
-                    product.is_in_stock=is_in_stock,
-                    product.category=random.choice(Category.objects.all()),
-                    product.remains=random.randint(0, 100) if is_in_stock else 0
-                    
-                    product.save(while_importing_catalog=True)
-                    return
-                else: 
-                    raise ProductImportError(f'Товар со штрихкодом {barcode} уже есть в базе данных')
-
             product = Product(
                 barcode=barcode,
                 brand=brand,
@@ -124,10 +101,9 @@ class CatalogImporter:
                 category=random.choice(Category.objects.all()),
                 remains=random.randint(0, 100) if is_in_stock else 0
             )
-            product.save(while_importing_catalog=True)
-
+            product.save()
             logger.info(f'Товар "{title}" сохранён в базу данных')
-        except (ValidationError, TypeError) as e:
+        except (ValidationError, TypeError, IntegrityError) as e:
             raise ProductImportError(f'Ошибка в строке {index}: {str(e)}')
 
     @staticmethod
@@ -169,9 +145,9 @@ class CatalogImporter:
             raise ProductImportError(f'У товара неверный штрихкод: {barcode}')
 
     @staticmethod
-    def truncate_not_frozen_products_and_brands() -> None:
-        Product.objects.filter(is_frozen=False).delete()
-        Brand.objects.filter(~Q(products__is_frozen=True)).delete()
+    def truncate_products_and_brands() -> None:
+        Product.objects.all().delete()
+        Brand.objects.all().delete()
 
 
 class CatalogExporter: 
