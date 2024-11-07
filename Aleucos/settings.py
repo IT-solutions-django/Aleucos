@@ -53,6 +53,7 @@ INSTALLED_APPS = [
 
     'configs',
 
+    'home',
     'products',
     'orders',
     'carts', 
