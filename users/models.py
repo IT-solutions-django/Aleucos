@@ -82,7 +82,7 @@ def after_user_save(sender, instance, created, **kwargs):
     if created and instance.is_active:
         transaction.on_commit(lambda: set_password_and_mail_if_needed(instance))
 
-        crm.create_new_user(instance)
+        # crm.create_new_user(instance)
 
 
 class StaffProxy(User):
@@ -118,4 +118,5 @@ def before_user_save(sender, instance, **kwargs):
 def after_user_save(sender, instance, created, **kwargs):
     if not created and hasattr(instance, '_old_manager'):
         if instance._old_manager != instance.manager and instance._old_manager == None:
-            crm.create_new_task_for_client_registration(instance)
+            # crm.create_new_task_for_client_registration(instance)
+            ...

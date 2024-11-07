@@ -10,8 +10,12 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
 
 app.conf.beat_schedule = {
-    'export_catalog_every_15_minutes': {
+    'export_catalog': {
         'task': 'products.tasks.export_catalog_task',
         'schedule': 30,  
+    },
+    'refresh_amocrm_tokens': {
+        'task': 'amo_webhooks.tasks.refresh_tokens_task',
+        'schedule': 60 * 60,  
     },
 }
