@@ -34,7 +34,7 @@ class AmoCRM:
             storage=tokens.FileTokensStorage(self.token_storage_path),
         )
         if not tokens.default_token_manager._storage.get_access_token(): 
-            code = ''  # Присвоить значение при деплое
+            code = os.getenv('AMOCRM_AUTHORIZATION_CODE')
             tokens.default_token_manager.init(code=code)
         self.pipeline = list(Pipeline.objects.all())[0] 
 
