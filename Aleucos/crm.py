@@ -3,9 +3,13 @@ import os
 import datetime, time
 from amocrm.v2 import Lead, Contact as _Contact, User as _User, custom_field, tokens, fields, Pipeline, Status, Task
 from amocrm.v2.fields import _DateTimeField
+import dotenv
 from loguru import logger
 from Aleucos import settings
 from configs.models import Config
+
+
+dotenv.load_dotenv()
 
 
 class Contact(_Contact):
