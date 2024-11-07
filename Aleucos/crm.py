@@ -29,10 +29,8 @@ class AmoCRM:
             redirect_url=os.getenv('AMOCRM_REDIRECT_URL'),
             storage=tokens.FileTokensStorage(self.token_storage_path),
         )
-        print()
         if not tokens.default_token_manager._storage.get_access_token(): 
-            authorization_code = input('Введите код авторизации amoCRM: ')
-            tokens.default_token_manager.init(code=authorization_code)
+            tokens.default_token_manager.init(code=os.getenv('AMOCRM_AUTHORIZATION_CODE'))
         self.pipeline = list(Pipeline.objects.all())[0] 
 
     def get_lead_by_id(self, id: int) -> Lead: 
