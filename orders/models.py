@@ -8,9 +8,9 @@ from Aleucos.crm import crm
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MaxValueValidator, MinValueValidator
 import tempfile
+import os
 from django.core.files.base import ContentFile
 from users.models import User
-from products.models import Product
 from .pdf_generator.services import generate_pdf_bill
 
 
@@ -90,19 +90,24 @@ class Order(models.Model):
         self.save()
 
     def create_pdf_bill(self) -> None: 
-        with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as temp_file:
-            generate_pdf_bill(
-                output_filename=temp_file.name,
-                pdf_title=f"Заказ №{self.number}",
-                items=self.items.all(), 
-                order=self
-            )
-            
-            temp_file.seek(0)
-            pdf_content = temp_file.read()
+        try:
+            with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as temp_file:
+                generate_pdf_bill(
+                    output_filename=temp_file.name,
+                    pdf_title=f"Заказ №{self.number}",
+                    items=self.items.all(), 
+                    order=self
+                )
+                
+                temp_file.seek(0)
+                pdf_content = temp_file.read()
+                temp_file_path = temp_file.name
         
-        pdf_file_name = f'Заказ_№{self.number}.pdf'
-        self.pdf_bill.save(pdf_file_name, ContentFile(pdf_content), save=True)
+            pdf_file_name = f'Заказ_№{self.number}.pdf'
+            self.pdf_bill.save(pdf_file_name, ContentFile(pdf_content), save=True)
+        finally: 
+            if os.path.exists(temp_file_path):
+                os.remove(temp_file_path)
 
     @staticmethod
     def generate_unique_order_number(length=8) -> str:

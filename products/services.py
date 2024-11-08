@@ -11,10 +11,10 @@ from openpyxl.reader.excel import load_workbook
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import models 
 from django.db.models.query import QuerySet
-from django.db.models import Q
 import io
 import os 
 from loguru import logger
+from tempfile import NamedTemporaryFile
 from .models import Category, Product, Brand, ImportProductsStatus
 from .exceptions import ProductImportError, EndOfTable
 from .documents import ProductDocument
@@ -192,7 +192,15 @@ class CatalogExporter:
 
             current_row_index += 1
 
-        workbook.save(exported_catalog_path)
+
+        try:
+            with NamedTemporaryFile(delete=False, suffix='.xlsx') as temp_file:
+                workbook.save(temp_file.name)
+                temp_file_path = temp_file.name
+            os.replace(temp_file_path, exported_catalog_path)
+        finally: 
+            if os.path.exists(temp_file_path):
+                os.remove(temp_file_path)
 
         return exported_catalog_path
 
