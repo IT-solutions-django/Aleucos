@@ -50,7 +50,7 @@ class DeliveryTerm(models.Model):
 
 class Order(models.Model):
     number = models.CharField(_('Номер заказа'), max_length=16)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders', verbose_name=_('Пользователь'))
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders', verbose_name=_('Пользователь'), null=True, blank=True)
     manager = models.ForeignKey(User, on_delete=models.CASCADE, related_name='managers_orders', verbose_name=_('Менеджер'))
     id_in_amocrm = models.BigIntegerField(_('ID в amoCRM'), null=True)
     total_price = models.DecimalField(_('Итоговая цена'), decimal_places=2, max_digits=14, default=0)

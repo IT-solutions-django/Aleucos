@@ -21,20 +21,15 @@ class OrderImporter:
         items_worksheet = workbook.worksheets[1]
 
         customer_email = customer_data_worksheet.cell(row=19, column=3).value
-        print(customer_email)
-        if not customer_email: 
-            log_text = 'Ошибка! Заказ не был создан: Email покупателя не указан'
-            ImportOrderStatusService.error(log_text, manager_email)
-            logger.error(log_text)
-            return
-
-        try:
-            user = User.objects.get(email=customer_email)
-        except User.DoesNotExist: 
-            log_text = f'Ошибка! Заказ не был создан: пользователя с email {customer_email} не существует'
-            ImportOrderStatusService.error(log_text, manager_email)
-            logger.error(log_text)
-            return 
+        user = None
+        if customer_email:
+            try:
+                user = User.objects.get(email=customer_email)
+            except User.DoesNotExist: 
+                log_text = f'Ошибка! Заказ не был создан: пользователя с email {customer_email} не существует'
+                ImportOrderStatusService.error(log_text, manager_email)
+                logger.error(log_text)
+                return 
         
         try: 
             manager = User.objects.get(email=manager_email)
@@ -64,6 +59,12 @@ class OrderImporter:
                 logger.error(log_text)
                 ImportOrderStatusService.error(log_text, manager_email)
                 return 
+            
+        if len(order_data['items']) == 0: 
+            log_text = f'Ошибка! Заказ не был создан: в заказе нет ни одной позиции'
+            ImportOrderStatusService.error(log_text, manager_email)
+            logger.error(log_text)
+            return 
 
         OrderImporter.calculate_total_price(order_data)
 
@@ -92,7 +93,7 @@ class OrderImporter:
         order.save()
         order.create_pdf_bill()
 
-        log_text = f'Заказ №{order.number} для клиента {order.user.email} был успешно создан!'
+        log_text = f'Заказ №{order.number} для клиента {order.user.email} был успешно создан!' if order.user else f'Заказ №{order.number} был успешно создан!'
         logger.info(log_text)
         ImportOrderStatusService.success(log_text, manager_email)
 
