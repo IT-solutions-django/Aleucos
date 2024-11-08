@@ -94,7 +94,7 @@ class RegistrationRequest(models.Model):
     phone = models.CharField(_('Телефон'), max_length=20)
     email = models.EmailField(_('Электронная почта'), unique=True) 
     created_at = models.DateTimeField(_('Дата создания'), auto_now_add=True)
-    manager = models.ForeignKey(User, verbose_name=_('Менеджер'), on_delete=models.CASCADE, null=True)
+    manager = models.ForeignKey(User, verbose_name=_('Менеджер'), on_delete=models.CASCADE, null=True, blank=True)
     to_save = models.BooleanField(_('Зарегистрировать?'), default=False)
 
     class Meta:
@@ -117,18 +117,23 @@ def before_request_save(sender, instance, **kwargs):
 
 @receiver(post_save, sender=RegistrationRequest)
 def after_request_save(sender, instance: RegistrationRequest, created, **kwargs):
-    if not created and instance.to_save:
-        new_user: User = User.objects.create(
-            email=instance.email, 
-            phone=instance.phone, 
-            last_name=instance.last_name, 
-            first_name=instance.first_name, 
-            patronymic=instance.patronymic, 
-            manager=instance.manager, 
-        )
-        new_user.save()
-        new_user.groups.add(Group.objects.get(name=Config.get_instance().users_group_name))
-        
-        transaction.on_commit(lambda: set_password_and_mail(new_user))
-        # crm.create_new_user(new_user)
-        # crm.create_new_task_for_client_registration(instance)
+
+    if not created and hasattr(instance, '_old_manager'):
+        if instance._old_manager != instance.manager and instance._old_manager == None:
+            crm.create_new_task_for_client_registration(instance)
+
+        if instance.to_save: 
+            new_user: User = User.objects.create(
+                email=instance.email, 
+                phone=instance.phone, 
+                last_name=instance.last_name, 
+                first_name=instance.first_name, 
+                patronymic=instance.patronymic, 
+                manager=instance.manager, 
+            )
+            new_user.save()
+            new_user.groups.add(Group.objects.get(name=Config.get_instance().users_group_name))
+            
+            transaction.on_commit(lambda: set_password_and_mail(new_user))
+            crm.create_new_user(new_user)
+
