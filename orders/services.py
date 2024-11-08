@@ -11,11 +11,18 @@ from products.models import Product
 from Aleucos import settings
 from users.models import User
 from configs.models import Config
+from orders.models import PaymentMethod, DeliveryTerm
 
 
 class OrderImporter:
     @staticmethod
-    def import_order_from_xlsx(xlsx_file: UploadedFile, manager_email: str) -> None:
+    def import_order_from_xlsx(
+        xlsx_file: UploadedFile, 
+        manager_email: str,
+        payment_method_id: int, 
+        delivery_terms_id: int, 
+        comment: str
+    ) -> None:
         workbook = load_workbook(filename=xlsx_file, data_only=True)
         customer_data_worksheet = workbook.worksheets[0]
         items_worksheet = workbook.worksheets[1]
@@ -72,7 +79,10 @@ class OrderImporter:
             user=order_data['user'],
             status=order_data['status'],
             manager=order_data['manager'],
-            total_price=order_data['total_price']
+            total_price=order_data['total_price'], 
+            payment_method=PaymentMethod.objects.get(pk=payment_method_id), 
+            delivery_terms=DeliveryTerm.objects.get(pk=delivery_terms_id), 
+            comment=comment
         )
         for item_data in order_data['items']:
             OrderItem.objects.create(
