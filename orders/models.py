@@ -147,13 +147,21 @@ class OrderItem(models.Model):
 
 
 class ImportOrderStatus(models.Model):
+    class Type(models.TextChoices):
+        INFO = 'INFO', 'Информация'
+        PROCESS = 'PROCESS', 'Обработка'
+        ERROR = 'ERROR', 'Ошибка'
+        SUCCESS = 'SUCCESS', 'Успех'
+
     text = models.CharField(_('Текст'), max_length=200)
     time = models.TimeField(_('Время'), auto_now_add=True)
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, null=True, verbose_name=_('Заказ'))
+    manager = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('Менеджер'))
+    status_type = models.CharField(_('Тип'), max_length=10, choices=Type.choices, default=Type.INFO)
 
     class Meta:
-        verbose_name = _('Статус импорта заказа')
-        verbose_name_plural = _('Статусы импорта заказов')
+        verbose_name = _('Статус импорта')
+        verbose_name_plural = _('Статус импорта')
+        ordering = ['-time']
 
     def __str__(self) -> str:
-        return f'{self.time} {self.text}'
+        return self.text

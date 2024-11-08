@@ -68,7 +68,7 @@ class OrderAdmin(admin.ModelAdmin):
             xlsx_file_path = default_storage.save(filename, xlsx_file)
             xlsx_file_full_path = os.path.join(settings.MEDIA_ROOT, xlsx_file_path)
 
-            import_orders_from_xlsx_task.delay(xlsx_file_full_path)
+            import_orders_from_xlsx_task.delay(xlsx_file_full_path, request.user.email)
 
             self.message_user(request, 'Создание заказа запущено в фоновом режиме')
             return redirect('admin:status_of_order_import')
@@ -80,12 +80,7 @@ class OrderAdmin(admin.ModelAdmin):
         context = admin.site.each_context(request) 
         current_user = request.user
 
-        if current_user.groups.filter(name=Config.get_instance().managers_group_name).exists():
-            customers = User.objects.filter(manager=current_user)
-            orders = Order.objects.filter(user__in=customers)
-            import_statuses = ImportOrderStatus.objects.filter(order__in=orders)
-        else: 
-            import_statuses = ImportOrderStatus.objects.all()
+        import_statuses = ImportOrderStatus.objects.filter(manager=request.user)
 
         
         context['import_statuses'] = import_statuses
@@ -100,3 +95,8 @@ class PaymentMethodAdmin(admin.ModelAdmin):
 @admin.register(DeliveryTerm)
 class DeliveryTermAdmin(admin.ModelAdmin): 
     list_display = ['pk', 'title']
+
+
+@admin.register(ImportOrderStatus)
+class ImportOrderStatusAdmin(admin.ModelAdmin): 
+    list_display = ['id', 'time', 'text', 'manager']

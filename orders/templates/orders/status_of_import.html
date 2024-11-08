@@ -2,18 +2,108 @@
 
 {% block content %}
 
-    <h1>Прогресс создания заказа из xlsx-файла</h1> 
+<div id="loading-animation" style="display: none;">
+    <p>Действие выполняется, пожалуйста, подождите...</p>
+    <div class="spinner" style="border: 5px solid #f3f3f3; border-top: 5px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div>
+</div>
 
-    <ul>
-        {% for status in import_statuses %}
+<ul id="status-list">
+</ul>
 
-            <li>{{status.time }} {{ status }}</li>
+<h2 id="no-statuses" {% if not import_statuses %}style="display: block"{% else %}style="display: none"{% endif %};>На данный момент ничего не загружается</h2>
 
-        {% endfor %}
-    </ul>
-    
-    {% if not import_statuses %} 
-        <h2>На данный момент ничего не загружается</h2> 
-    {% endif %}
+<script>
+    function fetchStatuses() {
+        fetch("{% url 'orders:import_order_statuses' manager_email=request.user.email %}")
+            .then(response => response.json())
+            .then(data => {
+                const statusList = document.getElementById('status-list');
+                statusList.innerHTML = '';
+
+                if (data.length === 0) {
+                    document.getElementById('no-statuses').style.display = 'block';
+                    return;
+                } else {
+                    document.getElementById('no-statuses').style.display = 'none';
+                }
+                const loadingAnimation = document.getElementById('loading-animation');
+
+                let lastStatus = data.at(0)
+                if (lastStatus.type === 'PROCESS') {
+                    loadingAnimation.style.display = 'block';
+                } else {
+                    loadingAnimation.style.display = 'none';
+
+                    let previousTime = null;
+                    data.forEach(status => {
+                        const listItem = document.createElement('li');
+                        listItem.textContent = `${status.time} ${status.text}`;
+
+                        listItem.classList.add('log'); 
+                        if (status.type === 'ERROR') {
+                            listItem.classList.add('log-error');
+                        } else if (status.type === 'SUCCESS') {
+                            listItem.classList.add('log-success');
+                        } else {
+                            listItem.classList.add('log-info'); 
+                        }
+
+                        if (previousTime) {
+                            const currentTime = new Date(`1970-01-01T${status.time}Z`);
+                            const diffInMinutes = (previousTime - currentTime) / 60000;
+
+                            if (diffInMinutes > 5) {
+                                listItem.classList.add('log-spaced');
+                            }
+                        }
+                        previousTime = new Date(`1970-01-01T${status.time}Z`);
+                        statusList.appendChild(listItem);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при получении статусов:', error);
+            });
+    }
+    fetchStatuses()
+    setInterval(fetchStatuses, 4000); 
+</script>
+
+<style>
+    .log {
+        font-size: 14px; 
+        margin-bottom: 4px;
+    }
+
+    .log-spaced {
+        margin-top: 20px;
+    }
+
+    .log-error {
+        color: #c92c20;
+    }
+
+    .log-success {
+        color: green;
+    }
+
+    .log-info {
+        color: black;
+    }
+
+    .spinner {
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #3498db;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
     
 {% endblock %}

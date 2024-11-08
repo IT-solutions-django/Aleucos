@@ -18,4 +18,12 @@ app.conf.beat_schedule = {
         'task': 'amo_webhooks.tasks.refresh_tokens_task',
         'schedule': 60 * 60,  
     },
+    'delete_import_products_logs': {
+        'task': 'products.tasks.delete_import_statuses_task',
+        'schedule': crontab(hour=0, minute=0, day_of_month='1-31/2'),
+    }, 
+    'delete_import_orders_logs': {
+        'task': 'orders.tasks.delete_import_statuses_task',
+        'schedule': crontab(hour=0, minute=0, day_of_month='1-31/2'),
+    }
 }
