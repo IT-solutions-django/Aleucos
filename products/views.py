@@ -1,16 +1,27 @@
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.views import View
 from elasticsearch_dsl.query import MultiMatch
-from django.core import serializers
 from carts.services import Cart
-import json
 from django.core.paginator import Paginator
 from .models import Product
 from .forms import SearchAndFilterForm
-from .services import get_paginated_collection, CatalogExporter
-from django.core.serializers.json import DjangoJSONEncoder
 from .documents import ProductDocument
+from .models import ImportProductsStatus
+
+
+class ImportProductsStatusView(View): 
+    def get(self, request): 
+        statuses = ImportProductsStatus.objects.all()[:100]
+        data = [
+            {
+                'time': status.time.strftime('%H:%M'), 
+                'text': str(status), 
+                'type': status.status_type
+            }
+            for status in statuses
+        ]
+        return JsonResponse(data, safe=False)
 
 
 class ProductsListView(View):

@@ -6,6 +6,7 @@ from django.dispatch.dispatcher import receiver
 import random
 from django.utils.translation import gettext_lazy as _
 from Aleucos import settings
+from users.models import User
 
 
 class Brand(models.Model): 
@@ -90,12 +91,21 @@ def image_delete(sender, instance, **kwargs):
 
 
 class ImportProductsStatus(models.Model): 
+    class Type(models.TextChoices):
+        INFO = 'INFO', 'Информация'
+        PROCESS = 'PROCESS', 'Обработка'
+        ERROR = 'ERROR', 'Ошибка'
+        SUCCESS = 'SUCCESS', 'Успех'
+
     text = models.CharField(_('Текст'), max_length=200, null=False) 
     time = models.TimeField(_('Время'), auto_now_add=True)
+    status_type = models.CharField(_('Тип'), max_length=10, choices=Type.choices, default=Type.INFO)
 
     class Meta:
-        verbose_name = _('Статус импорта товаров')
-        verbose_name_plural = _('Статусы импорта товаров')
+        verbose_name = _('Статус импорта')
+        verbose_name_plural = _('Статус импорта')
+        ordering = ['-time']
 
     def __str__(self) -> str: 
         return self.text
+    

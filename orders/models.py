@@ -8,9 +8,9 @@ from Aleucos.crm import crm
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MaxValueValidator, MinValueValidator
 import tempfile
+import os
 from django.core.files.base import ContentFile
 from users.models import User
-from products.models import Product
 from .pdf_generator.services import generate_pdf_bill
 
 
@@ -50,7 +50,7 @@ class DeliveryTerm(models.Model):
 
 class Order(models.Model):
     number = models.CharField(_('Номер заказа'), max_length=16)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders', verbose_name=_('Пользователь'))
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders', verbose_name=_('Пользователь'), null=True, blank=True)
     manager = models.ForeignKey(User, on_delete=models.CASCADE, related_name='managers_orders', verbose_name=_('Менеджер'))
     id_in_amocrm = models.BigIntegerField(_('ID в amoCRM'), null=True)
     total_price = models.DecimalField(_('Итоговая цена'), decimal_places=2, max_digits=14, default=0)
@@ -90,19 +90,24 @@ class Order(models.Model):
         self.save()
 
     def create_pdf_bill(self) -> None: 
-        with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as temp_file:
-            generate_pdf_bill(
-                output_filename=temp_file.name,
-                pdf_title=f"Заказ №{self.number}",
-                items=self.items.all(), 
-                order=self
-            )
-            
-            temp_file.seek(0)
-            pdf_content = temp_file.read()
+        try:
+            with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as temp_file:
+                generate_pdf_bill(
+                    output_filename=temp_file.name,
+                    pdf_title=f"Заказ №{self.number}",
+                    items=self.items.all(), 
+                    order=self
+                )
+                
+                temp_file.seek(0)
+                pdf_content = temp_file.read()
+                temp_file_path = temp_file.name
         
-        pdf_file_name = f'Заказ_№{self.number}.pdf'
-        self.pdf_bill.save(pdf_file_name, ContentFile(pdf_content), save=True)
+            pdf_file_name = f'Заказ_№{self.number}.pdf'
+            self.pdf_bill.save(pdf_file_name, ContentFile(pdf_content), save=True)
+        finally: 
+            if os.path.exists(temp_file_path):
+                os.remove(temp_file_path)
 
     @staticmethod
     def generate_unique_order_number(length=8) -> str:
@@ -147,13 +152,21 @@ class OrderItem(models.Model):
 
 
 class ImportOrderStatus(models.Model):
+    class Type(models.TextChoices):
+        INFO = 'INFO', 'Информация'
+        PROCESS = 'PROCESS', 'Обработка'
+        ERROR = 'ERROR', 'Ошибка'
+        SUCCESS = 'SUCCESS', 'Успех'
+
     text = models.CharField(_('Текст'), max_length=200)
     time = models.TimeField(_('Время'), auto_now_add=True)
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, null=True, verbose_name=_('Заказ'))
+    manager = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('Менеджер'))
+    status_type = models.CharField(_('Тип'), max_length=10, choices=Type.choices, default=Type.INFO)
 
     class Meta:
-        verbose_name = _('Статус импорта заказа')
-        verbose_name_plural = _('Статусы импорта заказов')
+        verbose_name = _('Статус импорта')
+        verbose_name_plural = _('Статус импорта')
+        ordering = ['-time']
 
     def __str__(self) -> str:
-        return f'{self.time} {self.text}'
+        return self.text

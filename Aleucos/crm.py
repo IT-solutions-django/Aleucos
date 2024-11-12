@@ -1,8 +1,9 @@
 from decimal import Decimal
 import os
 import datetime, time
-from amocrm.v2 import Lead, Contact as _Contact, User as _User, custom_field, tokens, fields, Pipeline, Status, Task
+from amocrm.v2 import Lead, Contact as _Contact, User as _User, custom_field, tokens, fields, Pipeline, Status
 from amocrm.v2.fields import _DateTimeField
+from amocrm.v2.entity.task import Task
 import dotenv
 from loguru import logger
 from Aleucos import settings
@@ -22,21 +23,22 @@ class User(_User):
 
 
 class AmoCRM:
-    # def __init__(self):
-    #     self.token_storage_path = os.path.join(os.path.dirname(__file__), 'amocrm_tokens')
-    #     os.makedirs(self.token_storage_path, exist_ok=True)
+    def __init__(self):
+        self.token_storage_path = os.path.join(os.path.dirname(__file__), 'amocrm_tokens')
+        os.makedirs(self.token_storage_path, exist_ok=True)
 
-    #     tokens.default_token_manager(
-    #         client_id=os.getenv('AMOCRM_CLIENT_ID'),
-    #         client_secret=os.getenv('AMOCRM_CLIENT_SECRET'),
-    #         subdomain=os.getenv('AMOCRM_SUBDOMAIN'),
-    #         redirect_url=os.getenv('AMOCRM_REDIRECT_URL'),
-    #         storage=tokens.FileTokensStorage(self.token_storage_path),
-    #     )
-    #     if not tokens.default_token_manager._storage.get_access_token(): 
-    #         code = os.getenv('AMOCRM_AUTHORIZATION_CODE')
-    #         tokens.default_token_manager.init(code=code)
-    #     self.pipeline = list(Pipeline.objects.all())[0] 
+        tokens.default_token_manager(
+            client_id=os.getenv('AMOCRM_CLIENT_ID'),
+            client_secret=os.getenv('AMOCRM_CLIENT_SECRET'),
+            subdomain=os.getenv('AMOCRM_SUBDOMAIN'),
+            redirect_url=os.getenv('AMOCRM_REDIRECT_URL'),
+            storage=tokens.FileTokensStorage(self.token_storage_path),
+        )
+        if not tokens.default_token_manager._storage.get_access_token(): 
+            print('Токенов нет')
+            code = os.getenv('AMOCRM_AUTHORIZATION_CODE')
+            tokens.default_token_manager.init(code=code)
+        self.pipeline = list(Pipeline.objects.all())[0] 
 
     def get_lead_by_id(self, id: int) -> Lead: 
         return Lead.objects.get(object_id=id)        
@@ -91,9 +93,12 @@ class AmoCRM:
         new_lead.contacts.append(contact)
 
     def create_new_task_for_client_registration(self, registration_request): 
+        new_task: Task
+        responsible_user = User.objects.get(query=registration_request.manager.email) 
+        print(responsible_user)
         new_task = Task.objects.create(
-            text=f'Заявка с сайта | {registration_request.email}',  
-            complete_till=int(time.mktime(datetime.datetime.now().timetuple())) + 60 * 60 * 24, 
+            text=f'Заявка с сайта для {registration_request.manager.email} | {registration_request.email}',  
+            complete_till=int(time.mktime(datetime.datetime.now().timetuple()) + 60 * 60 * 24), 
         )
 
     @staticmethod

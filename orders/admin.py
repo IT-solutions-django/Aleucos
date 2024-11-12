@@ -55,23 +55,41 @@ class OrderAdmin(admin.ModelAdmin):
         context['form'] = XlsxImportOrderForm()
 
         if request.method == 'POST':
-            xlsx_file = request.FILES['xlsx_file']
-            filename = os.path.join('tmp', 'order_list.xlsx')
-
-            try:
-                if default_storage.exists(filename):
-                    default_storage.delete(filename)
-            except PermissionError:
-                self.message_user(request, 'Подождите немного, загрузка данных прошлого xlsx-файла ещё не окончена', level='error')
-                return render(request, 'orders/add_orders_form.html', context=context)
+            form = XlsxImportOrderForm(request.POST, request.FILES)
             
-            xlsx_file_path = default_storage.save(filename, xlsx_file)
-            xlsx_file_full_path = os.path.join(settings.MEDIA_ROOT, xlsx_file_path)
+            if form.is_valid():
+                xlsx_file = form.cleaned_data['xlsx_file']
+                payment_method = form.cleaned_data.get('payment_method')
+                delivery_terms = form.cleaned_data.get('delivery_terms')
+                comment = form.cleaned_data.get('comment')
+                print(type(payment_method), delivery_terms, comment)
 
-            import_orders_from_xlsx_task.delay(xlsx_file_full_path)
+                filename = os.path.join('tmp', 'order_list.xlsx')
 
-            self.message_user(request, 'Создание заказа запущено в фоновом режиме')
-            return redirect('admin:status_of_order_import')
+                try:
+                    if default_storage.exists(filename):
+                        default_storage.delete(filename)
+                except PermissionError:
+                    self.message_user(request, 'Подождите немного, загрузка данных прошлого xlsx-файла ещё не окончена', level='error')
+                    return render(request, 'orders/add_orders_form.html', context=context)
+                
+                xlsx_file_path = default_storage.save(filename, xlsx_file)
+                xlsx_file_full_path = os.path.join(settings.MEDIA_ROOT, xlsx_file_path)
+
+
+                import_orders_from_xlsx_task.delay(
+                    xlsx_file_path=xlsx_file_full_path, 
+                    manager_email=request.user.email, 
+                    payment_method_id=payment_method.pk, 
+                    delivery_terms_id=delivery_terms.pk, 
+                    comment=comment
+                )
+
+                self.message_user(request, 'Создание заказа запущено в фоновом режиме')
+                return redirect('admin:status_of_order_import')
+            else: 
+                self.message_user(request, 'Неверные данные', level='error')
+                return render(request, 'orders/add_orders_form.html', context=context)
 
         return render(request, 'orders/add_order_form.html', context=context)
     
@@ -80,12 +98,7 @@ class OrderAdmin(admin.ModelAdmin):
         context = admin.site.each_context(request) 
         current_user = request.user
 
-        if current_user.groups.filter(name=Config.get_instance().managers_group_name).exists():
-            customers = User.objects.filter(manager=current_user)
-            orders = Order.objects.filter(user__in=customers)
-            import_statuses = ImportOrderStatus.objects.filter(order__in=orders)
-        else: 
-            import_statuses = ImportOrderStatus.objects.all()
+        import_statuses = ImportOrderStatus.objects.filter(manager=request.user)
 
         
         context['import_statuses'] = import_statuses
@@ -100,3 +113,8 @@ class PaymentMethodAdmin(admin.ModelAdmin):
 @admin.register(DeliveryTerm)
 class DeliveryTermAdmin(admin.ModelAdmin): 
     list_display = ['pk', 'title']
+
+
+@admin.register(ImportOrderStatus)
+class ImportOrderStatusAdmin(admin.ModelAdmin): 
+    list_display = ['id', 'time', 'text', 'manager']

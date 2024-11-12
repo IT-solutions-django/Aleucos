@@ -5,41 +5,51 @@ from decimal import Decimal, getcontext, ROUND_HALF_UP
 from openpyxl.reader.excel import load_workbook
 from loguru import logger
 from django.db.models.query import QuerySet
-from .exceptions import OrderImportError, EndOfTable, CustomerDataError
+from .exceptions import OrderImportError, EndOfTable
 from .models import OrderStatus, Order, OrderItem, ImportOrderStatus
 from products.models import Product
 from Aleucos import settings
 from users.models import User
 from configs.models import Config
+from orders.models import PaymentMethod, DeliveryTerm
 
 
 class OrderImporter:
     @staticmethod
-    def import_order_from_xlsx(xlsx_file: UploadedFile) -> None:
+    def import_order_from_xlsx(
+        xlsx_file: UploadedFile, 
+        manager_email: str,
+        payment_method_id: int, 
+        delivery_terms_id: int, 
+        comment: str
+    ) -> None:
         workbook = load_workbook(filename=xlsx_file, data_only=True)
         customer_data_worksheet = workbook.worksheets[0]
         items_worksheet = workbook.worksheets[1]
 
         customer_email = customer_data_worksheet.cell(row=19, column=3).value
-        print(customer_email)
-        if not customer_email: 
-            log_text = 'Ошибка! Заказ не был создан: Email покупателя не указан'
-            ImportOrderStatusService.add_new_status(log_text)
-            logger.error(log_text)
-            return
-
-        try:
-            user = User.objects.get(email=customer_email)
+        user = None
+        if customer_email:
+            try:
+                user = User.objects.get(email=customer_email)
+            except User.DoesNotExist: 
+                log_text = f'Ошибка! Заказ не был создан: пользователя с email {customer_email} не существует'
+                ImportOrderStatusService.error(log_text, manager_email)
+                logger.error(log_text)
+                return 
+        
+        try: 
+            manager = User.objects.get(email=manager_email)
         except User.DoesNotExist: 
-            log_text = f'Ошибка! Заказ не был создан: пользователя с email {customer_email} не существует'
-            ImportOrderStatusService.add_new_status(log_text)
+            log_text = f'Ошибка! Заказ не был создан: менеджера с email {customer_email} не существует'
+            ImportOrderStatusService.error(log_text, manager_email)
             logger.error(log_text)
             return 
 
         order_data = {
             'user': user,
             'status': OrderStatus.objects.get(title=Config.get_instance().order_status_first),
-            'manager': user.manager,
+            'manager': manager,
             'items': [],
             'total_price': 0
         }
@@ -54,8 +64,14 @@ class OrderImporter:
             except OrderImportError as e:
                 log_text = f'Ошибка! Заказ не был создан: {str(e)}'
                 logger.error(log_text)
-                ImportOrderStatusService.add_new_status(log_text)
+                ImportOrderStatusService.error(log_text, manager_email)
                 return 
+            
+        if len(order_data['items']) == 0: 
+            log_text = f'Ошибка! Заказ не был создан: в заказе нет ни одной позиции'
+            ImportOrderStatusService.error(log_text, manager_email)
+            logger.error(log_text)
+            return 
 
         OrderImporter.calculate_total_price(order_data)
 
@@ -63,7 +79,10 @@ class OrderImporter:
             user=order_data['user'],
             status=order_data['status'],
             manager=order_data['manager'],
-            total_price=order_data['total_price']
+            total_price=order_data['total_price'], 
+            payment_method=PaymentMethod.objects.get(pk=payment_method_id), 
+            delivery_terms=DeliveryTerm.objects.get(pk=delivery_terms_id), 
+            comment=comment
         )
         for item_data in order_data['items']:
             OrderItem.objects.create(
@@ -80,13 +99,13 @@ class OrderImporter:
             
             log_text = f'В заказ добавлен товар {item_data["product_name"]} ({item_data["quantity"]} шт)'
             logger.info(log_text)
-            ImportOrderStatusService.add_new_status(log_text, order)
+            ImportOrderStatusService.process(log_text, manager_email)
         order.save()
         order.create_pdf_bill()
 
-        log_text = f'Заказ №{order.number} для клиента {order.user.email} был успешно создан!'
+        log_text = f'Заказ №{order.number} для клиента {order.user.email} был успешно создан!' if order.user else f'Заказ №{order.number} был успешно создан!'
         logger.info(log_text)
-        ImportOrderStatusService.add_new_status(log_text, order)
+        ImportOrderStatusService.success(log_text, manager_email)
 
     @staticmethod
     def process_order_row(index: int, row: tuple) -> OrderItem | None:
@@ -161,13 +180,42 @@ class OrderImporter:
 
 
 class ImportOrderStatusService: 
-    def add_new_status(text: str, order: Order=None) -> None: 
-        if order:
-            text = f'Загрузка заказа {order.number}: ' + text
-        ImportOrderStatus.objects.create(text=text, order=order) 
+    @staticmethod 
+    def info(text: str, manager_email: str) -> None: 
+        ImportOrderStatus.objects.create(
+            text=text, 
+            status_type=ImportOrderStatus.Type.INFO, 
+            manager=User.objects.get(email=manager_email)
+        ).save()
 
-    def delete_statuses_of_order() -> None: 
+    @staticmethod 
+    def process(text: str, manager_email: str) -> None: 
+        ImportOrderStatus.objects.create(
+            text=text, 
+            status_type=ImportOrderStatus.Type.PROCESS,
+            manager=User.objects.get(email=manager_email)
+        ).save()
+
+    @staticmethod 
+    def error(text: str, manager_email: str) -> None: 
+        ImportOrderStatus.objects.create(
+            text=text, 
+            status_type=ImportOrderStatus.Type.ERROR, 
+            manager=User.objects.get(email=manager_email)
+        ).save()
+
+    @staticmethod 
+    def success(text: str, manager_email: str) -> None: 
+        ImportOrderStatus.objects.create(
+            text=text, 
+            status_type=ImportOrderStatus.Type.SUCCESS, 
+            manager=User.objects.get(email=manager_email)
+        ).save()
+
+    @staticmethod 
+    def delete_all() -> None: 
         ImportOrderStatus.objects.all().delete()
 
-    def get_all_statuses_of_order(order: Order=None) -> QuerySet | None: 
-        return ImportOrderStatus.objects.all().filter(order=Order)
+    @staticmethod 
+    def get_all_statuses(manager: User) -> QuerySet | None: 
+        return ImportOrderStatus.objects.all().filter(manager=manager)

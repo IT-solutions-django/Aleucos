@@ -4,4 +4,4 @@ from .models import Config
 
 @admin.register(Config)
 class SettingsAdmin(admin.ModelAdmin): 
-    list_display = ['pk']
+    list_display = ['title']

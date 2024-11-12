@@ -11,10 +11,10 @@ from openpyxl.reader.excel import load_workbook
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import models 
 from django.db.models.query import QuerySet
-from django.db.models import Q
 import io
 import os 
 from loguru import logger
+from tempfile import NamedTemporaryFile
 from .models import Category, Product, Brand, ImportProductsStatus
 from .exceptions import ProductImportError, EndOfTable
 from .documents import ProductDocument
@@ -36,15 +36,20 @@ class CatalogImporter:
                 CatalogImporter.process_row(index, row, image_loader)
 
                 updated_products_count += 1
-                if updated_products_count % 100 == 0: 
-                    ImportProductsStatusService.add_new_status(f'Обработано {updated_products_count} товаров')
+                if updated_products_count % 100 == 0 and updated_products_count != 0: 
+                    ImportProductsStatusService.process(f'Обработано {updated_products_count} товаров')
 
             except EndOfTable:
                 break
             except ProductImportError as e:
-                logger.error(str(e))
+                log_text = f'Ошибка при импорте каталога: {str(e)}. Импорт был прерван'
+                logger.error(log_text)
+                ImportProductsStatusService.error(log_text)
+                return
 
-        return updated_products_count
+        log_text = f'Каталог был успешно импортирован!'
+        logger.error(log_text)
+        ImportProductsStatusService.success(log_text)
 
     @staticmethod
     def process_row(index: int, row: tuple, image_loader: SheetImageLoader) -> None:
@@ -67,8 +72,9 @@ class CatalogImporter:
         CatalogImporter.validate_product_data(barcode, title, price_before_200k, price_after_200k, price_after_500k)
 
         if Product.objects.filter(barcode=barcode).exists():
-            logger.warning(f'Продукт с штрихкодом "{barcode}" уже существует. Пропуск продукта {title}')
-            return
+            error_text = f'Продукт {title} с штрихкодом "{barcode}" уже существует'
+            logger.error(error_text)
+            raise ProductImportError(error_text)
         
         photo = CatalogImporter.get_image_or_none(barcode, index, image_loader)
         if photo is None:
@@ -153,8 +159,6 @@ class CatalogImporter:
 class CatalogExporter: 
     @staticmethod
     def export_catalog_to_xlsx() -> str:
-        logger.info('Начался экспорт каталога')
-
         catalog_template_path = os.path.join(settings.MEDIA_ROOT, 'catalog', Config.get_instance().export_catalog_template_filename)
         exported_catalog_path = os.path.join(settings.MEDIA_ROOT, 'catalog', Config.get_instance().export_catalog_filename)
 
@@ -188,8 +192,15 @@ class CatalogExporter:
 
             current_row_index += 1
 
-        workbook.save(exported_catalog_path)
-        logger.info('Каталог был экспортирован')
+
+        try:
+            with NamedTemporaryFile(delete=False, suffix='.xlsx') as temp_file:
+                workbook.save(temp_file.name)
+                temp_file_path = temp_file.name
+            os.replace(temp_file_path, exported_catalog_path)
+        finally: 
+            if os.path.exists(temp_file_path):
+                os.remove(temp_file_path)
 
         return exported_catalog_path
 
@@ -206,13 +217,27 @@ class ElasticSearchService:
 
 class ImportProductsStatusService: 
     @staticmethod 
-    def add_new_status(text: str) -> None: 
-        ImportProductsStatus.objects.create(text=text).save()
+    def info(text: str) -> None: 
+        ImportProductsStatus.objects.create(text=text, status_type=ImportProductsStatus.Type.INFO).save()
 
+    @staticmethod 
+    def process(text: str) -> None: 
+        ImportProductsStatus.objects.create(text=text, status_type=ImportProductsStatus.Type.PROCESS).save()
+
+    @staticmethod 
+    def error(text: str) -> None: 
+        ImportProductsStatus.objects.create(text=text, status_type=ImportProductsStatus.Type.ERROR).save()
+
+    @staticmethod 
+    def success(text: str) -> None: 
+        ImportProductsStatus.objects.create(text=text, status_type=ImportProductsStatus.Type.SUCCESS).save()
+
+    @staticmethod 
     def get_all_statuses() -> QuerySet[ImportProductsStatus]: 
         return ImportProductsStatus.objects.all().order_by('time')
     
-    def delete_all_statuses() -> None: 
+    @staticmethod 
+    def delete_all() -> None: 
         ImportProductsStatus.objects.all().delete()
 
 

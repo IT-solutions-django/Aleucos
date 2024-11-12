@@ -1,8 +1,8 @@
 from django.contrib import admin
 from .filters import GroupFilter
 from .models import Position, UserProxy, StaffProxy, RegistrationRequest
-from Aleucos import settings
 from configs.models import Config
+from .forms import RegistrationRequestAdminForm
 
 
 @admin.register(UserProxy)
@@ -59,5 +59,13 @@ class PositionAdmin(admin.ModelAdmin):
 
 
 @admin.register(RegistrationRequest)
-class RequstrationRequestAdmin(admin.ModelAdmin): 
-    list_display = ['pk', 'first_name', 'last_name', 'patronymic', 'email', 'phone']
+class RegistrationRequestAdmin(admin.ModelAdmin):
+    list_display = ['email', 'phone', 'last_name', 'first_name', 'patronymic', 'created_at']
+    ordering = ['-created_at']
+    form = RegistrationRequestAdminForm
+
+    def get_queryset(self, request):
+        if request.user.groups.filter(name=Config.get_instance().managers_group_name).exists():
+            qs = super().get_queryset(request).filter(manager=request.user)
+            return qs 
+        return super().get_queryset(request)

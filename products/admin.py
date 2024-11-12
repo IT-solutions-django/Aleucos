@@ -131,3 +131,10 @@ class ProductAdmin(admin.ModelAdmin):
         except Exception: 
             self.message_user(request, 'Файл для экспорта не найден', level='error')
             return redirect('admin:products_product_changelist')
+
+
+@admin.register(ImportProductsStatus)
+class Admin(admin.ModelAdmin): 
+    list_display = ['pk', 'text', 'time', 'status_type']
+    list_filter = ['text']
+    search_fields = ['text']

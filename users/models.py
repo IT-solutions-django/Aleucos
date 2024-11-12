@@ -23,8 +23,8 @@ class Position(models.Model):
 
 class User(AbstractUser):
     phone = models.CharField(_('Телефон'), max_length=20)
-    first_name = models.CharField(_('Имя'), max_length=50)
     last_name = models.CharField(_('Фамилия'), max_length=50)
+    first_name = models.CharField(_('Имя'), max_length=50)
     patronymic = models.CharField(_('Отчество'), max_length=50, null=True, blank=True)
     position = models.ForeignKey(Position, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_('Должность'))
     manager = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='customers', verbose_name=_('Менеджер'))
@@ -55,19 +55,13 @@ class User(AbstractUser):
         return f'{self.last_name} {self.first_name} {self.patronymic if self.patronymic else ""}'.rstrip()
 
 
-def set_password_and_mail_if_needed(user: User):
-    try:
-        users_group = Group.objects.get(name=Config.get_instance().users_group_name)
-        if users_group in user.groups.all():
-            raw_password = generate_random_password()
-
-            send_email_to_new_user_task.delay(user.pk, user.email, raw_password)
-
-            user.set_password(raw_password)
-
-        user.save(update_fields=['password'])
-    except Group.DoesNotExist:
-        pass
+def set_password_and_mail(user: User):
+    users_group = Group.objects.get(name=Config.get_instance().users_group_name)
+    if users_group in user.groups.all():
+        raw_password = generate_random_password()
+        send_email_to_new_user_task.delay(user.pk, user.email, raw_password)
+        user.set_password(raw_password)
+    user.save(update_fields=['password'])
 
 
 # Для разделения интерфейса в админке 
@@ -79,8 +73,9 @@ class UserProxy(User):
 
 @receiver(post_save, sender=UserProxy)
 def after_user_save(sender, instance, created, **kwargs):
+    print('Ага')
     if created and instance.is_active:
-        transaction.on_commit(lambda: set_password_and_mail_if_needed(instance))
+        transaction.on_commit(lambda: set_password_and_mail(instance))
 
         # crm.create_new_user(instance)
 
@@ -93,20 +88,26 @@ class StaffProxy(User):
 
 
 class RegistrationRequest(models.Model): 
-    first_name = models.CharField(_('Имя'), max_length=50)
     last_name = models.CharField(_('Фамилия'), max_length=50)
+    first_name = models.CharField(_('Имя'), max_length=50)
     patronymic = models.CharField(_('Отчество'), max_length=50, null=True, blank=True)
     phone = models.CharField(_('Телефон'), max_length=20)
     email = models.EmailField(_('Электронная почта'), unique=True) 
-    manager = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    created_at = models.DateTimeField(_('Дата создания'), auto_now_add=True)
+    manager = models.ForeignKey(User, verbose_name=_('Менеджер'), on_delete=models.CASCADE, null=True, blank=True)
+    to_save = models.BooleanField(_('Зарегистрировать?'), default=False)
 
     class Meta:
         verbose_name = _('Заявка')
         verbose_name_plural = _('Заявки')
+        ordering = ['-created_at']
+
+    def __str__(self) -> str: 
+        return self.email
 
 
 @receiver(pre_save, sender=RegistrationRequest)
-def before_user_save(sender, instance, **kwargs):
+def before_request_save(sender, instance, **kwargs):
     if instance.pk:  
         try:
             old_instance = RegistrationRequest.objects.get(pk=instance.pk)
@@ -115,8 +116,25 @@ def before_user_save(sender, instance, **kwargs):
             instance._old_manager = None
 
 @receiver(post_save, sender=RegistrationRequest)
-def after_user_save(sender, instance, created, **kwargs):
+def after_request_save(sender, instance: RegistrationRequest, created, **kwargs):
+
     if not created and hasattr(instance, '_old_manager'):
         if instance._old_manager != instance.manager and instance._old_manager == None:
             # crm.create_new_task_for_client_registration(instance)
             ...
+
+        if instance.to_save: 
+            new_user: User = User.objects.create(
+                email=instance.email, 
+                phone=instance.phone, 
+                last_name=instance.last_name, 
+                first_name=instance.first_name, 
+                patronymic=instance.patronymic, 
+                manager=instance.manager, 
+            )
+            new_user.save()
+            new_user.groups.add(Group.objects.get(name=Config.get_instance().users_group_name))
+            
+            transaction.on_commit(lambda: set_password_and_mail(new_user))
+            # crm.create_new_user(new_user)
+

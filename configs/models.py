@@ -59,17 +59,28 @@ class Config(models.Model):
     admins_group_name = models.CharField(
         'ADMINS_GROUP_NAME', 
         help_text='Название группы для администраторов', 
-        default='Administrators'
+        default='Администраторы'
     )
     managers_group_name = models.CharField(
         'MANAGERS_GROUP_NAME', 
         help_text='Название группы для менеджеров', 
-        default='Managers'
+        default='Менеджеры'
     )
     users_group_name = models.CharField(
         'USERS_GROUP_NAME', 
         help_text='Название группы для зарегистрированных пользователей', 
-        default='Users'
+        default='Клиенты'
+    )
+    head_of_sales_group_name = models.CharField(
+        'HEAD_OF_SALES_GROUP_NAME', 
+        help_text='Название группы для РОПа', 
+        default='РОП'
+    )
+
+    title = models.CharField(
+        'Настройки', 
+        help_text='Название вкладки в админ. панели',
+        default='Настройки'
     )
 
     class Meta:
