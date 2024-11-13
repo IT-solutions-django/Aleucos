@@ -82,7 +82,7 @@ class AmoCRM:
         data = [{
             'name': name,
             'created_by': 0, 
-            'status_id': 71492590
+            'status_id': 59520526
         }]
         (lead_data,) = data
         lead_data['responsible_user_id'] = responsible_user_id
@@ -114,7 +114,7 @@ class AmoCRM:
             'responsible_user_id': responsible_user_id, 
             'custom_fields_values': [
                 {
-                    'field_id': 549423,
+                    'field_id': 2504353,
                     'values': [
                         {
                             "value": phone, 
@@ -123,7 +123,7 @@ class AmoCRM:
                     ]
                 }, 
                 {
-                    'field_id': 549425, 
+                    'field_id': 2504355, 
                     'values': [
                         {
                             "value": email, 
