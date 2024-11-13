@@ -194,7 +194,7 @@ class CatalogExporter:
 
 
         try:
-            with NamedTemporaryFile(delete=False, suffix='.xlsx') as temp_file:
+            with NamedTemporaryFile(delete=False, suffix='.xlsx', dir=os.path.join(settings.MEDIA_ROOT, 'tmp')) as temp_file:
                 workbook.save(temp_file.name)
                 temp_file_path = temp_file.name
             os.replace(temp_file_path, exported_catalog_path)
