@@ -60,12 +60,11 @@ class PositionAdmin(admin.ModelAdmin):
 
 @admin.register(RegistrationRequest)
 class RegistrationRequestAdmin(admin.ModelAdmin):
-    list_display = ['email', 'phone', 'last_name', 'first_name', 'patronymic', 'created_at']
+    list_display = ['email', 'phone', 'last_name', 'first_name', 'patronymic', 'manager', 'created_at']
     ordering = ['-created_at']
     form = RegistrationRequestAdminForm
 
-    def get_queryset(self, request):
-        if request.user.groups.filter(name=Config.get_instance().managers_group_name).exists():
-            qs = super().get_queryset(request).filter(manager=request.user)
-            return qs 
-        return super().get_queryset(request)
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        form.user = request.user
+        return form

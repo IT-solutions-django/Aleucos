@@ -15,14 +15,14 @@ def status_lead_view(request):
     data: QueryDict = request.POST
 
     lead_id = data['leads[status][0][id]']
-    lead = crm.get_lead_by_id(lead_id)
+    lead_name, new_status = crm.get_lead_and_status(lead_id)
 
     try:
-        order: Order = Order.objects.get(number=lead.name)
+        order: Order = Order.objects.get(id_in_amocrm=lead_id)
     except Order.DoesNotExist: 
-        logger.error(f'Ошибка при обновлении статуса заказа: заказа с номером {lead.name} нет в базе данных')
+        logger.error(f'Ошибка при обновлении статуса заказа: заказа с amoCRM ID {lead_id} нет в базе данных')
 
-    new_status_name = Config.get_instance().order_status_name_mapper.get(lead.status.name)
+    new_status_name = Config.get_instance().order_status_name_mapper.get(new_status)
     new_status, created = OrderStatus.objects.get_or_create(title=new_status_name)
     if created: 
         logger.info(f'Был создан новый статус заказа: {new_status_name}')
@@ -41,16 +41,15 @@ def responsible_lead_view(request):
     lead_id = data['leads[responsible][0][id]']
     responsible_user_id = data['leads[responsible][0][responsible_user_id]']
 
-    lead = crm.get_lead_by_id(lead_id)
-    responsible_user = crm.get_user_by_id(responsible_user_id)
+    responsible_user_email = crm.get_user_email(responsible_user_id)
 
     try:
-        order = Order.objects.get(number=lead.name)
-        new_manager = User.objects.get(email=responsible_user.email)
+        order = Order.objects.get(id_in_amocrm=lead_id)
+        new_manager = User.objects.get(email=responsible_user_email)
     except Order.DoesNotExist: 
-        logger.error(f'Ошибка при обновлении статуса заказа: заказа с номером {lead.name} нет в базе данных')
+        logger.error(f'Ошибка при обновлении статуса заказа: заказа с номером {lead_id} нет в базе данных')
     except User.DoesNotExist: 
-        logger.error(f'Ошибка при обновлении статуса заказа: менеджера с email {responsible_user.email} нет в базе данных')
+        logger.error(f'Ошибка при обновлении статуса заказа: менеджера с email {responsible_user_email} нет в базе данных')
 
     order.manager = new_manager
     order.save()

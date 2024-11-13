@@ -20,5 +20,13 @@ class RegistrationRequestAdminForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        if self.user.groups.filter(name=Config.get_instance().managers_group_name).exists():
+            self.fields['manager'].widget = forms.HiddenInput()
+
+        if self.user.groups.filter(name=Config.get_instance().head_of_sales_group_name).exists():
+            self.fields['to_save'].widget = forms.HiddenInput()
+
         managers_group = Group.objects.get(name=Config.get_instance().managers_group_name)  
         self.fields['manager'].queryset = User.objects.filter(groups=managers_group)
+        
