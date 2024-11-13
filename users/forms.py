@@ -27,6 +27,7 @@ class RegistrationRequestAdminForm(forms.ModelForm):
         # if self.user.groups.filter(name=Config.get_instance().head_of_sales_group_name).exists():
         #     self.fields['to_save'].widget = forms.HiddenInput()
 
+        print(type(self))
         managers_group = Group.objects.get(name=Config.get_instance().managers_group_name)  
         self.fields['manager'].queryset = User.objects.filter(groups=managers_group)
         
