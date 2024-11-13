@@ -21,6 +21,7 @@ def status_lead_view(request):
         order: Order = Order.objects.get(id_in_amocrm=lead_id)
     except Order.DoesNotExist: 
         logger.error(f'Ошибка при обновлении статуса заказа: заказа с amoCRM ID {lead_id} нет в базе данных')
+        return HttpResponse("ОК", content_type="text/plain")
 
     new_status_name = Config.get_instance().order_status_name_mapper.get(new_status)
     new_status, created = OrderStatus.objects.get_or_create(title=new_status_name)
@@ -48,8 +49,10 @@ def responsible_lead_view(request):
         new_manager = User.objects.get(email=responsible_user_email)
     except Order.DoesNotExist: 
         logger.error(f'Ошибка при обновлении статуса заказа: заказа с номером {lead_id} нет в базе данных')
+        return HttpResponse("ОК", content_type="text/plain")
     except User.DoesNotExist: 
         logger.error(f'Ошибка при обновлении статуса заказа: менеджера с email {responsible_user_email} нет в базе данных')
+        return HttpResponse("ОК", content_type="text/plain")
 
     order.manager = new_manager
     order.save()
