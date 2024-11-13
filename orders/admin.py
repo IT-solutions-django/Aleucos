@@ -62,7 +62,6 @@ class OrderAdmin(admin.ModelAdmin):
                 payment_method = form.cleaned_data.get('payment_method')
                 delivery_terms = form.cleaned_data.get('delivery_terms')
                 comment = form.cleaned_data.get('comment')
-                print(type(payment_method), delivery_terms, comment)
 
                 filename = os.path.join('tmp', 'order_list.xlsx')
 

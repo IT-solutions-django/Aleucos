@@ -177,3 +177,5 @@ Aleucos/amocrm_tokens/
 celerybeat-schedule.bak
 celerybeat-schedule.dat
 celerybeat-schedule.dir
+
+amocrm_tokens/

@@ -37,6 +37,7 @@ class User(AbstractUser):
     telegram = models.URLField(_('Telegram'), null=True, blank=True)
     work_start_date = models.DateField(_('Дата начала работы'), null=True, blank=True)
     active_orders_count = models.PositiveIntegerField(_('Число активных заказов'), default=0)
+    id_in_amocrm = models.IntegerField('ID в amoCRM', null=True, blank=True)
 
 
     username = models.CharField(_('Имя пользователя'), max_length=30, null=True, blank=True)
@@ -72,12 +73,20 @@ class UserProxy(User):
         verbose_name_plural = 'Клиенты'
 
 @receiver(post_save, sender=UserProxy)
-def after_user_save(sender, instance, created, **kwargs):
-    print('Ага')
+def after_user_save(sender, instance: UserProxy, created, **kwargs):
     if created and instance.is_active:
         transaction.on_commit(lambda: set_password_and_mail(instance))
+        responsible_user_email = instance.manager.email
+        responsible_user_id = crm.get_user_id(responsible_user_email) 
 
-        # crm.create_new_user(instance)
+        id_in_amocrm = crm.create_contact(
+            name = instance.get_fullname(), 
+            responsible_user_id = responsible_user_id, 
+            email = instance.email, 
+            phone = instance.phone
+        )
+        instance.id_in_amocrm = id_in_amocrm
+        instance.save()
 
 
 class StaffProxy(User):
@@ -120,8 +129,12 @@ def after_request_save(sender, instance: RegistrationRequest, created, **kwargs)
 
     if not created and hasattr(instance, '_old_manager'):
         if instance._old_manager != instance.manager and instance._old_manager == None:
-            # crm.create_new_task_for_client_registration(instance)
-            ...
+            responsible_user_email = instance.manager.email 
+            responsible_user_id = crm.get_user_id(responsible_user_email)
+            crm.create_task(
+                text = f'Обработать заявку от {instance.email} на сайте', 
+                responsible_user_id=responsible_user_id
+            )
 
         if instance.to_save: 
             new_user: User = User.objects.create(
@@ -134,7 +147,17 @@ def after_request_save(sender, instance: RegistrationRequest, created, **kwargs)
             )
             new_user.save()
             new_user.groups.add(Group.objects.get(name=Config.get_instance().users_group_name))
-            
+
             transaction.on_commit(lambda: set_password_and_mail(new_user))
-            # crm.create_new_user(new_user)
+
+            responsible_user_email = instance.manager.email 
+            responsible_user_id = crm.get_user_id(responsible_user_email)
+            id_in_amocrm = crm.create_contact(
+                name = new_user.get_fullname(), 
+                responsible_user_id=responsible_user_id, 
+                email = new_user.email, 
+                phone = new_user.phone
+            )
+            new_user.id_in_amocrm = id_in_amocrm 
+            new_user.save()
 

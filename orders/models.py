@@ -120,10 +120,19 @@ class Order(models.Model):
 
 
 @receiver(post_save, sender=Order)
-def after_order_save(sender, instance, created, **kwargs):
+def after_order_save(sender, instance: Order, created, **kwargs):
     if created:
-        # crm.create_new_lead(instance)
-        ...
+        responsible_user_email = instance.manager.email 
+        responsible_user_id = crm.get_user_id(user_email=responsible_user_email)
+
+        id_in_amocrm = crm.create_lead(
+            name = f'Заказ с сайта №{instance.number}',
+            responsible_user_id = responsible_user_id, 
+            contact_id = instance.user.id_in_amocrm if instance.user else None, 
+            price = instance.total_price
+        )
+        instance.id_in_amocrm = id_in_amocrm 
+        instance.save()
 
 
 class OrderItem(models.Model):
