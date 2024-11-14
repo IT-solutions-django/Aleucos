@@ -110,5 +110,5 @@ class RegistrationRequestAdmin(admin.ModelAdmin):
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
         form.user = request.user
-        form.is_closed = obj.is_closed
+        form.is_closed = obj.is_closed if hasattr(obj, 'is_closed') else False
         return form
