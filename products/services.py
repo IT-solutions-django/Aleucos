@@ -64,12 +64,22 @@ class CatalogImporter:
         price_before_200k = row[9]
         price_after_200k = row[10]
         price_after_500k = row[11]
-        is_in_stock = True if str(row[12]) == '0' else False
+        remains = row[12]
 
         if brand_title is None and title is None and barcode is None:
             raise EndOfTable()
 
-        CatalogImporter.validate_product_data(barcode, title, price_before_200k, price_after_200k, price_after_500k)
+        CatalogImporter.validate_product_data(
+            barcode,
+            title, 
+            price_before_200k, 
+            price_after_200k, 
+            price_after_500k, 
+            remains,
+        )
+
+        remains = 0 if remains is None else int(remains)
+        is_in_stock = bool(remains)
 
         if Product.objects.filter(barcode=barcode).exists():
             error_text = f'Продукт {title} с штрихкодом "{barcode}" уже существует'
@@ -105,7 +115,7 @@ class CatalogImporter:
                 price_after_500k=price_after_500k,
                 is_in_stock=is_in_stock,
                 category=random.choice(Category.objects.all()),
-                remains=random.randint(0, 100) if is_in_stock else 0
+                remains=remains
             )
             product.save()
             logger.info(f'Товар "{title}" сохранён в базу данных')
@@ -136,11 +146,14 @@ class CatalogImporter:
         return value.quantize(Decimal('0.000001'), rounding=ROUND_HALF_UP)
 
     @staticmethod
-    def validate_product_data(barcode: str | float | None,
-                              title: str | None,
-                              price_before_200k: float | None,
-                              price_after_200k: float | None,
-                              price_after_500k: float | None) -> None:
+    def validate_product_data(
+        barcode: str | float | None,
+        title: str | None,
+        price_before_200k: float | None,
+        price_after_200k: float | None,
+        price_after_500k: float | None, 
+        remains: int | str | None
+    ) -> None:
         if title is None:
             raise ProductImportError(f'У товара со штрихкодом {barcode} отсутствует название')
         elif barcode is None or str(barcode) == '0':
@@ -149,6 +162,9 @@ class CatalogImporter:
             raise ProductImportError(f'У товара {title} со штрихкодом {barcode} отсутствует цена')
         elif not str(barcode).strip().isnumeric():
             raise ProductImportError(f'У товара неверный штрихкод: {barcode}')
+        if remains: 
+            if not str(remains).strip().isnumeric(): 
+                raise ProductImportError(f'У товара неверный остаток на складе: {remains}')
 
     @staticmethod
     def truncate_products_and_brands() -> None:
