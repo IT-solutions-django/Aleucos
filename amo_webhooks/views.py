@@ -30,7 +30,7 @@ def status_lead_view(request):
                 send_email_when_new_status_task.delay(
                     email=order.user.email, 
                     order_number=order.number, 
-                    new_status=new_status
+                    new_status=new_status_name
                 )
     new_status, created = OrderStatus.objects.get_or_create(title=new_status_name)
     if created: 
