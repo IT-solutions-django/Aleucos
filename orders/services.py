@@ -32,7 +32,7 @@ class OrderImporter:
         try: 
             manager = User.objects.get(email=manager_email)
         except User.DoesNotExist: 
-            log_text = f'Ошибка! Заказ не был создан: менеджера с email {customer_email} не существует'
+            log_text = f'Ошибка! Заказ не был создан: менеджера с email {manager_email} не существует'
             ImportOrderStatusService.error(log_text, manager_email)
             logger.error(log_text)
             return 
