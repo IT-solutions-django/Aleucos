@@ -1,5 +1,9 @@
 from django.contrib import admin
-from .filters import GroupFilter
+from .filters import (
+    StaffGroupFilter,
+    IsWithManager, 
+    IsClosed
+)
 from configs.models import Config
 from django.contrib.auth.models import Group
 from .services import generate_random_password
@@ -17,8 +21,7 @@ from Aleucos.crm import crm
 class UserAdmin(admin.ModelAdmin):
     list_display = ['pk', 'email', 'first_name', 'last_name','phone', 'manager']
     list_filter = [
-        GroupFilter,
-        'is_active', 
+        IsWithManager
     ]
     form = ClientRegistrationForm
 
@@ -67,9 +70,8 @@ class UserAdmin(admin.ModelAdmin):
 class StaffAdmin(admin.ModelAdmin):
     list_display = ['pk', 'email', 'first_name', 'last_name', 'position', 'phone']
     list_filter = [
-        GroupFilter,
+        StaffGroupFilter,
         'is_superuser', 
-        'is_active', 
     ]
     form = StaffRegistrationForm
 
@@ -98,11 +100,15 @@ class PositionAdmin(admin.ModelAdmin):
 
 @admin.register(RegistrationRequest)
 class RegistrationRequestAdmin(admin.ModelAdmin):
-    list_display = ['email', 'phone', 'last_name', 'first_name', 'patronymic', 'manager', 'created_at']
+    list_display = ['email', 'phone', 'last_name', 'first_name', 'patronymic', 'manager', 'created_at', 'is_closed']
     ordering = ['-created_at']
     form = RegistrationRequestAdminForm
+    list_filter = [
+        IsClosed,
+    ]
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
         form.user = request.user
+        form.is_closed = obj.is_closed
         return form

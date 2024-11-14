@@ -13,6 +13,7 @@ from .tasks import import_orders_from_xlsx_task
 from Aleucos import settings
 from users.models import User
 from configs.models import Config
+from .filters import HasClient
 
 
 @admin.register(OrderStatus)
@@ -28,9 +29,10 @@ class OrderItemInline(admin.TabularInline):
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = ['id', 'number', 'user', 'total_price', 'comment', 'status']
-
+    list_filter = [
+        HasClient
+    ]
     inlines = [OrderItemInline]  
-    
     change_list_template = 'orders/order_change_list.html'
 
     def get_queryset(self, request):

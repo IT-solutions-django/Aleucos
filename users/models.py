@@ -80,6 +80,7 @@ class RegistrationRequest(models.Model):
     created_at = models.DateTimeField(_('Дата создания'), auto_now_add=True)
     manager = models.ForeignKey(User, verbose_name=_('Менеджер'), on_delete=models.CASCADE, null=True, blank=True)
     to_save = models.BooleanField(_('Зарегистрировать?'), default=False)
+    is_closed = models.BooleanField(_('Обработано'), default=False)
 
     class Meta:
         verbose_name = _('Заявка')
@@ -111,7 +112,7 @@ def after_request_save(sender, instance: RegistrationRequest, created, **kwargs)
                 responsible_user_id=responsible_user_id
             )
 
-        if instance.to_save: 
+        if instance.to_save and not instance.is_closed: 
             new_user: User = User.objects.create(
                 email=instance.email, 
                 phone=instance.phone, 
@@ -140,3 +141,5 @@ def after_request_save(sender, instance: RegistrationRequest, created, **kwargs)
             new_user.id_in_amocrm = id_in_amocrm 
             new_user.save()
 
+            instance.is_closed = True 
+            instance.save()
