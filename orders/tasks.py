@@ -10,7 +10,8 @@ def import_orders_from_xlsx_task(
     manager_email: str, 
     payment_method_id: int, 
     delivery_terms_id: int, 
-    comment: str
+    comment: str, 
+    user_id: int
 ) -> None:
     log_text = 'Началась загрузка заказа из файла'
     logger.info(log_text)
@@ -23,7 +24,8 @@ def import_orders_from_xlsx_task(
             manager_email, 
             payment_method_id, 
             delivery_terms_id,
-            comment
+            comment, 
+            user_id
         ) 
 
 

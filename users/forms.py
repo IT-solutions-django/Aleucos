@@ -3,6 +3,7 @@ from .models import RegistrationRequest
 from django.contrib.auth.models import Group
 from configs.models import Config
 from users.models import User
+from django.contrib.auth.hashers import make_password
 
 
 class RegistrationRequestAdminForm(forms.ModelForm):
@@ -37,7 +38,7 @@ class ClientRegistrationForm(forms.ModelForm):
 class StaffRegistrationForm(forms.ModelForm): 
     class Meta:
         model = User
-        fields = ['last_name', 'first_name', 'patronymic', 'groups', 'phone', 'email', 'position', 'photo', 'work_start_date']
+        fields = ['last_name', 'first_name', 'patronymic', 'groups', 'phone', 'email', 'position', 'photo', 'work_start_date', 'password']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -50,3 +51,13 @@ class StaffRegistrationForm(forms.ModelForm):
 
         if self.fields.get('groups'):
             self.fields['groups'].queryset = staff_groups
+
+    def save(self, commit=True):
+        user: User = super().save(commit=False)
+        user.is_staff = True
+        user.save()
+
+        if commit:
+            user.save()
+            self.save_m2m()  
+        return user
