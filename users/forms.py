@@ -29,19 +29,20 @@ class ClientRegistrationForm(forms.ModelForm):
         model = User
         fields = ['last_name', 'first_name', 'patronymic', 'phone', 'email']
 
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs) 
 
-
-class StaffRegistrationForm(forms.ModelForm):
+class StaffRegistrationForm(forms.ModelForm): 
     class Meta:
         model = User
-        fields = ['last_name', 'first_name', 'patronymic', 'phone', 'email', 'position', 'photo', 'work_start_date']
+        fields = ['last_name', 'first_name', 'patronymic', 'groups', 'phone', 'email', 'position', 'photo', 'work_start_date']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields.pop('manager', None)
-        self.fields.pop('active_orders_count', None)
-        self.fields.pop('instagram', None)
-        self.fields.pop('vk', None)
-        self.fields.pop('telegram', None)
+        staff_groups_names = (
+            Config.get_instance().managers_group_name, 
+            Config.get_instance().admins_group_name, 
+            Config.get_instance().head_of_sales_group_name,
+        )
+        staff_groups = Group.objects.filter(name__in=staff_groups_names)
+
+        if self.fields.get('groups'):
+            self.fields['groups'].queryset = staff_groups

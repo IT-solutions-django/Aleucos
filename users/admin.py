@@ -8,6 +8,7 @@ from .models import Position, UserProxy, StaffProxy, RegistrationRequest
 from .forms import (
     RegistrationRequestAdminForm, 
     ClientRegistrationForm, 
+    StaffRegistrationForm
 )
 from Aleucos.crm import crm
 
@@ -23,7 +24,6 @@ class UserAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj: UserProxy, form, change):
         if not change: 
-            print('я тут')
             obj.manager = request.user
 
             raw_password = generate_random_password()
@@ -71,6 +71,7 @@ class StaffAdmin(admin.ModelAdmin):
         'is_superuser', 
         'is_active', 
     ]
+    form = StaffRegistrationForm
 
     def save_model(self, request, obj, form, change):
         if not change: 

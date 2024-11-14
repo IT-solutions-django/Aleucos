@@ -63,21 +63,6 @@ class UserProxy(User):
         verbose_name = 'Клиент'
         verbose_name_plural = 'Клиенты'
 
-# @receiver(post_save, sender=UserProxy)
-# def after_user_save(sender, instance: UserProxy, created, **kwargs):
-#     if created and instance.is_active:
-#         responsible_user_email = instance.manager.email
-#         responsible_user_id = crm.get_user_id(responsible_user_email) 
-
-#         id_in_amocrm = crm.create_contact(
-#             name = instance.get_fullname(), 
-#             responsible_user_id = responsible_user_id, 
-#             email = instance.email, 
-#             phone = instance.phone
-#         )
-#         instance.id_in_amocrm = id_in_amocrm
-#         instance.save()
-
 
 class StaffProxy(User):
     class Meta:
