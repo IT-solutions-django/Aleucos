@@ -165,7 +165,9 @@ class AmoCRM:
         headers = {
             'Authorization': f'Bearer {self.get_current_access_token()}'
         }
+        print(headers)
         response = requests.get(url, headers=headers)
+        print(response.json())
 
         user_id = None
         for user in response.json()['_embedded']['users']: 
