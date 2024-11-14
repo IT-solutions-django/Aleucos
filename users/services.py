@@ -17,3 +17,13 @@ def send_email_to_new_user(login: str, raw_password: str) -> None:
                         body=message, 
                         to=(login,))
     email.send()
+
+
+def send_email_when_new_status(email: str, order_number: str, new_status: str) -> None: 
+    subject = 'У заказа обновился статус'
+    message = f'У вашего заказа №{order_number} обновился статус: {new_status}'
+    
+    email = EmailMessage(subject=subject,
+                        body=message, 
+                        to=(email,))
+    email.send()
