@@ -21,27 +21,18 @@ class OrderImporter:
         manager_email: str,
         payment_method_id: int, 
         delivery_terms_id: int, 
-        comment: str
+        comment: str, 
+        user_id: int
     ) -> None:
         workbook = load_workbook(filename=xlsx_file, data_only=True)
-        customer_data_worksheet = workbook.worksheets[0]
         items_worksheet = workbook.worksheets[1]
 
-        customer_email = customer_data_worksheet.cell(row=19, column=3).value
-        user = None
-        if customer_email:
-            try:
-                user = User.objects.get(email=customer_email)
-            except User.DoesNotExist: 
-                log_text = f'Ошибка! Заказ не был создан: пользователя с email {customer_email} не существует'
-                ImportOrderStatusService.error(log_text, manager_email)
-                logger.error(log_text)
-                return 
+        user = User.objects.get(pk=user_id)
         
         try: 
             manager = User.objects.get(email=manager_email)
         except User.DoesNotExist: 
-            log_text = f'Ошибка! Заказ не был создан: менеджера с email {customer_email} не существует'
+            log_text = f'Ошибка! Заказ не был создан: менеджера с email {manager_email} не существует'
             ImportOrderStatusService.error(log_text, manager_email)
             logger.error(log_text)
             return 

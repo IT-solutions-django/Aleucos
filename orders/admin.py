@@ -54,16 +54,19 @@ class OrderAdmin(admin.ModelAdmin):
     @method_decorator(staff_member_required)
     def import_orders_from_xlsx(self, request) -> HttpResponse:
         context = admin.site.each_context(request)
-        context['form'] = XlsxImportOrderForm()
+        context['form'] = XlsxImportOrderForm(user=request.user)
 
         if request.method == 'POST':
-            form = XlsxImportOrderForm(request.POST, request.FILES)
+            form = XlsxImportOrderForm(request.POST, request.FILES, user=request.user)
             
             if form.is_valid():
                 xlsx_file = form.cleaned_data['xlsx_file']
                 payment_method = form.cleaned_data.get('payment_method')
                 delivery_terms = form.cleaned_data.get('delivery_terms')
                 comment = form.cleaned_data.get('comment')
+                user = form.cleaned_data.get('user')
+                print(type(user))
+                print(user)
 
                 filename = os.path.join('tmp', 'order_list.xlsx')
 
@@ -83,7 +86,8 @@ class OrderAdmin(admin.ModelAdmin):
                     manager_email=request.user.email, 
                     payment_method_id=payment_method.pk, 
                     delivery_terms_id=delivery_terms.pk, 
-                    comment=comment
+                    comment=comment, 
+                    user_id=user.pk
                 )
 
                 self.message_user(request, 'Создание заказа запущено в фоновом режиме')

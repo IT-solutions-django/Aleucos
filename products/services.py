@@ -29,15 +29,13 @@ class CatalogImporter:
         worksheet = workbook.worksheets[1]
         image_loader = SheetImageLoader(worksheet)
 
-        updated_products_count = 0
+        products_data = []
 
         for index, row in enumerate(worksheet.iter_rows(min_row=4, values_only=True), 4):
             try:
-                CatalogImporter.process_row(index, row, image_loader)
-
-                updated_products_count += 1
-                if updated_products_count % 100 == 0 and updated_products_count != 0: 
-                    ImportProductsStatusService.process(f'Обработано {updated_products_count} товаров')
+                product_data = CatalogImporter.process_row(index, row, image_loader)
+                if product_data:
+                    products_data.append(product_data)
 
             except EndOfTable:
                 break
@@ -46,10 +44,45 @@ class CatalogImporter:
                 logger.error(log_text)
                 ImportProductsStatusService.error(log_text)
                 return
+            
+        CatalogImporter.check_duplicates(products_data)
 
+        for product_data in products_data:
+            CatalogImporter.save_product_data(product_data)
         log_text = f'Каталог был успешно импортирован!'
+
         logger.error(log_text)
         ImportProductsStatusService.success(log_text)
+
+    @staticmethod 
+    def check_duplicates(products_data: list[dict]) -> None: 
+        barcodes = [product['barcode'] for product in products_data]
+        duplicate_barcodes = [barcode for barcode in barcodes if barcodes.count(barcode) > 1]
+        if duplicate_barcodes:
+            raise ProductImportError(f'Обнаружены дубликаты штрихкодов: {", ".join(duplicate_barcodes)}')
+        
+    @staticmethod 
+    def save_product_data(product_data: dict) -> None: 
+        brand, _ = Brand.objects.get_or_create(title=str(product_data['brand_title'])) 
+
+        product = Product(
+            barcode=product_data['barcode'],
+            brand=brand,
+            title=product_data['title'],
+            description=product_data['description'],
+            photo=product_data['photo'],
+            volume=product_data['volume'],
+            weight=product_data['weight'],
+            notes=product_data['notes'],
+            price_before_200k=product_data['price_before_200k'],
+            price_after_200k=product_data['price_after_200k'],
+            price_after_500k=product_data['price_after_500k'],
+            is_in_stock=product_data['is_in_stock'],
+            category=product_data['category'],
+            remains=product_data['remains']
+        )
+        product.save()
+        logger.info(f'Товар "{product_data["title"]}" сохранён в базу данных')
 
     @staticmethod
     def process_row(index: int, row: tuple, image_loader: SheetImageLoader) -> None:
@@ -81,10 +114,10 @@ class CatalogImporter:
         remains = 0 if remains is None else int(remains)
         is_in_stock = bool(remains)
 
-        if Product.objects.filter(barcode=barcode).exists():
-            error_text = f'Продукт {title} с штрихкодом "{barcode}" уже существует'
-            logger.error(error_text)
-            raise ProductImportError(error_text)
+        # if Product.objects.filter(barcode=barcode).exists():
+        #     error_text = f'Продукт {title} с штрихкодом "{barcode}" уже существует'
+        #     logger.error(error_text)
+        #     raise ProductImportError(error_text)
         
         photo = CatalogImporter.get_image_or_none(barcode, index, image_loader)
         if photo is None:
@@ -98,29 +131,26 @@ class CatalogImporter:
         price_after_200k = CatalogImporter.convert_str_to_decimal(str(price_after_200k))
         price_after_500k = CatalogImporter.convert_str_to_decimal(str(price_after_500k))
 
-        brand, _ = Brand.objects.get_or_create(title=str(brand_title))
+        # brand, _ = Brand.objects.get_or_create(title=str(brand_title))
 
-        try:
-            product = Product(
-                barcode=barcode,
-                brand=brand,
-                title=title,
-                description=description,
-                photo=photo,
-                volume=volume,
-                weight=weight,
-                notes=notes,
-                price_before_200k=price_before_200k,
-                price_after_200k=price_after_200k,
-                price_after_500k=price_after_500k,
-                is_in_stock=is_in_stock,
-                category=random.choice(Category.objects.all()),
-                remains=remains
-            )
-            product.save()
-            logger.info(f'Товар "{title}" сохранён в базу данных')
-        except (ValidationError, TypeError, IntegrityError) as e:
-            raise ProductImportError(f'Ошибка в строке {index}: {str(e)}')
+        product_data = {
+            'barcode': barcode,
+            'brand_title': brand_title,
+            'title': title,
+            'description': description,
+            'photo': photo,
+            'volume': volume,
+            'weight': weight,
+            'notes': notes,
+            'price_before_200k': price_before_200k,
+            'price_after_200k': price_after_200k,
+            'price_after_500k': price_after_500k,
+            'is_in_stock': is_in_stock,
+            'category': random.choice(Category.objects.all()),
+            'remains': remains
+        }
+
+        return product_data
 
     @staticmethod
     def get_image_or_none(barcode: str, row_index: int, image_loader: SheetImageLoader) -> ContentFile | None:
@@ -162,6 +192,8 @@ class CatalogImporter:
             raise ProductImportError(f'У товара {title} со штрихкодом {barcode} отсутствует цена')
         elif not str(barcode).strip().isnumeric():
             raise ProductImportError(f'У товара неверный штрихкод: {barcode}')
+        elif Product.objects.filter(barcode=barcode).exists():
+            raise ProductImportError(f'Товар со штрихкодом {barcode} уже есть в базе данных')
         if remains: 
             if not str(remains).strip().isnumeric(): 
                 raise ProductImportError(f'У товара неверный остаток на складе: {remains}')

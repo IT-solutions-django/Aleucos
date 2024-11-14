@@ -177,41 +177,42 @@ document.querySelector('.help__right').addEventListener('submit', (event) => {
 
 document.querySelectorAll('.form').forEach(item => {
   item.addEventListener('submit', (event) => {
-    event.preventDefault()
+    event.preventDefault();
 
-    const fields = document.querySelectorAll('.contacts__form-input')
-    const values = {}
+    const fields = document.querySelectorAll('.contacts__form-input');
+    const values = {};
 
-    let string = ''
+    let string = '';
 
     fields.forEach(field => {
-      const {name,value} = field
+      const {name, value} = field;
       if (value != '' && value != '+7') {
-        values[name] = value
-        string += `${name}=${value}&`
+        values[name] = value;
+        string += `${encodeURIComponent(name)}=${encodeURIComponent(value)}&`;
       }
-      
-    })
+    });
 
-    console.log(JSON.stringify(values) );
+    console.log(JSON.stringify(values)); 
 
-    let xhttp = new XMLHttpRequest()
-    xhttp.open("POST", '/', true);
+    let xhttp = new XMLHttpRequest();
+    xhttp.open("POST", '/api/save_registration_request/', true);
     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    // xhttp.send(JSON.stringify(values));
-    xhttp.send(values)
-    
+
+    xhttp.send(string);
+
     xhttp.onreadystatechange = function() {
-      console.log(this.response);
-    }
+      if (this.readyState === 4 && this.status === 200) {
+        // Обрабатываем успешный ответ
+        console.log(this.response);
+      }
+    };
 
-    fields.forEach(item => item.value = "")
+    fields.forEach(item => item.value = "");
 
-    document.querySelector('.toast').classList.add("show")
+    document.querySelector('.toast').classList.add("show");
 
     setTimeout(() => {
-      document.querySelector('.toast').classList.remove("show")
-    }, 5000)
-
-  })
-})
+      document.querySelector('.toast').classList.remove("show");
+    }, 5000);
+  });
+});
