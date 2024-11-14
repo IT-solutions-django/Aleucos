@@ -75,6 +75,7 @@ class RegistrationRequest(models.Model):
     last_name = models.CharField(_('Фамилия'), max_length=50)
     first_name = models.CharField(_('Имя'), max_length=50)
     patronymic = models.CharField(_('Отчество'), max_length=50, null=True, blank=True)
+    message = models.TextField('Сообщение', null=True, blank=True)
     phone = models.CharField(_('Телефон'), max_length=20)
     email = models.EmailField(_('Электронная почта'), unique=True) 
     created_at = models.DateTimeField(_('Дата создания'), auto_now_add=True)

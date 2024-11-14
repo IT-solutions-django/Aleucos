@@ -382,19 +382,19 @@
                     <a class="contacts__info-suptext" href="tel:+79644541700">+7 (964) 454-17-00</a>
                 </div>
                 <div class="contacts__form">
-                    <form class="form" action="">
+                    <form id="contactForm" class="form" action="">
                         <div class="contacts__form-box">
                             <h2 class="contacts__form-title">Имя</h2>
-                            <input placeholder="Введите имя" type="text" name="name" maxlength="30" class="contacts__form-input contacts__form-input-cont" required>
+                            {{ contact_form.name }}
                         </div>
                         <div class="contacts__form-items">
                             <div class="contacts__form-box">
                                 <h2 class="contacts__form-title">Телефон</h2>
-                                <input placeholder="+7" type="text" name="tel" class="contacts__form-input contacts__form-input--tel contacts__form-input-cont" required>
+                                {{ contact_form.phone }}
                             </div>
                             <div class="contacts__form-box">
                                 <h2 class="contacts__form-title">Email</h2>
-                                <input type="email" placeholder="Введите email" name="email" maxlength="30" class="contacts__form-input contacts__form-input-cont" required></input>
+                                {{ contact_form.email }}
                             </div>
                         </div>
                         <div class="contacts__form-box box__marin-top">
@@ -403,7 +403,6 @@
                         </div>
                         <div class="contacts__form-suptext">Нажимая на кнопку “Отправить заявку”, Вы даете согласие на <a class="contacts__form-suptext--link" href="">обработку персональных данных</a> и соглашаетесь с <a class="contacts__form-suptext--link" href="">политикой конфиденциальности.</a></div>
                         <button class="contacts__form-btn section__btn" id="liveToastBtn">Оставить заявку</button>
-                        
                     </form>
                 </div>
             </div>
@@ -416,7 +415,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
         <div class="toast-body">
-          Выши данные успешно отправлены
+          Ваши данные успешно отправлены
         </div>
       </div>
 
@@ -799,5 +798,29 @@
             </div>
         </div>
     </section>
+    
+<script>
+
+const form = document.querySelector("#contactForm");
+console.log(form)
+form.addEventListener("submit", async function(t) {
+    t.preventDefault();
+    let a = new FormData(form),
+        e = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+    form.reset();
+    try {
+        let n = await fetch(`${window.origin}/api/save_registration_request/`, {
+            method: "POST",
+            body: a,
+            headers: {
+                "X-CSRFToken": "{% csrf_token %}"
+            }
+        });
+        n.status
+    } catch (o) {
+        console.error("Ошибка запроса:", o)
+    }
+});
+</script>
 
 {% endblock %}
