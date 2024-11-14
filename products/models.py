@@ -53,7 +53,6 @@ class Product(models.Model):
     class Meta: 
         verbose_name = _('Товар')
         verbose_name_plural = _('Товары')
-        ordering = ['-remains']
 
     def __str__(self) -> str:
         return f'{self.title}'
@@ -98,13 +97,13 @@ class ImportProductsStatus(models.Model):
         SUCCESS = 'SUCCESS', 'Успех'
 
     text = models.CharField(_('Текст'), max_length=200, null=False) 
-    time = models.TimeField(_('Время'), auto_now_add=True)
+    time = models.DateTimeField(_('Дата и время'), auto_now_add=True)
     status_type = models.CharField(_('Тип'), max_length=10, choices=Type.choices, default=Type.INFO)
 
     class Meta:
         verbose_name = _('Статус импорта')
         verbose_name_plural = _('Статус импорта')
-        ordering = ['-time']
+        ordering = ['-pk']
 
     def __str__(self) -> str: 
         return self.text

@@ -135,6 +135,6 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(ImportProductsStatus)
 class Admin(admin.ModelAdmin): 
-    list_display = ['pk', 'text', 'time', 'status_type']
+    list_display = ['pk', 'text', 'status_type']
     list_filter = ['text']
     search_fields = ['text']
