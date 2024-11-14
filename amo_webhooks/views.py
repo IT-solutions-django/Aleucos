@@ -7,6 +7,7 @@ from Aleucos import settings
 from orders.models import Order, OrderStatus
 from users.models import User
 from configs.models import Config
+from users.tasks import send_email_when_new_status_task
 
 
 @require_POST
@@ -30,6 +31,12 @@ def status_lead_view(request):
 
     order.status = new_status
     order.save()
+    if order.user:
+        send_email_when_new_status_task.delay(
+            email=order.user.email, 
+            order_number=order.number, 
+            new_status=new_status
+        )
     logger.info(f'У заказа {order.number} новый статус: {order.status}')
 
     return HttpResponse("ОК", content_type="text/plain")
