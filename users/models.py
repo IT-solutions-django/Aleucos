@@ -56,15 +56,6 @@ class User(AbstractUser):
         return f'{self.last_name} {self.first_name} {self.patronymic if self.patronymic else ""}'.rstrip()
 
 
-def set_password_and_mail(user: User):
-    users_group = Group.objects.get(name=Config.get_instance().users_group_name)
-    if users_group in user.groups.all():
-        raw_password = generate_random_password()
-        send_email_to_new_user_task.delay(user.pk, user.email, raw_password)
-        user.set_password(raw_password)
-    user.save(update_fields=['password'])
-
-
 # Для разделения интерфейса в админке 
 class UserProxy(User):
     class Meta:
@@ -72,21 +63,20 @@ class UserProxy(User):
         verbose_name = 'Клиент'
         verbose_name_plural = 'Клиенты'
 
-@receiver(post_save, sender=UserProxy)
-def after_user_save(sender, instance: UserProxy, created, **kwargs):
-    if created and instance.is_active:
-        transaction.on_commit(lambda: set_password_and_mail(instance))
-        responsible_user_email = instance.manager.email
-        responsible_user_id = crm.get_user_id(responsible_user_email) 
+# @receiver(post_save, sender=UserProxy)
+# def after_user_save(sender, instance: UserProxy, created, **kwargs):
+#     if created and instance.is_active:
+#         responsible_user_email = instance.manager.email
+#         responsible_user_id = crm.get_user_id(responsible_user_email) 
 
-        id_in_amocrm = crm.create_contact(
-            name = instance.get_fullname(), 
-            responsible_user_id = responsible_user_id, 
-            email = instance.email, 
-            phone = instance.phone
-        )
-        instance.id_in_amocrm = id_in_amocrm
-        instance.save()
+#         id_in_amocrm = crm.create_contact(
+#             name = instance.get_fullname(), 
+#             responsible_user_id = responsible_user_id, 
+#             email = instance.email, 
+#             phone = instance.phone
+#         )
+#         instance.id_in_amocrm = id_in_amocrm
+#         instance.save()
 
 
 class StaffProxy(User):
@@ -137,6 +127,7 @@ def after_request_save(sender, instance: RegistrationRequest, created, **kwargs)
             )
 
         if instance.to_save: 
+            print('frefer')
             new_user: User = User.objects.create(
                 email=instance.email, 
                 phone=instance.phone, 
@@ -145,10 +136,21 @@ def after_request_save(sender, instance: RegistrationRequest, created, **kwargs)
                 patronymic=instance.patronymic, 
                 manager=instance.manager, 
             )
+            raw_password = generate_random_password()
+            print(raw_password)
+            new_user.set_password(raw_password)
             new_user.save()
-            new_user.groups.add(Group.objects.get(name=Config.get_instance().users_group_name))
 
-            transaction.on_commit(lambda: set_password_and_mail(new_user))
+            print('frefer1')
+
+            new_user.groups.add(Group.objects.get(name=Config.get_instance().users_group_name))
+            new_user.save()
+
+            print('frefer2')
+
+            send_email_to_new_user_task.delay(new_user.email, raw_password)
+
+            print('frefer4')
 
             responsible_user_email = instance.manager.email 
             responsible_user_id = crm.get_user_id(responsible_user_email)
@@ -160,4 +162,6 @@ def after_request_save(sender, instance: RegistrationRequest, created, **kwargs)
             )
             new_user.id_in_amocrm = id_in_amocrm 
             new_user.save()
+
+            print('frefer4')
 

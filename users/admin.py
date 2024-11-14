@@ -1,8 +1,15 @@
 from django.contrib import admin
 from .filters import GroupFilter
-from .models import Position, UserProxy, StaffProxy, RegistrationRequest
 from configs.models import Config
-from .forms import RegistrationRequestAdminForm
+from django.contrib.auth.models import Group
+from .services import generate_random_password
+from .tasks import send_email_to_new_user_task
+from .models import Position, UserProxy, StaffProxy, RegistrationRequest
+from .forms import (
+    RegistrationRequestAdminForm, 
+    ClientRegistrationForm, 
+)
+from Aleucos.crm import crm
 
 
 @admin.register(UserProxy)
@@ -12,14 +19,39 @@ class UserAdmin(admin.ModelAdmin):
         GroupFilter,
         'is_active', 
     ]
+    form = ClientRegistrationForm
 
-    def save_model(self, request, obj, form, change):
+    def save_model(self, request, obj: UserProxy, form, change):
         if not change: 
+            print('я тут')
             obj.manager = request.user
+
+            raw_password = generate_random_password()
+            obj.set_password(raw_password)
+
+            super().save_model(request, obj, form, change)
+            obj.groups.add(Group.objects.get(name=Config.get_instance().users_group_name))
+            super().save_model(request, obj, form, change)
+
+            send_email_to_new_user_task.delay(obj.email, raw_password)
+
+            responsible_user_email = obj.manager.email
+            responsible_user_id = crm.get_user_id(responsible_user_email) 
+
+            id_in_amocrm = crm.create_contact(
+                name = obj.get_fullname(), 
+                responsible_user_id = responsible_user_id, 
+                email = obj.email, 
+                phone = obj.phone
+            )
+            obj.id_in_amocrm = id_in_amocrm
+            obj.save()
+            return
 
         if 'password' in form.changed_data:
             obj.set_password(obj.password)  
         super().save_model(request, obj, form, change)
+        
 
     def get_queryset(self, request):
         users_group_name = Config.get_instance().users_group_name
@@ -51,6 +83,11 @@ class StaffAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         qs = super().get_queryset(request).exclude(groups__name=Config.get_instance().users_group_name)
         return qs 
+    
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        form.user = request.user
+        return form
 
 
 @admin.register(Position)
