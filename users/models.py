@@ -56,37 +56,12 @@ class User(AbstractUser):
         return f'{self.last_name} {self.first_name} {self.patronymic if self.patronymic else ""}'.rstrip()
 
 
-def set_password_and_mail(user: User):
-    users_group = Group.objects.get(name=Config.get_instance().users_group_name)
-    if users_group in user.groups.all():
-        raw_password = generate_random_password()
-        send_email_to_new_user_task.delay(user.pk, user.email, raw_password)
-        user.set_password(raw_password)
-    user.save(update_fields=['password'])
-
-
 # Для разделения интерфейса в админке 
 class UserProxy(User):
     class Meta:
         proxy = True
         verbose_name = 'Клиент'
         verbose_name_plural = 'Клиенты'
-
-@receiver(post_save, sender=UserProxy)
-def after_user_save(sender, instance: UserProxy, created, **kwargs):
-    if created and instance.is_active:
-        transaction.on_commit(lambda: set_password_and_mail(instance))
-        responsible_user_email = instance.manager.email
-        responsible_user_id = crm.get_user_id(responsible_user_email) 
-
-        id_in_amocrm = crm.create_contact(
-            name = instance.get_fullname(), 
-            responsible_user_id = responsible_user_id, 
-            email = instance.email, 
-            phone = instance.phone
-        )
-        instance.id_in_amocrm = id_in_amocrm
-        instance.save()
 
 
 class StaffProxy(User):
@@ -105,6 +80,7 @@ class RegistrationRequest(models.Model):
     created_at = models.DateTimeField(_('Дата создания'), auto_now_add=True)
     manager = models.ForeignKey(User, verbose_name=_('Менеджер'), on_delete=models.CASCADE, null=True, blank=True)
     to_save = models.BooleanField(_('Зарегистрировать?'), default=False)
+    is_closed = models.BooleanField(_('Обработано'), default=False)
 
     class Meta:
         verbose_name = _('Заявка')
@@ -136,7 +112,7 @@ def after_request_save(sender, instance: RegistrationRequest, created, **kwargs)
                 responsible_user_id=responsible_user_id
             )
 
-        if instance.to_save: 
+        if instance.to_save and not instance.is_closed: 
             new_user: User = User.objects.create(
                 email=instance.email, 
                 phone=instance.phone, 
@@ -145,10 +121,14 @@ def after_request_save(sender, instance: RegistrationRequest, created, **kwargs)
                 patronymic=instance.patronymic, 
                 manager=instance.manager, 
             )
+            raw_password = generate_random_password()
+            new_user.set_password(raw_password)
             new_user.save()
-            new_user.groups.add(Group.objects.get(name=Config.get_instance().users_group_name))
 
-            transaction.on_commit(lambda: set_password_and_mail(new_user))
+            new_user.groups.add(Group.objects.get(name=Config.get_instance().users_group_name))
+            new_user.save()
+
+            send_email_to_new_user_task.delay(new_user.email, raw_password)
 
             responsible_user_email = instance.manager.email 
             responsible_user_id = crm.get_user_id(responsible_user_email)
@@ -161,3 +141,5 @@ def after_request_save(sender, instance: RegistrationRequest, created, **kwargs)
             new_user.id_in_amocrm = id_in_amocrm 
             new_user.save()
 
+            instance.is_closed = True 
+            instance.save()
