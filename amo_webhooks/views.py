@@ -25,19 +25,20 @@ def status_lead_view(request):
         return HttpResponse("ОК", content_type="text/plain")
 
     new_status_name = Config.get_instance().order_status_name_mapper.get(new_status)
+    if new_status_name != order.status.title: 
+        if order.user:
+                send_email_when_new_status_task.delay(
+                    email=order.user.email, 
+                    order_number=order.number, 
+                    new_status=new_status
+                )
     new_status, created = OrderStatus.objects.get_or_create(title=new_status_name)
     if created: 
         logger.info(f'Был создан новый статус заказа: {new_status_name}')
 
     order.status = new_status
     order.save()
-    if order.user:
-        send_email_when_new_status_task.delay(
-            email=order.user.email, 
-            order_number=order.number, 
-            new_status=new_status
-        )
-    logger.info(f'У заказа {order.number} новый статус: {order.status}')
+    logger.info(f'У заказа {order.number} новый статус: {new_status}')
 
     return HttpResponse("ОК", content_type="text/plain")
 
