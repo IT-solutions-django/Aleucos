@@ -127,7 +127,6 @@ def after_request_save(sender, instance: RegistrationRequest, created, **kwargs)
             )
 
         if instance.to_save: 
-            print('frefer')
             new_user: User = User.objects.create(
                 email=instance.email, 
                 phone=instance.phone, 
@@ -137,20 +136,13 @@ def after_request_save(sender, instance: RegistrationRequest, created, **kwargs)
                 manager=instance.manager, 
             )
             raw_password = generate_random_password()
-            print(raw_password)
             new_user.set_password(raw_password)
             new_user.save()
-
-            print('frefer1')
 
             new_user.groups.add(Group.objects.get(name=Config.get_instance().users_group_name))
             new_user.save()
 
-            print('frefer2')
-
             send_email_to_new_user_task.delay(new_user.email, raw_password)
-
-            print('frefer4')
 
             responsible_user_email = instance.manager.email 
             responsible_user_id = crm.get_user_id(responsible_user_email)
@@ -162,6 +154,4 @@ def after_request_save(sender, instance: RegistrationRequest, created, **kwargs)
             )
             new_user.id_in_amocrm = id_in_amocrm 
             new_user.save()
-
-            print('frefer4')
 
