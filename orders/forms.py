@@ -10,17 +10,17 @@ class XlsxImportOrderForm(forms.Form):
     user = forms.ModelChoiceField(
         queryset=User.objects.all(),
         label='Клиент',
-        required=True
+        required=True, 
     )
     payment_method = forms.ModelChoiceField(
         queryset=PaymentMethod.objects.all(), 
         label='Способ оплаты',
-        required=False
+        required=True
     )
     delivery_terms = forms.ModelChoiceField(
         queryset=DeliveryTerm.objects.all(),  
         label='Условия доставки',
-        required=False
+        required=True
     )
     comment = forms.CharField(
         label='Комментарий',
