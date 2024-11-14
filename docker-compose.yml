@@ -40,6 +40,7 @@ services:
       - elasticsearch
     volumes:
       - ./media:/media
+      - ./amocrm_tokens:/amocrm_tokens
     networks:
       - dev
 
