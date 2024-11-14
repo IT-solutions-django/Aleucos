@@ -16,7 +16,7 @@ app.conf.beat_schedule = {
     },
     'refresh_amocrm_tokens': {
         'task': 'amo_webhooks.tasks.refresh_tokens_task',
-        'schedule': 60 * 60 * 8,  
+        'schedule': 60 * 30,  
     },
     'delete_import_products_logs': {
         'task': 'products.tasks.delete_import_statuses_task',
