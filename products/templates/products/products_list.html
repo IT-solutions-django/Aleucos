@@ -256,9 +256,15 @@
                                                     </button>
                                                 </div>
                                             {% else %}
-                                                <div class="catalog__card-add-to-cart-div">
-                                                    <div id="{{ product.barcode }}" class="catalog__card-add-to-cart-label add-to-cart">В корзину</div>
-                                                </div>
+                                                {% if product.remains == 0 %}
+                                                    <div style="display: inline-block;">
+                                                        <p>Нет в наличии</p>
+                                                    </div>
+                                                {% else %}
+                                                    <div class="catalog__card-add-to-cart-div">
+                                                        <div id="{{ product.barcode }}" class="catalog__card-add-to-cart-label add-to-cart">В корзину</div>
+                                                    </div>
+                                                {% endif %}
                                             {% endif %}
                                         {% endif %}
                                     </div>
@@ -500,7 +506,11 @@ function updateCatalog(data) {
                             <img src="/static/img/Vector (2).svg" alt="cart">
                         </button>
                     </div>
-                ` : `
+                ` : product.remains == 0 ? 
+                `<div style="display: inline-block;">
+                    <p>Нет в наличии</p>
+                </div>` :
+                `
                     <div class="catalog__card-add-to-cart-div">
                         <div id="${product.barcode}" class="catalog__card-add-to-cart-label add-to-cart">В корзину</div>
                     </div>
