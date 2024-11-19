@@ -93,3 +93,25 @@ class StaffRegistrationForm(forms.ModelForm):
             user.save()
             self.save_m2m()  
         return user
+    
+
+class LoginForm(forms.Form):
+    email = forms.EmailField(
+        label = 'Электронная почта', 
+        widget = forms.EmailInput(
+            attrs = {
+                'placeholder': 'Введите электронную почту', 
+                'class': 'login__input'
+            }
+        )
+    )
+    password = forms.CharField(
+        min_length=5, 
+        label='Пароль', 
+        widget=forms.PasswordInput(
+            attrs={
+                'placeholder': 'Введите пароль', 
+                'class': 'login__input'
+            }
+        )
+    )
