@@ -236,7 +236,7 @@ class CatalogExporter:
             worksheet[f'J{current_row_index}'] = product.price_before_200k
             worksheet[f'K{current_row_index}'] = product.price_after_200k
             worksheet[f'L{current_row_index}'] = product.price_after_500k
-            worksheet[f'M{current_row_index}'] = 0 if product.is_in_stock else None
+            worksheet[f'M{current_row_index}'] = 0 if not product.remains else int(product.remains)
 
             current_row_index += 1
 
