@@ -1,7 +1,10 @@
 from django import forms
-
-from .services import get_all_model_objects, get_max_product_price
 from .models import Brand, Category
+from .services import (
+    get_all_model_objects, 
+    get_max_product_price, 
+    get_max_product_weight
+)
 
 
 class XlsxImportProductsForm(forms.Form):
@@ -16,6 +19,9 @@ class SearchAndFilterForm(forms.Form):
         
         self.max_product_price = round(get_max_product_price(), 0)
         self.fields['price_max'].widget.attrs['placeholder'] = f'До {self.max_product_price} ₽'
+
+        self.max_product_weight = round(get_max_product_weight(), 0)
+        self.fields['weight_max'].widget.attrs['placeholder'] = f'До {self.max_product_weight} кг'
         
         self.fields['categories'].choices = [(category.id, category.title) for category in get_all_model_objects(Category)]
         self.fields['brands'].choices = [(brand.id, brand.title) for brand in get_all_model_objects(Brand)]
@@ -64,6 +70,63 @@ class SearchAndFilterForm(forms.Form):
                 'class': 'sidebar__price-input filter-input', 
                 'min': 0,
                 'step': 100,
+            }
+        ), 
+    )
+
+    weight_min = forms.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        required=False,
+        label='Мин. вес',
+        widget=forms.NumberInput(
+            attrs={ 
+                'class': 'sidebar__price-input filter-input', 
+                'placeholder': 'От 0 кг', 
+                'min': 0,
+                'step': 0.1,
+            }
+        ), 
+    )
+    
+    weight_max = forms.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        required=False,
+        widget=forms.NumberInput(
+            attrs={ 
+                'class': 'sidebar__price-input filter-input', 
+                'min': 0,
+                'step': 0.1,
+            }
+        ), 
+    )
+
+    volume_min = forms.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        required=False,
+        label='Мин. объём',
+        widget=forms.NumberInput(
+            attrs={ 
+                'class': 'sidebar__price-input filter-input', 
+                'placeholder': 'От 0 л', 
+                'min': 0,
+                'step': 0.1,
+            }
+        ), 
+    )
+    
+    volume_max = forms.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        required=False,
+        widget=forms.NumberInput(
+            attrs={ 
+                'class': 'sidebar__price-input filter-input', 
+                'placeholder': 'До 2 л', 
+                'min': 0,
+                'step': 0.1,
             }
         ), 
     )

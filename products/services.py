@@ -293,6 +293,11 @@ def get_max_product_price() -> Decimal:
     max_price = Product.objects.aggregate(models.Max('price_before_200k'))['price_before_200k__max']
     return max_price
 
+
+def get_max_product_weight() -> Decimal: 
+    max_weight = Product.objects.aggregate(models.Max('weight'))['weight__max']
+    return max_weight
+
  
 def get_paginated_collection(request, collection: QuerySet, count_per_page: int = 10): 
     paginator = Paginator(collection, count_per_page)

@@ -103,9 +103,7 @@
                             <p><a id="showMoreCategoriesButton" class="sidebar__section-item-label color-blue" onclick="">Посмотреть все</a></p>
                         </div>
                     </div>
-                </div>
-
-                
+                </div>      
 
                 <div class="sidebar__section-div">
                     <div class="sidebar__section-header-div">
@@ -114,6 +112,26 @@
                     <div class="sidebar__price-inputs-div">
                         {{ form.price_min }}
                         {{ form.price_max }}
+                    </div>
+                </div>
+
+                <div class="sidebar__section-div">
+                    <div class="sidebar__section-header-div">
+                        <p class="sidebar__section-header-label">Вес, кг</p>                        
+                    </div>
+                    <div class="sidebar__price-inputs-div">
+                        {{ form.weight_min }}
+                        {{ form.weight_max }}
+                    </div>
+                </div>
+
+                <div class="sidebar__section-div">
+                    <div class="sidebar__section-header-div">
+                        <p class="sidebar__section-header-label">Объём, л</p>                        
+                    </div>
+                    <div class="sidebar__price-inputs-div">
+                        {{ form.volume_min }}
+                        {{ form.volume_max }}
                     </div>
                 </div>
 
