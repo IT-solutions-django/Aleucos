@@ -103,9 +103,7 @@
                             <p><a id="showMoreCategoriesButton" class="sidebar__section-item-label color-blue" onclick="">Посмотреть все</a></p>
                         </div>
                     </div>
-                </div>
-
-                
+                </div>      
 
                 <div class="sidebar__section-div">
                     <div class="sidebar__section-header-div">
@@ -114,6 +112,26 @@
                     <div class="sidebar__price-inputs-div">
                         {{ form.price_min }}
                         {{ form.price_max }}
+                    </div>
+                </div>
+
+                <div class="sidebar__section-div">
+                    <div class="sidebar__section-header-div">
+                        <p class="sidebar__section-header-label">Вес, кг</p>                        
+                    </div>
+                    <div class="sidebar__price-inputs-div">
+                        {{ form.weight_min }}
+                        {{ form.weight_max }}
+                    </div>
+                </div>
+
+                <div class="sidebar__section-div">
+                    <div class="sidebar__section-header-div">
+                        <p class="sidebar__section-header-label">Объём, л</p>                        
+                    </div>
+                    <div class="sidebar__price-inputs-div">
+                        {{ form.volume_min }}
+                        {{ form.volume_max }}
                     </div>
                 </div>
 
@@ -238,9 +256,15 @@
                                                     </button>
                                                 </div>
                                             {% else %}
-                                                <div class="catalog__card-add-to-cart-div">
-                                                    <div id="{{ product.barcode }}" class="catalog__card-add-to-cart-label add-to-cart">В корзину</div>
-                                                </div>
+                                                {% if product.remains == 0 %}
+                                                    <div style="display: inline-block;">
+                                                        <p>Нет в наличии</p>
+                                                    </div>
+                                                {% else %}
+                                                    <div class="catalog__card-add-to-cart-div">
+                                                        <div id="{{ product.barcode }}" class="catalog__card-add-to-cart-label add-to-cart">В корзину</div>
+                                                    </div>
+                                                {% endif %}
                                             {% endif %}
                                         {% endif %}
                                     </div>
@@ -482,7 +506,11 @@ function updateCatalog(data) {
                             <img src="/static/img/Vector (2).svg" alt="cart">
                         </button>
                     </div>
-                ` : `
+                ` : product.remains == 0 ? 
+                `<div style="display: inline-block;">
+                    <p>Нет в наличии</p>
+                </div>` :
+                `
                     <div class="catalog__card-add-to-cart-div">
                         <div id="${product.barcode}" class="catalog__card-add-to-cart-label add-to-cart">В корзину</div>
                     </div>

@@ -45,7 +45,14 @@ class CatalogImporter:
                 ImportProductsStatusService.error(log_text)
                 return
             
-        CatalogImporter.check_duplicates(products_data)
+        # try:
+        #     CatalogImporter.check_duplicates(products_data)
+        # except ProductImportError as e:
+        #     log_text = f'Ошибка при импорте каталога: {str(e)}. Импорт был прерван'
+        #     logger.error(log_text)
+        #     ImportProductsStatusService.error(log_text)
+        #     return
+
 
         for product_data in products_data:
             CatalogImporter.save_product_data(product_data)
@@ -54,35 +61,50 @@ class CatalogImporter:
         logger.error(log_text)
         ImportProductsStatusService.success(log_text)
 
-    @staticmethod 
-    def check_duplicates(products_data: list[dict]) -> None: 
-        barcodes = [product['barcode'] for product in products_data]
-        duplicate_barcodes = [barcode for barcode in barcodes if barcodes.count(barcode) > 1]
-        if duplicate_barcodes:
-            raise ProductImportError(f'Обнаружены дубликаты штрихкодов: {", ".join(duplicate_barcodes)}')
+    # @staticmethod 
+    # def check_duplicates(products_data: list[dict]) -> None: 
+    #     barcodes = [product['barcode'] for product in products_data]
+    #     duplicate_barcodes = list(set([barcode for barcode in barcodes if barcodes.count(barcode) > 1]))
+
+    #     if duplicate_barcodes:
+    #         raise ProductImportError(f'В таблице обнаружены дубликаты штрихкодов: {", ".join(duplicate_barcodes)}')
         
     @staticmethod 
     def save_product_data(product_data: dict) -> None: 
         brand, _ = Brand.objects.get_or_create(title=str(product_data['brand_title'])) 
 
-        product = Product(
-            barcode=product_data['barcode'],
-            brand=brand,
-            title=product_data['title'],
-            description=product_data['description'],
-            photo=product_data['photo'],
-            volume=product_data['volume'],
-            weight=product_data['weight'],
-            notes=product_data['notes'],
-            price_before_200k=product_data['price_before_200k'],
-            price_after_200k=product_data['price_after_200k'],
-            price_after_500k=product_data['price_after_500k'],
-            is_in_stock=product_data['is_in_stock'],
-            category=product_data['category'],
-            remains=product_data['remains']
-        )
-        product.save()
-        logger.info(f'Товар "{product_data["title"]}" сохранён в базу данных')
+        product = Product.objects.filter(barcode=product_data['barcode']).first()
+        if product: 
+            product.remains = product_data['remains']
+            logger.info(f'У товара "{product_data["barcode"]}" обновлён остаток')
+        else: 
+            photo = product_data['photo']
+            if product_data['photo']: 
+                print(type(product_data["photo"]))
+
+            if photo is None:
+                photo = settings.DEFAULT_IMAGE_PATH
+            else:
+                CatalogImporter.delete_image_if_exists(photo.name)
+
+            product = Product(
+                barcode=product_data['barcode'],
+                brand=brand,
+                title=product_data['title'],
+                description=product_data['description'],
+                photo=product_data['photo'],
+                volume=product_data['volume'],
+                weight=product_data['weight'],
+                notes=product_data['notes'],
+                price_before_200k=product_data['price_before_200k'],
+                price_after_200k=product_data['price_after_200k'],
+                price_after_500k=product_data['price_after_500k'],
+                is_in_stock=product_data['is_in_stock'],
+                category=product_data['category'],
+                remains=product_data['remains']
+            )
+            product.save()
+            logger.info(f'Товар "{product_data["title"]}" сохранён в базу данных')
 
     @staticmethod
     def process_row(index: int, row: tuple, image_loader: SheetImageLoader) -> None:
@@ -113,25 +135,14 @@ class CatalogImporter:
 
         remains = 0 if remains is None else int(remains)
         is_in_stock = bool(remains)
-
-        # if Product.objects.filter(barcode=barcode).exists():
-        #     error_text = f'Продукт {title} с штрихкодом "{barcode}" уже существует'
-        #     logger.error(error_text)
-        #     raise ProductImportError(error_text)
         
         photo = CatalogImporter.get_image_or_none(barcode, index, image_loader)
-        if photo is None:
-            photo = settings.DEFAULT_IMAGE_PATH
-        else:
-            CatalogImporter.delete_image_if_exists(photo.name)
 
         if weight is not None:
             weight = CatalogImporter.convert_str_to_decimal(str(weight))
         price_before_200k = CatalogImporter.convert_str_to_decimal(str(price_before_200k))
         price_after_200k = CatalogImporter.convert_str_to_decimal(str(price_after_200k))
         price_after_500k = CatalogImporter.convert_str_to_decimal(str(price_after_500k))
-
-        # brand, _ = Brand.objects.get_or_create(title=str(brand_title))
 
         product_data = {
             'barcode': barcode,
@@ -192,8 +203,8 @@ class CatalogImporter:
             raise ProductImportError(f'У товара {title} со штрихкодом {barcode} отсутствует цена')
         elif not str(barcode).strip().isnumeric():
             raise ProductImportError(f'У товара неверный штрихкод: {barcode}')
-        elif Product.objects.filter(barcode=barcode).exists():
-            raise ProductImportError(f'Товар со штрихкодом {barcode} уже есть в базе данных')
+        # elif Product.objects.filter(barcode=barcode).exists():
+        #     raise ProductImportError(f'Товар со штрихкодом {barcode} уже есть в базе данных')
         if remains: 
             if not str(remains).strip().isnumeric(): 
                 raise ProductImportError(f'У товара неверный остаток на складе: {remains}')
@@ -236,7 +247,7 @@ class CatalogExporter:
             worksheet[f'J{current_row_index}'] = product.price_before_200k
             worksheet[f'K{current_row_index}'] = product.price_after_200k
             worksheet[f'L{current_row_index}'] = product.price_after_500k
-            worksheet[f'M{current_row_index}'] = 0 if product.is_in_stock else None
+            worksheet[f'M{current_row_index}'] = 0 if not product.remains else int(product.remains)
 
             current_row_index += 1
 
@@ -292,6 +303,11 @@ class ImportProductsStatusService:
 def get_max_product_price() -> Decimal: 
     max_price = Product.objects.aggregate(models.Max('price_before_200k'))['price_before_200k__max']
     return max_price
+
+
+def get_max_product_weight() -> Decimal: 
+    max_weight = Product.objects.aggregate(models.Max('weight'))['weight__max']
+    return max_weight
 
  
 def get_paginated_collection(request, collection: QuerySet, count_per_page: int = 10): 

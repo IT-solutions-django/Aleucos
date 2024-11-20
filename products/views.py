@@ -72,6 +72,14 @@ class ProductsListView(View):
             if price_max is not None:
                 products = products.filter(price_before_200k__lte=price_max)
 
+            weight_min = cd.get('weight_min')
+            if weight_min is not None:
+                products = products.filter(weight__gte=weight_min)
+
+            weight_max = cd.get('weight_max')
+            if weight_max is not None:
+                products = products.filter(weight__lte=weight_max)
+
             is_in_stock = cd.get('is_in_stock')
             if is_in_stock: 
                 products = products.filter(is_in_stock=is_in_stock)
@@ -143,6 +151,14 @@ class CatalogFiltersView(View):
             price_max = cd.get('price_max')
             if price_max is not None:
                 products = products.filter(price_before_200k__lte=price_max)
+
+            weight_min = cd.get('weight_min')
+            if weight_min is not None:
+                products = products.filter(weight__gte=weight_min)
+
+            weight_max = cd.get('weight_max')
+            if weight_max is not None:
+                products = products.filter(weight__lte=weight_max)
 
             is_in_stock = cd.get('is_in_stock')
             if is_in_stock: 

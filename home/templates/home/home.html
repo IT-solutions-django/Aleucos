@@ -9,10 +9,10 @@
                 <h2 class="offer__title">Оптовые поставки корейской косметики в любую точку России</h2>
                 <p class="offer__text">Гарантируем бесперебойные поставки при любой международной обстановке</p>
                 <div class="offer__btns">
-                    <button type="button" class="offer__btn-application" data-toggle="modal" data-target="#exampleModal" data-bs-toggle="modal" data-bs-target="#exampleModal">Оставить заявку</button>
-                    
-                    <button class="offer__btn-сatalog" data-bs-toggle="modal" data-bs-target="#exampleModal2">Получить каталог</button>
-                    
+                    {% if not request.user.is_authenticated %}
+                        <button type="button" class="offer__btn-application" data-toggle="modal" data-target="#exampleModal" data-bs-toggle="modal" data-bs-target="#exampleModal">Оставить заявку</button>
+                        <button class="offer__btn-сatalog" data-bs-toggle="modal" data-bs-target="#exampleModal2">Получить каталог</button>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -352,62 +352,64 @@
         
     </section>
 
-    <section id="contactsBlock" class="contacts">
-        <div class="container">
-            <div class="contacts__inner">
-                <div class="contacts__info">
-                    <h2 class="contacts__info-title">Контакты</h2>
-                    <p class="contacts__info-text">Остались вопросы или интересует каталог с оптовыми ценами? <br> Заполните форму и отправьте свою заявку, наш менеджер свяжется с Вами <br> для уточнения деталей.</p>
-                    <div class="contacts__info-box">
-                        <img src="{% static 'img/Vector.svg' %}" alt="" class="contacts__info-img">
-                        <p class="contacts__info-box--text">Персональный менеджер</p>
-                    </div>
-                    <div class="contacts__info-box">
-                        <img src="{% static 'img/Vector.svg' %}" alt="" class="contacts__info-img">
-                        <p class="contacts__info-box--text">Своевременная поддержка</p>
-                    </div>
-                    <div class="contacts__info-box">
-                        <img src="{% static 'img/Vector.svg' %}" alt="" class="contacts__info-img">
-                        <p class="contacts__info-box--text">На всю продукцию имеются сертификаты и декларации соответствия</p>
-                    </div>
-                    <div class="contacts__info-links">
-                        <a href="/" alt="" class="contacts__info-link--img">
-                            <img src="{% static 'img/1.svg' %}" alt="" class="contacts__info-link--img">
-                        </a>
-                        <a href="/" class="contacts__info-link">
-                            <img src="{% static 'img/2.svg' %}" alt="" class="contacts__info-link--img">
-                        </a>
-                    </div>
-                    <p class="contacts__info-suptext-loc">г.Владивосток, ул. Днепровская, д.25д, стр.4а</p>
-                    <a class="contacts__info-suptext" href="tel:+79644541700">+7 (964) 454-17-00</a>
-                </div>
-                <div class="contacts__form">
-                    <form id="contactForm" class="form" action="">
-                        <div class="contacts__form-box">
-                            <h2 class="contacts__form-title">Имя</h2>
-                            {{ contact_form.name }}
+    {% if not request.user.is_authenticated %}
+        <section id="contactsBlock" class="contacts">
+            <div class="container">
+                <div class="contacts__inner">
+                    <div class="contacts__info">
+                        <h2 class="contacts__info-title">Контакты</h2>
+                        <p class="contacts__info-text">Остались вопросы или интересует каталог с оптовыми ценами? <br> Заполните форму и отправьте свою заявку, наш менеджер свяжется с Вами <br> для уточнения деталей.</p>
+                        <div class="contacts__info-box">
+                            <img src="{% static 'img/Vector.svg' %}" alt="" class="contacts__info-img">
+                            <p class="contacts__info-box--text">Персональный менеджер</p>
                         </div>
-                        <div class="contacts__form-items">
+                        <div class="contacts__info-box">
+                            <img src="{% static 'img/Vector.svg' %}" alt="" class="contacts__info-img">
+                            <p class="contacts__info-box--text">Своевременная поддержка</p>
+                        </div>
+                        <div class="contacts__info-box">
+                            <img src="{% static 'img/Vector.svg' %}" alt="" class="contacts__info-img">
+                            <p class="contacts__info-box--text">На всю продукцию имеются сертификаты и декларации соответствия</p>
+                        </div>
+                        <div class="contacts__info-links">
+                            <a href="/" alt="" class="contacts__info-link--img">
+                                <img src="{% static 'img/1.svg' %}" alt="" class="contacts__info-link--img">
+                            </a>
+                            <a href="/" class="contacts__info-link">
+                                <img src="{% static 'img/2.svg' %}" alt="" class="contacts__info-link--img">
+                            </a>
+                        </div>
+                        <p class="contacts__info-suptext-loc">г.Владивосток, ул. Днепровская, д.25д, стр.4а</p>
+                        <a class="contacts__info-suptext" href="tel:+79644541700">+7 (964) 454-17-00</a>
+                    </div>
+                    <div class="contacts__form">
+                        <form id="contactForm" class="form" action="">
                             <div class="contacts__form-box">
-                                <h2 class="contacts__form-title">Телефон</h2>
-                                {{ contact_form.phone }}
+                                <h2 class="contacts__form-title">Имя</h2>
+                                {{ contact_form.name }}
                             </div>
-                            <div class="contacts__form-box">
-                                <h2 class="contacts__form-title">Email</h2>
-                                {{ contact_form.email }}
+                            <div class="contacts__form-items">
+                                <div class="contacts__form-box">
+                                    <h2 class="contacts__form-title">Телефон</h2>
+                                    {{ contact_form.phone }}
+                                </div>
+                                <div class="contacts__form-box">
+                                    <h2 class="contacts__form-title">Email</h2>
+                                    {{ contact_form.email }}
+                                </div>
                             </div>
-                        </div>
-                        <div class="contacts__form-box box__marin-top">
-                            <h2 class="contacts__form-title">Сообщение</h2>
-                            <textarea placeholder="Введите текст сообщения" name="massage" maxlength="150" class="contacts__form-input contacts__form-textarea contacts__form-input-cont"></textarea>
-                        </div>
-                        <div class="contacts__form-suptext">Нажимая на кнопку “Отправить заявку”, Вы даете согласие на <a class="contacts__form-suptext--link" href="">обработку персональных данных</a> и соглашаетесь с <a class="contacts__form-suptext--link" href="">политикой конфиденциальности.</a></div>
-                        <button class="contacts__form-btn section__btn" id="liveToastBtn">Оставить заявку</button>
-                    </form>
+                            <div class="contacts__form-box box__marin-top">
+                                <h2 class="contacts__form-title">Сообщение</h2>
+                                <textarea placeholder="Введите текст сообщения" name="massage" maxlength="150" class="contacts__form-input contacts__form-textarea contacts__form-input-cont"></textarea>
+                            </div>
+                            <div class="contacts__form-suptext">Нажимая на кнопку “Отправить заявку”, Вы даете согласие на <a class="contacts__form-suptext--link" href="">обработку персональных данных</a> и соглашаетесь с <a class="contacts__form-suptext--link" href="">политикой конфиденциальности.</a></div>
+                            <button class="contacts__form-btn section__btn" id="liveToastBtn">Оставить заявку</button>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+    {% endif %}
 
     <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header">
@@ -598,6 +600,7 @@
         </div>
     </section>
 
+    {% if not request.user.is_authenticated %}
     <section class="help">
         <div class="container container__help">
             <div class="help__inner">
@@ -798,6 +801,7 @@
             </div>
         </div>
     </section>
+    {% endif %}
     
 <script>
 
