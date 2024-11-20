@@ -63,6 +63,7 @@ class OrderAdmin(admin.ModelAdmin):
                 xlsx_file = form.cleaned_data['xlsx_file']
                 payment_method = form.cleaned_data.get('payment_method')
                 delivery_terms = form.cleaned_data.get('delivery_terms')
+                city = form.cleaned_data.get('city')
                 comment = form.cleaned_data.get('comment')
                 user = form.cleaned_data.get('user')
                 print(type(user))
@@ -86,6 +87,7 @@ class OrderAdmin(admin.ModelAdmin):
                     manager_email=request.user.email, 
                     payment_method_id=payment_method.pk, 
                     delivery_terms_id=delivery_terms.pk, 
+                    city_id=city.pk,
                     comment=comment, 
                     user_id=user.pk
                 )
