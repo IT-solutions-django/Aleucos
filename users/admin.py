@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
+from django.db.models.query import QuerySet
+from django.http import HttpRequest
 from .filters import (
     StaffGroupFilter,
     IsWithManager, 
@@ -112,6 +114,12 @@ class RegistrationRequestAdmin(admin.ModelAdmin):
     list_filter = [
         IsClosed,
     ]
+
+    def get_queryset(self, request):
+        if request.user.groups.filter(name=Config.get_instance().managers_group_name).exists():
+            return super().get_queryset(request).filter(manager=request.user)
+        else: 
+            return super().get_queryset(request)
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)

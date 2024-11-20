@@ -175,7 +175,7 @@ class AmoCRM:
                 user_id = user['id']
 
         if user_id is None: 
-            raise Exception('Такого пользователя нет в amoCRM')
+            raise Exception('Такого менеджера нет в amoCRM')
         return user_id
     
     def get_lead_and_status(self, lead_id: int) -> tuple[str, str]: 
