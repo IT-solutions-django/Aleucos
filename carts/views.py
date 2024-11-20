@@ -9,6 +9,7 @@ from django.contrib import messages
 from .services import Cart
 from orders.models import DeliveryTerm, PaymentMethod
 from loguru import logger
+from users.models import City
 
 
 @method_decorator(login_required, name='dispatch')
@@ -73,11 +74,13 @@ class CartItemsView(View):
     def get(self, request):   
         delivery_terms = DeliveryTerm.objects.all()
         payment_methods = PaymentMethod.objects.all()
+        cities = City.objects.all()
 
         context = {
             'cart': request.cart, 
             'delivery_terms': delivery_terms,
             'payment_methods': payment_methods,
+            'cities': cities
         }
         return render(request, 'carts/cart_items.html', context)
     
@@ -132,16 +135,21 @@ class CreateOrderView(View):
         
         payment_method_id = request.POST.get('payment_method')
         delivery_terms_id = request.POST.get('delivery_terms')
+        city_id = request.POST.get('city')
         comment = request.POST.get('comment')
 
         try:
             payment_method = PaymentMethod.objects.get(pk=payment_method_id)
             delivery_terms = DeliveryTerm.objects.get(pk=delivery_terms_id)
+            city = City.objects.get(pk=city_id)
         except PaymentMethod.DoesNotExist:
             logger.error(f'Способа оплаты с ID={payment_method_id} не существует')
             return redirect('carts:cart_items')
         except DeliveryTerm.DoesNotExist: 
             logger.error(f'Способа оплаты с ID={payment_method_id} не существует')
+            return redirect('carts:cart_items')
+        except City.DoesNotExist: 
+            logger.error(f'Города с ID={city_id} не существует')
             return redirect('carts:cart_items')
             
         total_order_price = cart[Cart.KeyNames.TOTAL_CART_PRICE]
@@ -152,6 +160,7 @@ class CreateOrderView(View):
             payment_method=payment_method, 
             delivery_terms=delivery_terms,
             comment=comment,
+            city=city
         )
 
         for barcode, product_data in cart[Cart.KeyNames.PRODUCTS].items(): 
