@@ -36,3 +36,6 @@ class XlsxImportOrderForm(forms.Form):
             self.fields['user'].queryset = User.objects.filter(groups=users_group).filter(manager=user)
         else: 
             self.fields['user'].queryset = User.objects.filter(groups=users_group)
+
+        self.fields['delivery_terms'].initial = DeliveryTerm.objects.first()
+        self.fields['payment_method'].initial = PaymentMethod.objects.first()
