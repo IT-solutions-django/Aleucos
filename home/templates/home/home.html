@@ -173,7 +173,9 @@
                     </div>
                     <img class="catolog__items-img" src="{% static 'img/BigStar.svg' %}" alt="" srcset="">
                 </div>
-                <button class="catalog__btn section__btn">Смотреть всё</button>
+                <div>
+                    <button class="catalog__btn section__btn"><a style="color: white;" href="{% url 'products:products_list' %}">Смотреть всё</a></button>
+                </div>
             </div>
         </div>
     </section>
@@ -348,7 +350,7 @@
                 <div class="swiper-button-next"></div>
             </div>
         </div>
-        <button class="hits__btn section__btn">Смотреть всё</button>
+        <button class="hits__btn section__btn"><a style="color: white;" href="{% url 'products:products_list' %}">Смотреть всё</a></button>
         
     </section>
 
