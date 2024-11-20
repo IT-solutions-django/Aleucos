@@ -19,6 +19,17 @@ class Position(models.Model):
 
     def __str__(self) -> str:
         return self.title
+    
+
+class City(models.Model): 
+    name = models.CharField(_('Город'), max_length=100)
+
+    class Meta:
+        verbose_name = _('Город')
+        verbose_name_plural = _('Города')
+
+    def __str__(self) -> str: 
+        return self.name
 
 
 class User(AbstractUser):
@@ -31,6 +42,7 @@ class User(AbstractUser):
     email = models.EmailField(_('Электронная почта'), unique=True)
     password = models.CharField(_('Пароль'), max_length=128, blank=True)
     photo = models.ImageField(_('Фотография'), upload_to='users', null=True, blank=True)
+    city = models.ForeignKey(verbose_name='Город', to=City, null=True, blank=True, on_delete=models.SET_NULL)
 
     instagram = models.URLField(_('Instagram'), null=True, blank=True)
     vk = models.URLField(_('VK'), null=True, blank=True)
@@ -78,6 +90,7 @@ class RegistrationRequest(models.Model):
     message = models.TextField('Сообщение', null=True, blank=True)
     phone = models.CharField(_('Телефон'), max_length=20)
     email = models.EmailField(_('Электронная почта'), unique=True) 
+    city = models.ForeignKey(verbose_name='Город', to=City, null=True, blank=True, on_delete=models.SET_NULL)
     created_at = models.DateTimeField(_('Дата создания'), auto_now_add=True)
     manager = models.ForeignKey(User, verbose_name=_('Менеджер'), on_delete=models.CASCADE, null=True, blank=True)
     to_save = models.BooleanField(_('Зарегистрировать?'), default=False)
@@ -121,6 +134,7 @@ def after_request_save(sender, instance: RegistrationRequest, created, **kwargs)
                 first_name=instance.first_name, 
                 patronymic=instance.patronymic, 
                 manager=instance.manager, 
+                city=instance.city,
             )
             raw_password = generate_random_password()
             new_user.set_password(raw_password)

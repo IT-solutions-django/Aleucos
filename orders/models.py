@@ -12,6 +12,7 @@ import os
 from django.core.files.base import ContentFile
 from users.models import User
 from .pdf_generator.services import generate_pdf_bill
+from users.models import City
 
 
 
@@ -66,6 +67,7 @@ class Order(models.Model):
     payment_method = models.ForeignKey(PaymentMethod, on_delete=models.SET_DEFAULT, default=1, verbose_name=_('Способ оплаты'))
     delivery_terms = models.ForeignKey(DeliveryTerm, on_delete=models.SET_DEFAULT, default=1, verbose_name=_('Условия доставки'))
     pdf_bill = models.FileField(_('Счёт'), upload_to='orders', null=True, blank=True)
+    city = models.ForeignKey(verbose_name='Город', to=City, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = _('Заказ')

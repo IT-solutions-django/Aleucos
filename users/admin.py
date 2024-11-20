@@ -1,14 +1,20 @@
 from django.contrib import admin
+from django.contrib.auth.models import Group
 from .filters import (
     StaffGroupFilter,
     IsWithManager, 
     IsClosed
 )
 from configs.models import Config
-from django.contrib.auth.models import Group
 from .services import generate_random_password
 from .tasks import send_email_to_new_user_task
-from .models import Position, UserProxy, StaffProxy, RegistrationRequest
+from .models import (
+    Position, 
+    UserProxy, 
+    StaffProxy, 
+    RegistrationRequest, 
+    City
+)
 from .forms import (
     RegistrationRequestAdminForm, 
     ClientRegistrationForm, 
@@ -112,3 +118,8 @@ class RegistrationRequestAdmin(admin.ModelAdmin):
         form.user = request.user
         form.is_closed = obj.is_closed if hasattr(obj, 'is_closed') else False
         return form
+    
+
+@admin.register(City)
+class CityAdmin(admin.ModelAdmin): 
+    list_display = ['pk', 'name'] 

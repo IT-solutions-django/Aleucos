@@ -42,7 +42,7 @@ class RequestForm(forms.Form):
 class RegistrationRequestAdminForm(forms.ModelForm):
     class Meta:
         model = RegistrationRequest
-        fields = ['last_name', 'first_name', 'patronymic', 'phone', 'email', 'to_save', 'manager']
+        fields = ['last_name', 'first_name', 'patronymic', 'phone', 'email', 'to_save', 'manager', 'city']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -64,7 +64,7 @@ class RegistrationRequestAdminForm(forms.ModelForm):
 class ClientRegistrationForm(forms.ModelForm): 
     class Meta:
         model = User
-        fields = ['last_name', 'first_name', 'patronymic', 'phone', 'email']
+        fields = ['last_name', 'first_name', 'patronymic', 'phone', 'email', 'city']
 
 
 class StaffRegistrationForm(forms.ModelForm): 
