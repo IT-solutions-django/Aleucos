@@ -35,7 +35,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-CSRF_TRUSTED_ORIGINS = ['http://*.79.137.133.45']
+CSRF_TRUSTED_ORIGINS = [
+    'http://*.79.137.133.45', 
+    'http://*.aleucos-crm.ru', 
+    'https://*.aleucos-crm.ru'
+]
 
 
 # Application definition
@@ -175,14 +179,17 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
-STATIC_ROOT = '/var/www/static/'
+STATIC_ROOT = 'var/www/static'
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
-MEDIA_URL = 'media/'
-MEDIA_ROOT = 'media/'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_IMAGE_PATH = 'products/default.png'
 
 # Default primary key field type

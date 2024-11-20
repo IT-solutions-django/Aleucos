@@ -12,6 +12,7 @@ from Aleucos import settings
 from users.models import User
 from configs.models import Config
 from orders.models import PaymentMethod, DeliveryTerm
+from users.models import City
 
 
 class OrderImporter:
@@ -21,6 +22,7 @@ class OrderImporter:
         manager_email: str,
         payment_method_id: int, 
         delivery_terms_id: int, 
+        city_id: int,
         comment: str, 
         user_id: int
     ) -> None:
@@ -73,6 +75,7 @@ class OrderImporter:
             total_price=order_data['total_price'], 
             payment_method=PaymentMethod.objects.get(pk=payment_method_id), 
             delivery_terms=DeliveryTerm.objects.get(pk=delivery_terms_id), 
+            city=City.objects.get(pk=city_id),
             comment=comment
         )
         for item_data in order_data['items']:

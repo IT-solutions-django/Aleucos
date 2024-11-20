@@ -63,6 +63,15 @@
             <form id="checkout-form" method="POST" action="{% url 'carts:create_order' %}">
                 {% csrf_token %}
                 <div class="mb-3">
+                    <label for="delivery-method" class="form-label">Ваш город</label>
+                    <select class="form-select" id="delivery-terms" name="city" required>
+                        <option value="" selected disabled>Выберите город</option>
+                        {% for city in cities %}
+                            <option value="{{ city.id }}">{{ city.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
                     <label for="delivery-method" class="form-label">Метод доставки</label>
                     <select class="form-select" id="delivery-terms" name="delivery_terms" required>
                         {% for term in delivery_terms %}

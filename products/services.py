@@ -45,29 +45,31 @@ class CatalogImporter:
                 ImportProductsStatusService.error(log_text)
                 return
             
-        # try:
-        #     CatalogImporter.check_duplicates(products_data)
-        # except ProductImportError as e:
-        #     log_text = f'Ошибка при импорте каталога: {str(e)}. Импорт был прерван'
-        #     logger.error(log_text)
-        #     ImportProductsStatusService.error(log_text)
-        #     return
+        try:
+            CatalogImporter.check_duplicates(products_data)
+        except ProductImportError as e:
+            log_text = f'Ошибка при импорте каталога: {str(e)}. Импорт был прерван'
+            logger.error(log_text)
+            ImportProductsStatusService.error(log_text)
+            return
 
 
         for product_data in products_data:
             CatalogImporter.save_product_data(product_data)
         log_text = f'Каталог был успешно импортирован!'
 
-        logger.error(log_text)
+        logger.success(log_text)
         ImportProductsStatusService.success(log_text)
 
-    # @staticmethod 
-    # def check_duplicates(products_data: list[dict]) -> None: 
-    #     barcodes = [product['barcode'] for product in products_data]
-    #     duplicate_barcodes = list(set([barcode for barcode in barcodes if barcodes.count(barcode) > 1]))
+    @staticmethod 
+    def check_duplicates(products_data: list[dict]) -> None: 
+        print('Проверяем дубликаты')
+        barcodes = [product['barcode'] for product in products_data]
+        duplicate_barcodes = list(set([barcode for barcode in barcodes if barcodes.count(barcode) > 1]))
+        print(duplicate_barcodes)
 
-    #     if duplicate_barcodes:
-    #         raise ProductImportError(f'В таблице обнаружены дубликаты штрихкодов: {", ".join(duplicate_barcodes)}')
+        if duplicate_barcodes:
+            raise ProductImportError(f'В таблице обнаружены дубликаты штрихкодов: {", ".join(duplicate_barcodes)}')
         
     @staticmethod 
     def save_product_data(product_data: dict) -> None: 
@@ -203,8 +205,6 @@ class CatalogImporter:
             raise ProductImportError(f'У товара {title} со штрихкодом {barcode} отсутствует цена')
         elif not str(barcode).strip().isnumeric():
             raise ProductImportError(f'У товара неверный штрихкод: {barcode}')
-        # elif Product.objects.filter(barcode=barcode).exists():
-        #     raise ProductImportError(f'Товар со штрихкодом {barcode} уже есть в базе данных')
         if remains: 
             if not str(remains).strip().isnumeric(): 
                 raise ProductImportError(f'У товара неверный остаток на складе: {remains}')

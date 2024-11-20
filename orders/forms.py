@@ -1,6 +1,6 @@
 from django import forms
 from .models import PaymentMethod, DeliveryTerm
-from users.models import User
+from users.models import User, City
 from django.contrib.auth.models import Group
 from configs.models import Config
 
@@ -11,6 +11,11 @@ class XlsxImportOrderForm(forms.Form):
         queryset=User.objects.all(),
         label='Клиент',
         required=True, 
+    )
+    city = forms.ModelChoiceField(
+        queryset=City.objects.all(),
+        label='Город',
+        required=True
     )
     payment_method = forms.ModelChoiceField(
         queryset=PaymentMethod.objects.all(), 
@@ -36,3 +41,6 @@ class XlsxImportOrderForm(forms.Form):
             self.fields['user'].queryset = User.objects.filter(groups=users_group).filter(manager=user)
         else: 
             self.fields['user'].queryset = User.objects.filter(groups=users_group)
+
+        self.fields['delivery_terms'].initial = DeliveryTerm.objects.first()
+        self.fields['payment_method'].initial = PaymentMethod.objects.first()
