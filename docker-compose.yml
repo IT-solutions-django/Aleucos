@@ -40,6 +40,7 @@ services:
       - elasticsearch
     volumes:
       - ./media:/media
+      - ./static:/var/www/static
       - ./amocrm_tokens:/amocrm_tokens
     networks:
       - dev
@@ -49,8 +50,12 @@ services:
     container_name: nginx
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
+      - '../etc/ssl:/etc/ssl'
+      - './media:/media' 
+      - './static:/var/www/static' 
     depends_on:
       - backend
     networks:
