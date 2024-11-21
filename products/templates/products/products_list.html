@@ -250,7 +250,7 @@
                                                     <button id="{{ product.barcode }}" class="catalog__card-cart-control-minus">
                                                         <img src="{% static 'img/Vector (1).svg' %}" alt="cart">
                                                     </button>
-                                                    <span>{{ product.quantity_in_cart }}</span>
+                                                    <input type="number" id="quantity-input-{{ product.barcode }}" class="catalog__card-quantity-input" value="{{ product.quantity_in_cart }}">
                                                     <button id="{{ product.barcode }}" class="catalog__card-cart-control-plus">
                                                         <img src="{% static 'img/Vector (2).svg' %}" alt="cart">
                                                     </button>
@@ -501,7 +501,7 @@ function updateCatalog(data) {
                         <button id="${product.barcode}" class="catalog__card-cart-control-minus">
                             <img src="/static/img/Vector (1).svg" alt="cart">
                         </button>
-                        <span>${data.cart.products[product.barcode].quantity}</span>
+                        <input type="number" id="quantity-input-${product.barcode}" class="catalog__card-quantity-input" value="${data.cart.products[product.barcode].quantity}">
                         <button id="${product.barcode}" class="catalog__card-cart-control-plus">
                             <img src="/static/img/Vector (2).svg" alt="cart">
                         </button>
@@ -595,7 +595,7 @@ document.addEventListener("click", function(event) {
             <button id="${barcode}" class="catalog__card-cart-control-minus">
                 <img src="{% static 'img/Vector (1).svg' %}" alt="cart">
             </button>
-            <span>1</span>
+            <input type="number" id="quantity-input-${barcode}" class="catalog__card-quantity-input" min=1 value="1">
             <button id="${barcode}" class="catalog__card-cart-control-plus">
                 <img src="{% static 'img/Vector (2).svg' %}" alt="cart">
             </button>
@@ -653,13 +653,13 @@ function increaseQuantity(plusButton) {
     plusButton.disabled = true;
 
     const barcode = plusButton.id;
-    const quantityBlock = plusButton.previousElementSibling;
-    let oldQuantity = parseInt(quantityBlock.textContent);
+    const quantityInput = plusButton.previousElementSibling;
+    let oldQuantity = parseInt(quantityInput.value);
     quantity = oldQuantity + 1;
     if (quantity < 1) {
         quantity = 1;
     }
-    quantityBlock.textContent = quantity;
+    quantityInput.value = quantity;
 
     fetch("{% url 'carts:change' %}", {
         method: "POST",
@@ -675,10 +675,11 @@ function increaseQuantity(plusButton) {
     })
     .then(response => response.json())
     .then(data => {
+        console.log(data)
         plusButton.disabled = false;
         if (data.error) {
             alert(data.error);
-            quantityBlock.textContent = oldQuantity;
+            quantityInput.value = oldQuantity;
         }
     })
     .catch(error => {
@@ -697,10 +698,11 @@ document.addEventListener("click", function(event) {
 });
 function decreaseQuantity(minusButton) {
     minusButton.disabled = true;
+    console.log('Уменьшаем колво')
 
     const barcode = minusButton.id;
-    const quantityBlock = minusButton.nextElementSibling;
-    let quantity = parseInt(quantityBlock.textContent);
+    const quantityInput = minusButton.nextElementSibling;
+    let quantity = parseInt(quantityInput.value);
     quantity -= 1;
     if (quantity < 1) {
         const addToCartButton = document.createElement('div'); 
@@ -711,7 +713,7 @@ function decreaseQuantity(minusButton) {
         minusButton.parentElement.insertAdjacentElement('afterend', addToCartButton);
         minusButton.parentElement.remove();
     }
-    quantityBlock.textContent = quantity;
+    quantityInput.value = quantity;
 
     fetch("{% url 'carts:change' %}", {
         method: "POST",
@@ -736,9 +738,54 @@ function decreaseQuantity(minusButton) {
     });
 }
 
+// Изменить количество товара в корзине через инпут
+document.addEventListener('DOMContentLoaded', function() {
+    const productGrid = document.getElementById('productGrid');
+
+    productGrid.addEventListener('change', function(event) {
+        const inputElement = event.target;
+        
+        if (inputElement.classList.contains('catalog__card-quantity-input')) {
+            const newQuantity = parseInt(inputElement.value);
+            const barcode = inputElement.id.replace('quantity-input-', '');
+
+            if (isNaN(newQuantity) || newQuantity < 1) {
+                alert('Пожалуйста, введите верное значение.');
+                inputElement.value = 1; 
+                return;
+            }
+
+            updateCartQuantity(barcode, newQuantity, inputElement);
+        }
+    });
+});
+function updateCartQuantity(barcode, newQuantity, inputElement) {
+    fetch("{% url 'carts:change' %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: new URLSearchParams({
+            'barcode': barcode,
+            'quantity': newQuantity, 
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data)
+        if (data.error) {
+            inputElement.value = 1;
+            alert("Товара недостаточно на складе")
+        }
+    })
+    .catch(error => {
+        console.error("Ошибка при добавлении/удалении из корзины:", error)
+    });
+}
+
 // Обновить счётчик позиций на иконке корзины
 function updateCartIcon(count) {
-    console.log('Функция сработала')
 
     const cartIcon = document.querySelector('.navbar__cart-icon-positions-counter-div');
     const cartCounterLabel = document.querySelector('.navbar__cart-icon-positions-counter-label');
