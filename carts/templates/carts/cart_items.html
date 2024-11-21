@@ -1,9 +1,11 @@
 {% extends "base.html" %}
+{% load static %}
 {% load cart_tags %}
 
 {% block title %}Корзина{% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="{% static 'css/my_style.css' %}">
 <div class="container">
     <h2 class="my-4">Ваша корзина</h2>
 
@@ -62,36 +64,48 @@
             <h4>Выберите условия доставки и способ оплаты</h4>
             <form id="checkout-form" method="POST" action="{% url 'carts:create_order' %}">
                 {% csrf_token %}
-                <div class="mb-3">
-                    <label for="delivery-method" class="form-label">Ваш город</label>
-                    <select class="form-select" id="delivery-terms" name="city" required>
-                        <option value="" selected disabled>Выберите город</option>
+                
+                <div class="form-group">
+                    <label for="city-options" class="form-label">Ваш город</label>
+                    <div class="city-options" id="city-options">
                         {% for city in cities %}
-                            <option value="{{ city.id }}">{{ city.name }}</option>
+                            <div class="city-option" data-value="{{ city.id }}">
+                                <div class="title">{{ city.name }}</div>
+                            </div>
                         {% endfor %}
-                    </select>
+                    </div>
+                    <input type="hidden" name="city" id="city-input" required>
                 </div>
-                <div class="mb-3">
-                    <label for="delivery-method" class="form-label">Метод доставки</label>
-                    <select class="form-select" id="delivery-terms" name="delivery_terms" required>
+
+                <div class="form-group">
+                    <label for="delivery-options" class="form-label">Способ доставки</label>
+                    <div class="delivery-options" id="delivery-options">
                         {% for term in delivery_terms %}
-                            <option value="{{ term.id }}">{{ term.title }}</option>
+                            <div class="delivery-option" data-value="{{ term.id }}">
+                                <div class="title">{{ term.title }}</div>
+                            </div>
                         {% endfor %}
-                    </select>
+                    </div>
+                    <input type="hidden" name="delivery_terms" id="delivery-input" required>
                 </div>
-                <div class="mb-3">
-                    <label for="payment-method" class="form-label">Способ оплаты</label>
-                    <select class="form-select" id="payment-method" name="payment_method" required>
+
+                <div class="form-group">
+                    <label for="payment-options" class="form-label">Способ оплаты</label>
+                    <div class="payment-options" id="payment-options">
                         {% for method in payment_methods %}
-                            <option value="{{ method.id }}">{{ method.title }}</option>
+                            <div class="payment-option" data-value="{{ method.id }}">
+                                <div class="title">{{ method.title }}</div>
+                            </div>
                         {% endfor %}
-                    </select>
+                    </div>
+                    <input type="hidden" name="payment_method" id="payment-input" required>
                 </div>
+
                 <div class="mb-3">
                     <label for="comment" class="form-label">Комментарий к заказу</label>
                     <textarea class="form-control" id="comment" name="comment" rows="3"></textarea>
                 </div>
-                <button type="submit" class="btn btn-primary">Оформить заказ</button>
+                <button type="submit" class="btn btn-success">Оформить заказ</button>
             </form>
         </div>
 
@@ -110,6 +124,27 @@
 {% endblock %}
 
 {% block script %}
+<script>
+function handleTileSelection(containerClass, inputId) {
+    const container = document.querySelector(containerClass);
+    const input = document.querySelector(inputId);
+
+    container.addEventListener('click', (event) => {
+        const target = event.target.closest('.city-option, .delivery-option, .payment-option');
+        if (target) {
+            container.querySelectorAll('.selected').forEach((el) => el.classList.remove('selected'));
+            target.classList.add('selected');
+            input.value = target.getAttribute('data-value');
+        }
+    });
+}
+
+handleTileSelection('.city-options', '#city-input');
+handleTileSelection('.delivery-options', '#delivery-input');
+handleTileSelection('.payment-options', '#payment-input');
+</script>
+
+
 <script>
 const checkQuantity = (barcode) => {
     const quantityInput = document.getElementById(`quantity-${barcode}`);
