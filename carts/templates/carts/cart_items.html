@@ -64,7 +64,7 @@
             <h4>Выберите условия доставки и способ оплаты</h4>
             <form id="checkout-form" method="POST" action="{% url 'carts:create_order' %}">
                 {% csrf_token %}
-                
+
                 <div class="form-group">
                     <label for="city-options" class="form-label">Ваш город</label>
                     <div class="city-options" id="city-options">
@@ -105,7 +105,7 @@
                     <label for="comment" class="form-label">Комментарий к заказу</label>
                     <textarea class="form-control" id="comment" name="comment" rows="3"></textarea>
                 </div>
-                <button type="submit" class="btn btn-success">Оформить заказ</button>
+                <button type="submit" class="btn btn-success" id="submit-button" disabled>Оформить заказ</button>
             </form>
         </div>
 
@@ -125,20 +125,45 @@
 
 {% block script %}
 <script>
+function validateForm() {
+    const cityInput = document.querySelector('#city-input');
+    const deliveryInput = document.querySelector('#delivery-input');
+    const paymentInput = document.querySelector('#payment-input');
+    const submitButton = document.querySelector('#submit-button');
+
+    // Проверяем, заполнены ли все поля
+    if (cityInput.value && deliveryInput.value && paymentInput.value) {
+        console.log('ага')
+        console.log(submitButton)
+        submitButton.disabled = false; 
+    } else {
+        console.log('ytf')
+        submitButton.disabled = true; 
+    }
+}
+
+// Подключаем обработчики выбора плиток
 function handleTileSelection(containerClass, inputId) {
+    console.log("Привет")
     const container = document.querySelector(containerClass);
     const input = document.querySelector(inputId);
 
     container.addEventListener('click', (event) => {
-        const target = event.target.closest('.city-option, .delivery-option, .payment-option');
+        const target = event.target.closest('.city-option, .delivery-option, .payment-option'); // Ищем плитку
         if (target) {
+            // Снимаем выделение со всех плиток
             container.querySelectorAll('.selected').forEach((el) => el.classList.remove('selected'));
+            // Добавляем выделение текущей плитке
             target.classList.add('selected');
+            // Записываем значение в скрытое поле
             input.value = target.getAttribute('data-value');
+            // Проверяем форму
+            validateForm();
         }
     });
 }
 
+// Подключение обработчиков для всех секций
 handleTileSelection('.city-options', '#city-input');
 handleTileSelection('.delivery-options', '#delivery-input');
 handleTileSelection('.payment-options', '#payment-input');
