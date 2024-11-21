@@ -64,6 +64,12 @@ class Product(models.Model):
             
             if categories.exists():
                 self.category = random.choice(categories)
+        
+        if self.remains == 0: 
+            self.is_in_stock = False 
+        else: 
+            self.is_in_stock = True
+
         super(Product, self).save(*args, **kwargs)
 
 
