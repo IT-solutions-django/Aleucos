@@ -131,7 +131,6 @@ function validateForm() {
     const paymentInput = document.querySelector('#payment-input');
     const submitButton = document.querySelector('#submit-button');
 
-    // Проверяем, заполнены ли все поля
     if (cityInput.value && deliveryInput.value && paymentInput.value) {
         console.log('ага')
         console.log(submitButton)
@@ -142,7 +141,6 @@ function validateForm() {
     }
 }
 
-// Подключаем обработчики выбора плиток
 function handleTileSelection(containerClass, inputId) {
     console.log("Привет")
     const container = document.querySelector(containerClass);
@@ -151,19 +149,14 @@ function handleTileSelection(containerClass, inputId) {
     container.addEventListener('click', (event) => {
         const target = event.target.closest('.city-option, .delivery-option, .payment-option'); // Ищем плитку
         if (target) {
-            // Снимаем выделение со всех плиток
             container.querySelectorAll('.selected').forEach((el) => el.classList.remove('selected'));
-            // Добавляем выделение текущей плитке
             target.classList.add('selected');
-            // Записываем значение в скрытое поле
             input.value = target.getAttribute('data-value');
-            // Проверяем форму
             validateForm();
         }
     });
 }
 
-// Подключение обработчиков для всех секций
 handleTileSelection('.city-options', '#city-input');
 handleTileSelection('.delivery-options', '#delivery-input');
 handleTileSelection('.payment-options', '#payment-input');
@@ -188,6 +181,7 @@ const updateQuantity = (barcode) => {
 
     timeout = setTimeout(() => {
         const newQuantity = quantityInput.value;
+        console.log(newQuantity)
 
         fetch("{% url 'carts:change' %}", {
             method: "POST",
