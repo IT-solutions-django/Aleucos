@@ -613,3 +613,50 @@ p {
     height: 50px;
     width: 100%;
 }
+
+
+/* Плитки */
+
+/* Общий стиль */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.city-options,
+.delivery-options,
+.payment-options {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content:left;
+}
+
+.city-option,
+.delivery-option,
+.payment-option {
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 15px;
+    background-color: #f5f8f6;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    flex-basis: calc(25% - 10px); 
+    max-width: calc(25% - 10px);
+    box-sizing: border-box;
+}
+
+.city-option:hover,
+.delivery-option:hover,
+.payment-option:hover {
+    border-color: #198754;
+    background-color: #f1f8ff;
+}
+
+.city-option.selected,
+.delivery-option.selected,
+.payment-option.selected {
+    border-color: #198754;
+    background-color: #198754;
+    color: white;
+}

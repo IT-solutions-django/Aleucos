@@ -84,7 +84,7 @@ class StaffProxy(User):
 
 
 class RegistrationRequest(models.Model): 
-    last_name = models.CharField(_('Фамилия'), max_length=50)
+    last_name = models.CharField(_('Фамилия'), max_length=50, default=' ', blank=True)
     first_name = models.CharField(_('Имя'), max_length=50)
     patronymic = models.CharField(_('Отчество'), max_length=50, null=True, blank=True)
     message = models.TextField('Сообщение', null=True, blank=True)
