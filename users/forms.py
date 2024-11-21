@@ -89,7 +89,7 @@ class RegistrationRequestAdminForm(forms.ModelForm):
 class ClientRegistrationForm(forms.ModelForm): 
     class Meta:
         model = User
-        fields = ['last_name', 'first_name', 'patronymic', 'phone', 'email', 'city']
+        fields = ['last_name', 'first_name', 'patronymic', 'phone', 'email', 'city', 'password']
 
 
 class StaffRegistrationForm(forms.ModelForm): 
