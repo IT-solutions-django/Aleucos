@@ -12,7 +12,7 @@ class HomeView(View):
 
     def get(self, request): 
         context = {
-            'contact_form': RequestForm()
+            'contact_form': RequestForm(),
         }
         return render(request, self.template_name, context)
 

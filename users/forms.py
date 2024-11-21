@@ -38,6 +38,31 @@ class RequestForm(forms.Form):
         })
     )
 
+class HelpForm(forms.Form): 
+    name = forms.CharField(
+        max_length=50, 
+        required=True, 
+        widget=forms.TextInput(attrs={
+            'class': 'help__form-input', 
+            'placeholder': 'Введите имя'
+        })
+    )
+    phone = forms.CharField(
+        max_length=20, 
+        required=True, 
+        widget=forms.TextInput(attrs={
+            'class': 'help__form-input help__form-input--tel', 
+        })
+    )
+    email = forms.EmailField(
+        max_length=100, 
+        required=True, 
+        widget=forms.EmailInput(attrs={
+            'class': 'help__form-input', 
+            'placeholder': 'Email'
+        })
+    )
+
 
 class RegistrationRequestAdminForm(forms.ModelForm):
     class Meta:

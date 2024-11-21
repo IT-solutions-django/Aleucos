@@ -23,19 +23,19 @@
             <div data-toggle="modal" data-target="#testModal" class="modal-content modal__offer-content">
                 <div class="offer__form">
                     <button type="button" class="btn-close offer__modal-btn" data-bs-dismiss="modal" aria-label="Close"></button>
-                    <form class="form" action="">
+                    <form class="form contactForm" action="">
                         <div class="contacts__form-box">
                             <h2 class="contacts__form-title">Имя</h2>
-                            <input placeholder="Введите имя" type="text" maxlength="30" name="name" class="contacts__form-input" required>
+                            {{ contact_form.name }}
                         </div>
                         <div class="contacts__form-items">
                             <div class="contacts__form-box">
                                 <h2 class="contacts__form-title">Телефон</h2>
-                                <input placeholder="+7" type="text" name="tel" class="contacts__form-input offer__input-tel" required>
+                                {{ contact_form.phone }}
                             </div>
                             <div class="contacts__form-box">
                                 <h2 class="contacts__form-title">Email</h2>
-                                <input type="email" placeholder="Введите email" maxlength="30" name="email" class="contacts__form-input" required></input>
+                                {{ contact_form.email }}
                             </div>
                         </div>
                         <div class="contacts__form-box box__marin-top">
@@ -55,19 +55,19 @@
           <div class="modal-content modal__offer-content">
             <div class="offer__form">
                 <button type="button" class="btn-close offer__modal-btn" data-bs-dismiss="modal" aria-label="Close"></button>
-                <form action="">
+                <form action="" class="contactForm">
                     <div class="contacts__form-box">
                         <h2 class="contacts__form-title">Имя</h2>
-                        <input placeholder="Введите имя" type="text" maxlength="30" name="name" class="contacts__form-input" required>
+                        {{ contact_form.name }}
                     </div>
                     <div class="contacts__form-items">
                         <div class="contacts__form-box">
                             <h2 class="contacts__form-title">Телефон</h2>
-                            <input placeholder="+7" type="text" name="tel" class="contacts__form-input offer__input-tel" required>
+                            {{ contact_form.phone }}
                         </div>
                         <div class="contacts__form-box">
                             <h2 class="contacts__form-title">Email</h2>
-                            <input type="email" placeholder="Введите email" maxlength="30" name="email" class="contacts__form-input" required></input>
+                            {{ contact_form.email }}
                         </div>
                     </div>
                     <div class="contacts__form-box box__marin-top">
@@ -157,19 +157,19 @@
                 <div class="catolog__items">
                     <div class="catalog__item catalog__item--1">
                         <h2 class="catalog__item-title">Для ухода <br> за волосам</h2>
-                        <button class="catalog__item-btn">328 товаров</button>
+                        <a href="{% url 'products:products_list' %}"><button class="catalog__item-btn">328 товаров</button></a>
                     </div>
                     <div class="catalog__item catalog__item--2">
                         <h2 class="catalog__item-title">Для ухода <br> за кожей</h2>
-                        <button class="catalog__item-btn">328 товаров</button>
+                        <a href="{% url 'products:products_list' %}"><button class="catalog__item-btn">328 товаров</button></a>
                     </div>
                     <div class="catalog__item catalog__item--3">
                         <h2 class="catalog__item-title">Макияж</h2>
-                        <button class="catalog__item-btn">328 товаров</button>
+                        <a href="{% url 'products:products_list' %}"><button class="catalog__item-btn">328 товаров</button></a>
                     </div>
                     <div class="catalog__item catalog__item--4">
                         <h2 class="catalog__item-title">Для детей</h2>
-                        <button class="catalog__item-btn">328 товаров</button>
+                        <a href="{% url 'products:products_list' %}"><button class="catalog__item-btn">328 товаров</button></a>
                     </div>
                     <img class="catolog__items-img" src="{% static 'img/BigStar.svg' %}" alt="" srcset="">
                 </div>
@@ -193,10 +193,12 @@
                             <h2 class="hits__item-title">Benton - Aloe BHA Skin Toner 200ml (6.76 fl.oz)</h2>
                             <div class="hits__item-box">
                                 <p class="hits__item-count">1 500 ₽</p>
-                                <button class="hits__item-btn">
-                                    <img src="{% static 'img/store.svg' %}" alt="" class="hits__item-btn--img">
-                                    <p class="hits__item-btn--text">В корзину</p>
-                                </button>
+                                <a href="{% url 'products:products_list' %}">
+                                    <button class="hits__item-btn">
+                                        <img src="{% static 'img/store.svg' %}" alt="" class="hits__item-btn--img">
+                                        <p class="hits__item-btn--text">В корзину</p>
+                                    </button>
+                                </a>
                             </div>
                         </div>
                         <div class="swiper-slide hits__item">
@@ -206,10 +208,12 @@
                             <h2 class="hits__item-title">Cosrx - Advanced Snail 96 Mucin Power Essence 100ml (3.38 fl.oz)</h2>
                             <div class="hits__item-box">
                                 <p class="hits__item-count">300 ₽</p>
-                                <button class="hits__item-btn">
-                                    <img src="{% static 'img/store.svg' %}" alt="" class="hits__item-btn--img">
-                                    <p class="hits__item-btn--text">В корзину</p>
-                                </button>
+                                <a href="{% url 'products:products_list' %}">
+                                    <button class="hits__item-btn">
+                                        <img src="{% static 'img/store.svg' %}" alt="" class="hits__item-btn--img">
+                                        <p class="hits__item-btn--text">В корзину</p>
+                                    </button>
+                                </a>
                             </div>
                         </div>
                         <div class="swiper-slide hits__item">
@@ -219,10 +223,12 @@
                             <h2 class="hits__item-title">Klairs - Freshly Juiced Vitamin Drop 35ml (1.18 fl.oz)</h2>
                             <div class="hits__item-box">
                                 <p class="hits__item-count">2000 ₽</p>
-                                <button class="hits__item-btn">
-                                    <img src="{% static 'img/store.svg' %}" alt="" class="hits__item-btn--img">
-                                    <p class="hits__item-btn--text">В корзину</p>
-                                </button>
+                                <a href="{% url 'products:products_list' %}">
+                                    <button class="hits__item-btn">
+                                        <img src="{% static 'img/store.svg' %}" alt="" class="hits__item-btn--img">
+                                        <p class="hits__item-btn--text">В корзину</p>
+                                    </button>
+                                </a>
                             </div>
                         </div>
                         <div class="swiper-slide hits__item">
@@ -232,10 +238,12 @@
                             <h2 class="hits__item-title">Klairs - Freshly Juiced Vitamin Drop 35ml (1.18 fl.oz)</h2>
                             <div class="hits__item-box">
                                 <p class="hits__item-count">500 ₽</p>
-                                <button class="hits__item-btn">
-                                    <img src="{% static 'img/store.svg' %}" alt="" class="hits__item-btn--img">
-                                    <p class="hits__item-btn--text">В корзину</p>
-                                </button>
+                                <a href="{% url 'products:products_list' %}">
+                                    <button class="hits__item-btn">
+                                        <img src="{% static 'img/store.svg' %}" alt="" class="hits__item-btn--img">
+                                        <p class="hits__item-btn--text">В корзину</p>
+                                    </button>
+                                </a>
                             </div>
                         </div>
                         <div class="swiper-slide hits__item">
@@ -245,10 +253,12 @@
                             <h2 class="hits__item-title">Benton - Aloe BHA Skin Toner 200ml (6.76 fl.oz)</h2>
                             <div class="hits__item-box">
                                 <p class="hits__item-count">1 500 ₽</p>
-                                <button class="hits__item-btn">
-                                    <img src="{% static 'img/store.svg' %}" alt="" class="hits__item-btn--img">
-                                    <p class="hits__item-btn--text">В корзину</p>
-                                </button>
+                                <a href="{% url 'products:products_list' %}">
+                                    <button class="hits__item-btn">
+                                        <img src="{% static 'img/store.svg' %}" alt="" class="hits__item-btn--img">
+                                        <p class="hits__item-btn--text">В корзину</p>
+                                    </button>
+                                </a>
                             </div>
                         </div>
                         <div class="swiper-slide hits__item">
@@ -258,10 +268,12 @@
                             <h2 class="hits__item-title">Cosrx - Advanced Snail 96 Mucin Power Essence 100ml (3.38 fl.oz)</h2>
                             <div class="hits__item-box">
                                 <p class="hits__item-count">300 ₽</p>
-                                <button class="hits__item-btn">
-                                    <img src="{% static 'img/store.svg' %}" alt="" class="hits__item-btn--img">
-                                    <p class="hits__item-btn--text">В корзину</p>
-                                </button>
+                                <a href="{% url 'products:products_list' %}">
+                                    <button class="hits__item-btn">
+                                        <img src="{% static 'img/store.svg' %}" alt="" class="hits__item-btn--img">
+                                        <p class="hits__item-btn--text">В корзину</p>
+                                    </button>
+                                </a>
                             </div>
                         </div>
                         <div class="swiper-slide hits__item">
@@ -271,10 +283,12 @@
                             <h2 class="hits__item-title">Klairs - Freshly Juiced Vitamin Drop 35ml (1.18 fl.oz)</h2>
                             <div class="hits__item-box">
                                 <p class="hits__item-count">2000 ₽</p>
-                                <button class="hits__item-btn">
-                                    <img src="{% static 'img/store.svg' %}" alt="" class="hits__item-btn--img">
-                                    <p class="hits__item-btn--text">В корзину</p>
-                                </button>
+                                <a href="{% url 'products:products_list' %}">
+                                    <button class="hits__item-btn">
+                                        <img src="{% static 'img/store.svg' %}" alt="" class="hits__item-btn--img">
+                                        <p class="hits__item-btn--text">В корзину</p>
+                                    </button>
+                                </a>
                             </div>
                         </div>
                         <div class="swiper-slide hits__item">
@@ -284,10 +298,12 @@
                             <h2 class="hits__item-title">Klairs - Freshly Juiced Vitamin Drop 35ml (1.18 fl.oz)</h2>
                             <div class="hits__item-box">
                                 <p class="hits__item-count">500 ₽</p>
-                                <button class="hits__item-btn">
-                                    <img src="{% static 'img/store.svg' %}" alt="" class="hits__item-btn--img">
-                                    <p class="hits__item-btn--text">В корзину</p>
-                                </button>
+                                <a href="{% url 'products:products_list' %}">
+                                    <button class="hits__item-btn">
+                                        <img src="{% static 'img/store.svg' %}" alt="" class="hits__item-btn--img">
+                                        <p class="hits__item-btn--text">В корзину</p>
+                                    </button>
+                                </a>
                             </div>
                         </div>
                         <!-- <div class="swiper-slide hits__item">
@@ -336,10 +352,12 @@
                             <h2 class="hits__item-title">Klairs - Freshly Juiced Vitamin Drop 35ml (1.18 fl.oz)</h2>
                             <div class="hits__item-box">
                                 <p class="hits__item-count">500 ₽</p>
-                                <button class="hits__item-btn">
-                                    <img src="{% static 'img/store.svg' %}" alt="" class="hits__item-btn--img">
-                                    <p class="hits__item-btn--text">В корзину</p>
-                                </button>
+                                <a href="{% url 'products:products_list' %}">
+                                    <button class="hits__item-btn">
+                                        <img src="{% static 'img/store.svg' %}" alt="" class="hits__item-btn--img">
+                                        <p class="hits__item-btn--text">В корзину</p>
+                                    </button>
+                                </a>
                             </div>
                         </div>
                     </div>     
@@ -374,10 +392,10 @@
                             <p class="contacts__info-box--text">На всю продукцию имеются сертификаты и декларации соответствия</p>
                         </div>
                         <div class="contacts__info-links">
-                            <a href="/" alt="" class="contacts__info-link--img">
+                            <a href="tel:+79644541700" alt="" class="contacts__info-link--img">
                                 <img src="{% static 'img/1.svg' %}" alt="" class="contacts__info-link--img">
                             </a>
-                            <a href="/" class="contacts__info-link">
+                            <a href="https://www.instagram.com/@aleucos.vl" class="contacts__info-link">
                                 <img src="{% static 'img/2.svg' %}" alt="" class="contacts__info-link--img">
                             </a>
                         </div>
@@ -385,7 +403,7 @@
                         <a class="contacts__info-suptext" href="tel:+79644541700">+7 (964) 454-17-00</a>
                     </div>
                     <div class="contacts__form">
-                        <form id="contactForm" class="form" action="">
+                        <form id="contactForm" class="form contactForm" action="">
                             <div class="contacts__form-box">
                                 <h2 class="contacts__form-title">Имя</h2>
                                 {{ contact_form.name }}
@@ -807,26 +825,26 @@
     
 <script>
 
-const form = document.querySelector("#contactForm");
-console.log(form)
-form.addEventListener("submit", async function(t) {
-    t.preventDefault();
-    let a = new FormData(form),
-        e = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
-    form.reset();
-    try {
-        let n = await fetch(`${window.origin}/api/save_registration_request/`, {
-            method: "POST",
-            body: a,
-            headers: {
-                "X-CSRFToken": "{% csrf_token %}"
-            }
-        });
-        n.status
-    } catch (o) {
-        console.error("Ошибка запроса:", o)
-    }
+const forms = document.querySelectorAll(".contactForm");
+console.log(forms);
+
+forms.forEach((form) => {
+    form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+        let formData = new FormData(form);
+        form.reset();
+        try {
+            let response = await fetch(`${window.origin}/api/save_registration_request/`, {
+                method: "POST",
+                body: formData,
+            });
+            console.log("Статус ответа:", response.status);
+        } catch (error) {
+            console.error("Ошибка запроса:", error);
+        }
+    });
 });
+
 </script>
 
 {% endblock %}

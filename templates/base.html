@@ -95,7 +95,7 @@
             <div class="footer__inner">
                 <div class="row">
                     <div class="col-auto">
-                        <p class="footer__text">@2024 Aleucos</p>
+                        <a href="{% url 'home:home' %}" class="footer__text">@2024 Aleucos</a>
                     </div>
                     <div class="col">
                         <div class="row footer__menu justify-content-md-center">
@@ -119,12 +119,12 @@
                     <div class="col-auto">
                         <div class="row">
                             <div class="col-auto">
-                                <a href="" class="footer__link">
+                                <a href="tel:+79644541700" class="footer__link">
                                     <img src="{% static 'img/tg.svg' %}" alt="" class="footer__link-img">
                                 </a>
                             </div>
                             <div class="col-auto">
-                                <a href="" class="footer__link">
+                                <a href="https://www.instagram.com/@aleucos.vl" class="footer__link">
                                     <img src="{% static 'img/wtsp.svg' %}" alt="" class="footer__link-img">
                                 </a>
                             </div>
@@ -142,6 +142,15 @@
     <!-- <script src="./node_modules/cleave.js/dist/addons/cleave-phone.ru.js"></script> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.6.0/addons/cleave-phone.ru.js" integrity="sha512-dSXSpCsgx+mWGZjelEzcJtb+fMB8NBepOd7oy2hy5DU4Fj4wX5SclVjdOR3lztHDN8AGUn2zwNq/XLF7T64DwA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
+        const phoneInputs = document.querySelectorAll('.contacts__form-input--tel');
+        phoneInputs.forEach((input) => {
+            new Cleave(input, {
+                phone: true,
+                phoneRegionCode: 'RU',
+                prefix: "+7",
+            });
+        });
+
         var cleave = new Cleave('.contacts__form-input--tel', {
             phone:true,
             phoneRegionCode: 'RU',
