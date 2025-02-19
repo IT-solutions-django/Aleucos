@@ -47,15 +47,15 @@ class UserAdmin(admin.ModelAdmin):
             send_email_to_new_user_task.delay(obj.email, raw_password)
 
             responsible_user_email = obj.manager.email
-            responsible_user_id = crm.get_user_id(responsible_user_email) 
+            # responsible_user_id = crm.get_user_id(responsible_user_email) 
 
-            id_in_amocrm = crm.create_contact(
-                name = obj.get_fullname(), 
-                responsible_user_id = responsible_user_id, 
-                email = obj.email, 
-                phone = obj.phone
-            )
-            obj.id_in_amocrm = id_in_amocrm
+            # id_in_amocrm = crm.create_contact(
+            #     name = obj.get_fullname(), 
+            #     responsible_user_id = responsible_user_id, 
+            #     email = obj.email, 
+            #     phone = obj.phone
+            # )
+            # obj.id_in_amocrm = id_in_amocrm
             obj.save()
             return
 

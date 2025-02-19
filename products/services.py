@@ -251,12 +251,15 @@ class CatalogExporter:
 
             current_row_index += 1
 
+        temp_file_path = None  
 
         try:
             with NamedTemporaryFile(delete=False, suffix='.xlsx', dir=os.path.join(settings.MEDIA_ROOT, 'tmp')) as temp_file:
                 workbook.save(temp_file.name)
                 temp_file_path = temp_file.name
             os.replace(temp_file_path, exported_catalog_path)
+        except Exception as e: 
+            print(e)
         finally: 
             if temp_file_path and os.path.exists(temp_file_path):
                 os.remove(temp_file_path)

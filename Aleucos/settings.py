@@ -120,8 +120,8 @@ DATABASES = {
 #         'NAME': 'aleucos',
 #         'USER': 'admin', 
 #         'PASSWORD': 'admin', 
-#         'HOST': "localhost", 
-#         'PORT': "5439" 
+#         'HOST': "127.0.0.1", 
+#         'PORT': "5432" 
 #     }
 # }
 
@@ -198,11 +198,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Redis 
 REDIS_HOST = 'redis' 
-REDIS_PORT = '6379' 
 
 # Для локальной разработки
 # REDIS_HOST = 'localhost' 
-# REDIS_PORT = '6390' 
+
+REDIS_PORT = '6379' 
 
 
 # Celery
