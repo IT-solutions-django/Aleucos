@@ -36,9 +36,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 CSRF_TRUSTED_ORIGINS = [
-    'http://*.79.137.133.45', 
-    'http://*.aleucos-crm.ru', 
-    'https://*.aleucos-crm.ru'
+    'http://*.82.97.252.179',
 ]
 
 
@@ -168,7 +166,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'ru'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Vladivostok'
 
 USE_I18N = True
 
