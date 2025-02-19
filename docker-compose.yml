@@ -1,3 +1,5 @@
+version: "3"
+
 services:
   db:
     image: postgres:15-alpine
@@ -13,25 +15,26 @@ services:
 
   redis:
     image: redis:alpine
+    container_name: redis
     networks:
       - dev
 
-  elasticsearch: 
+  elasticsearch:
     image: elasticsearch:8.7.1
-    container_name: elasticsearch 
+    container_name: elasticsearch
     environment:
       - discovery.type=single-node
-      - xpack.security.enabled=false 
+      - xpack.security.enabled=false
       - network.host=0.0.0.0
     volumes:
       - ./es_data:/usr/share/elasticsearch/data
     networks:
       - dev
 
-  backend: 
-    build: . 
+  backend:
+    build: .
     entrypoint: /entrypoint.sh
-    ports: 
+    ports:
       - "8000:8000"
       - "5555:5555"
     depends_on:
@@ -53,13 +56,12 @@ services:
       - "443:443"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
-      - './media:/media' 
-      - './static:/var/www/static' 
+      - './media:/media'
+      - './static:/var/www/static'
     depends_on:
       - backend
     networks:
       - dev
-
 
 networks:
   dev:
