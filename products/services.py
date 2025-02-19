@@ -258,7 +258,7 @@ class CatalogExporter:
                 temp_file_path = temp_file.name
             os.replace(temp_file_path, exported_catalog_path)
         finally: 
-            if os.path.exists(temp_file_path):
+            if temp_file_path and os.path.exists(temp_file_path):
                 os.remove(temp_file_path)
 
         return exported_catalog_path
