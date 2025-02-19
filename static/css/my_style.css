@@ -262,6 +262,11 @@ p {
     gap: 8px; 
     cursor: pointer; 
 }
+.sidebar__brand-item-label label {
+    display: flex; 
+    align-items: center;
+    gap: 4px;
+}
 .sidebar__section-checkbox {
     width: 20px;
     height: 20px;
