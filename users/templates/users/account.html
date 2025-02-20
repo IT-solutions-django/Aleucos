@@ -26,17 +26,17 @@
         {% if manager %}
             <div class="card mb-3">
                 <div class="row g-0">
-                    <div class="col-md-2">
-                        {% if manager.photo %}
+                    {% if manager.photo %}
+                        <div class="col-md-2">
                             <img src="{{ manager.photo.url }}" class="img-fluid rounded-start" style="height: 200px; width: 100%; object-fit: contain;" alt="Фотография менеджера">
-                        {% endif %}
-                    </div>
+                        </div>
+                    {% endif %}
                     <div class="col-md-4">
                         <div class="card-body">
-                            <p>Имя: {{ manager.first_name }} {{ manager.last_name }} {{ manager.patronymic }}</p>
+                            <p>Имя: {{ manager.first_name }} {{ manager.last_name }} {% if manager.patronymic %}{{ manager.patronymic }}{% endif %}</p>
                             <p>Должность: {{ manager.position }}</p>
                             <p>Email: {{ manager.email }}</p>
-                            <p>Телефон: {{ manager.phone }}</p>
+                            <p>Телефон: {% if manager.phone %}{{ manager.phone }}{% else %}не указан{% endif %}</p>
                         </div>
                     </div>
                 </div>
