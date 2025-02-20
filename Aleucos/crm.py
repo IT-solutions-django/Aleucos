@@ -45,6 +45,7 @@ class AmoCRM:
                 file.write(refresh_token)
         else: 
             logger.error(f'Ошибка получения токенов. Код {response.status_code}') 
+            print(response.json())
 
     def refresh_tokens(self, ) -> None: 
         url = f'{self.CLIENT_DOMAIN}oauth2/access_token'
