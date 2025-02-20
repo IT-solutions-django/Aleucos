@@ -120,11 +120,11 @@ def after_request_save(sender, instance: RegistrationRequest, created, **kwargs)
     if not created and hasattr(instance, '_old_manager'):
         if instance._old_manager != instance.manager and instance._old_manager == None:
             responsible_user_email = instance.manager.email 
-            # responsible_user_id = crm.get_user_id(responsible_user_email)
-            # crm.create_task(
-            #     text = f'Обработать заявку от {instance.email} на сайте', 
-            #     responsible_user_id=responsible_user_id
-            # )
+            responsible_user_id = crm.get_user_id(responsible_user_email)
+            crm.create_task(
+                text = f'Обработать заявку от {instance.email} на сайте', 
+                responsible_user_id=responsible_user_id
+            )
 
         if instance.to_save and not instance.is_closed: 
             new_user: User = User.objects.create(
@@ -146,14 +146,14 @@ def after_request_save(sender, instance: RegistrationRequest, created, **kwargs)
             send_email_to_new_user_task.delay(new_user.email, raw_password)
 
             responsible_user_email = instance.manager.email 
-            # responsible_user_id = crm.get_user_id(responsible_user_email)
-            # id_in_amocrm = crm.create_contact(
-            #     name = new_user.get_fullname(), 
-            #     responsible_user_id=responsible_user_id, 
-            #     email = new_user.email, 
-            #     phone = new_user.phone
-            # )
-            # new_user.id_in_amocrm = id_in_amocrm 
+            responsible_user_id = crm.get_user_id(responsible_user_email)
+            id_in_amocrm = crm.create_contact(
+                name = new_user.get_fullname(), 
+                responsible_user_id=responsible_user_id, 
+                email = new_user.email, 
+                phone = new_user.phone
+            )
+            new_user.id_in_amocrm = id_in_amocrm 
             new_user.save()
 
             instance.is_closed = True 
