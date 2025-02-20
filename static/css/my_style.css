@@ -279,7 +279,7 @@ p {
 .sidebar__section-checkbox:checked {
     background-color: #14A751;
     border-color: #14A751;
-    background-image: url("../img/Vector.svg");
+    background-image: url("../img/white-checkmark.svg");
     background-repeat: no-repeat;
     background-position: center;
 }
