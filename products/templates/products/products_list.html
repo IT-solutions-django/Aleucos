@@ -237,9 +237,11 @@
                                     <div class="catalog__card-info-div">
                                         <small>Заметки: {% if product.notes %}{{ product.notes }}{% else %}-{% endif %}</small> 
                                     </div>
+                                    {% if request.user.is_authenticated %}
                                     <div class="catalog__card-info-div">
                                         <small>Осталось {{ product.remains }} шт.</small> 
                                     </div>
+                                    {% endif %}
                                     <div>
                                         {% if request.user.is_authenticated %}
                                             <div class="catalog__card-price-div">

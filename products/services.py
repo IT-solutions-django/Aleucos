@@ -40,7 +40,7 @@ class CatalogImporter:
             except EndOfTable:
                 break
             except ProductImportError as e:
-                log_text = f'Ошибка при импорте каталога: {str(e)}. Импорт был прерван'
+                log_text = f'Ошибка при импорте каталога в строке №{index}: {str(e)}. Импорт был прерван'
                 logger.error(log_text)
                 ImportProductsStatusService.error(log_text)
                 return

@@ -1,0 +1,77 @@
+version: "3"
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: database
+    environment:
+      - POSTGRES_DB=aleucos
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    # networks:
+    #   - dev
+    ports:
+      - "5433:5433"
+    command: ["postgres", "-p", "5433"]
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    networks:
+      - dev
+    ports:
+      - "6379:6379" 
+
+  elasticsearch:
+    image: elasticsearch:8.7.1
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - network.host=0.0.0.0
+      - ES_JAVA_OPTS=-Xms750m -Xmx750m
+    volumes:
+      - ./es_data:/usr/share/elasticsearch/data
+    networks:
+      - dev
+    # ports:
+    #   - "9200:9200"  
+    #   - "9300:9300" 
+
+  backend:
+    build: .
+    entrypoint: /entrypoint.sh
+    ports:
+      - "8000:8000"
+      - "5555:5555"
+    depends_on:
+      - db
+      - redis
+      - elasticsearch
+    volumes:
+      - ./media:/media
+      - ./static:/var/www/static
+      - ./amocrm_tokens:/amocrm_tokens
+    networks:
+      - dev
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - './media:/media'
+      - './static:/var/www/static'
+    depends_on:
+      - backend
+    networks:
+      - dev
+
+networks:
+  dev:
