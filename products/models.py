@@ -49,6 +49,7 @@ class Product(models.Model):
     is_in_stock = models.BooleanField(_('В наличии'), default=False)
     remains = models.PositiveIntegerField(_('Остаток на складе'), default=0)
     created_at = models.DateTimeField(_('Дата создания'), auto_now_add=True)
+    will_arrive_at = models.DateField(_('Дата прибытия (если в пути)'), null=True, blank=True)
 
     class Meta: 
         verbose_name = _('Товар')
