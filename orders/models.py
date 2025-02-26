@@ -135,6 +135,12 @@ def after_order_save(sender, instance: Order, created, **kwargs):
         )
         instance.id_in_amocrm = id_in_amocrm 
         instance.save()
+    else: 
+        crm.update_lead_data(
+            order_id_in_amocrm=instance.id_in_amocrm, 
+            new_order_status=instance.status.title,
+            price=int(instance.total_price),
+        )
     pass
 
 

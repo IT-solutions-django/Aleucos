@@ -7,7 +7,7 @@ from Aleucos import settings
 
 @shared_task
 def import_products_from_xlsx_task(xlsx_file_path: str) -> None:
-    settings.ELASTICSEARCH_SYNC = False
+    # settings.ELASTICSEARCH_SYNC = False
 
     log_text = 'Началась загрузка новых данных из файла'
     logger.info(log_text)
@@ -18,9 +18,9 @@ def import_products_from_xlsx_task(xlsx_file_path: str) -> None:
 
         CatalogImporter.import_catalog_from_xlsx(xlsx_file) 
 
-    ElasticSearchService.add_all_products_to_index()
+    # ElasticSearchService.add_all_products_to_index()
 
-    settings.ELASTICSEARCH_SYNC = True
+    # settings.ELASTICSEARCH_SYNC = True
 
 
 @shared_task

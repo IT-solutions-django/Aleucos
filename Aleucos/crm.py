@@ -161,6 +161,44 @@ class AmoCRM:
         else: 
             logger.error(f'Ошибка создания задачи. Код {response.status_code}\n{response.text}') 
 
+    def update_lead_data(self, order_id_in_amocrm: int, new_order_status: str = None, price: int = None) -> None: 
+        url = f'{self.CLIENT_DOMAIN}api/v4/leads/{order_id_in_amocrm}'
+        new_status_id = None
+        if new_order_status:
+            match new_order_status: 
+                case 'Клиент прислал заказ': 
+                    new_status_id = 59520526
+                case 'Товар собран': 
+                    new_status_id = 59948062 
+                case 'Оплата получена': 
+                    new_status_id = 59948090 
+                case 'Отгружено в рассрочку': 
+                    new_status_id = 65971030 
+                case 'Товар отправлен/передан': 
+                    new_status_id = 59948134 
+
+                case 'Первичный контакт': 
+                    new_status_id = 59520514 
+                case 'Рабочий контакт': 
+                    new_status_id = 60739018 
+                case 'КП отправлено': 
+                    new_status_id = 59520518 
+                case _: 
+                    raise Exception(f'Такого статуса в amoCRM нет: {new_order_status}')
+        headers = {
+            'Authorization': f'Bearer {self.get_current_access_token()}'
+        }
+        data = {}
+        if new_order_status:
+            data['status_id'] = new_status_id  
+        if price: 
+            data['price'] = price  
+        response = requests.patch(url, json=data, headers=headers)
+        if response.status_code == 200: 
+            logger.info(f'Задача с id_in_amocrm={order_id_in_amocrm} обновлена, статус={new_order_status}, цена={price}!')
+        else: 
+            logger.error(f'Ошибка обновления данных задачи с id_in_amocrm={order_id_in_amocrm}. Код {response.status_code}\n{response.text}') 
+
     def get_user_id(self, user_email: str) -> int: 
         url = f'{self.CLIENT_DOMAIN}api/v4/users'
         headers = {

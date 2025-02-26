@@ -4,7 +4,9 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from users.forms import RequestForm
-from users.models import RegistrationRequest
+from users.models import RegistrationRequest, User
+from configs.models import Config 
+from django.contrib.auth.models import Group 
 
 
 class HomeView(View): 
@@ -26,10 +28,21 @@ class ContactFormView(View):
             cd = form.cleaned_data 
             name, phone, email, message = cd['name'], cd['phone'], cd['email'], cd['message']
 
+            last_request = RegistrationRequest.objects.order_by('-id').first()
+            manager_group = Group.objects.get(name=Config.get_instance().managers_group_name)
+            if last_request and last_request.manager:
+                last_manager = last_request.manager  # TODO: Обязательно отрефакторить логику фильтрации по группам пользователей
+                next_manager = User.objects.filter(groups__in=(manager_group,)).filter(id__gt=last_manager.id).filter(is_active=True).order_by('id').first()
+                if not next_manager:
+                    next_manager = User.objects.filter(groups__in=(manager_group,)).order_by('id').first()
+            else:
+                next_manager = User.objects.filter(groups__in=(manager_group,)).order_by('id').first()
+
             new_request = RegistrationRequest(
                 first_name=name, 
                 phone=phone, 
-                email=email
+                email=email, 
+                manager=next_manager,
             )
             new_request.save()
 

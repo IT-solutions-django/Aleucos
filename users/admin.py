@@ -76,7 +76,7 @@ class UserAdmin(admin.ModelAdmin):
 
 @admin.register(StaffProxy)
 class StaffAdmin(admin.ModelAdmin):
-    list_display = ['pk', 'email', 'first_name', 'last_name', 'position', 'phone']
+    list_display = ['pk', 'email', 'first_name', 'last_name', 'position', 'phone', 'is_active']
     list_filter = [
         StaffGroupFilter,
         'is_superuser', 
