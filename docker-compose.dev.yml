@@ -37,41 +37,91 @@ services:
       - ./es_data:/usr/share/elasticsearch/data
     networks:
       - dev
-    # ports:
-    #   - "9200:9200"  
-    #   - "9300:9300" 
-
-  backend:
-    build: .
-    entrypoint: /entrypoint.sh
     ports:
-      - "8000:8000"
-      - "5555:5555"
+      - "9200:9200"  
+      - "9300:9300" 
+
+  kibana:
+    image: kibana:8.7.1
+    container_name: kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
     depends_on:
-      - db
-      - redis
       - elasticsearch
-    volumes:
-      - ./media:/media
-      - ./static:/var/www/static
-      - ./amocrm_tokens:/amocrm_tokens
     networks:
       - dev
 
-  nginx:
-    image: nginx:alpine
-    container_name: nginx
-    ports:
-      - "80:80"
-      - "443:443"
+  logstash:
+    image: docker.io/elastic/logstash:8.7.1
+    container_name: logstash
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-      - './media:/media'
-      - './static:/var/www/static'
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    environment:
+      - LS_JAVA_OPTS=-Xmx256m -Xms256m
+    ports:
+      - "5044:5044"
     depends_on:
-      - backend
+      - elasticsearch
     networks:
       - dev
+
+  filebeat:
+    image: docker.io/elastic/filebeat:8.7.1
+    container_name: filebeat
+    entrypoint: "filebeat -e -strict.perms=false"
+    user: root
+    volumes:
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - logstash
+    networks:
+      - dev
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana_data:/var/lib/grafana
+    networks:
+      - dev
+
+  # backend:
+  #   build: .
+  #   entrypoint: /entrypoint.sh
+  #   ports:
+  #     - "8000:8000"
+  #     - "5555:5555"
+  #   depends_on:
+  #     - db
+  #     - redis
+  #     - elasticsearch
+  #   volumes:
+  #     - ./media:/media
+  #     - ./static:/var/www/static
+  #     - ./amocrm_tokens:/amocrm_tokens
+  #   networks:
+  #     - dev
+
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: nginx
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/nginx.conf
+  #     - './media:/media'
+  #     - './static:/var/www/static'
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - dev
 
 networks:
   dev:

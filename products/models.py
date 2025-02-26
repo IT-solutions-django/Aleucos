@@ -71,21 +71,6 @@ class Product(models.Model):
             self.is_in_stock = True
 
         super(Product, self).save(*args, **kwargs)
-
-
-@receiver(pre_save, sender=Product)
-def elasticsearch_sync_on_save(sender, instance, **kwargs) -> None: 
-    from .documents import ProductDocument
-
-    if settings.ELASTICSEARCH_SYNC: 
-        ProductDocument().update(instance)
-
-@receiver(pre_save, sender=Product)
-def elasticsearch_sync_on_save(sender, instance, **kwargs) -> None: 
-    from .documents import ProductDocument
-    
-    if settings.ELASTICSEARCH_SYNC: 
-        ProductDocument().update(instance)
     
 
 @receiver(pre_delete, sender=Product)

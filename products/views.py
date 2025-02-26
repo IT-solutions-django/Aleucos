@@ -8,6 +8,9 @@ from .models import Product
 from .forms import SearchAndFilterForm
 from .documents import ProductDocument
 from .models import ImportProductsStatus
+from django.db.models import Q, Value
+from django.db.models.functions import Greatest
+from django.contrib.postgres.search import TrigramSimilarity
 
 
 class ImportProductsStatusView(View): 
@@ -38,20 +41,23 @@ class ProductsListView(View):
             selected_section = cd.get('sections') 
             
             if search_text or (selected_section and selected_section != 'все'):
-                products = ProductDocument.search()
                 if search_text:
-                    products = products.query(
-                        MultiMatch(query=search_text, fields=['title', 'description', 'notes'])
-                    )
-                if selected_section: 
-                    if selected_section == 'новинки': 
-                        products = products.query('match', notes='NEW')
-                    elif selected_section == 'акции': 
-                        products = products.query('match', notes='акция')
-                    elif selected_section == 'скидки': 
-                        products = products.query('match', notes='скидка')
+                    products = products.annotate(
+                        similarity=Greatest(
+                            TrigramSimilarity('title', search_text),
+                            TrigramSimilarity('description', search_text),
+                            TrigramSimilarity('notes', search_text),
+                            Value(0.0) 
+                        )
+                    ).filter(similarity__gt=0.1).order_by('-similarity')  
 
-                products = products.to_queryset()
+                if selected_section:
+                    section_filters = {
+                        'новинки': Q(notes__icontains='NEW'),
+                        'акции': Q(notes__icontains='акция'),
+                        'скидки': Q(notes__icontains='скидка'),
+                    }
+                    products = products.filter(section_filters.get(selected_section, Q()))
                 
             if not search_text and not selected_section: 
                 products = Product.objects.all()
@@ -118,20 +124,23 @@ class CatalogFiltersView(View):
             selected_section = cd.get('sections') 
             
             if search_text or (selected_section and selected_section != 'все'):
-                products = ProductDocument.search()
                 if search_text:
-                    products = products.query(
-                        MultiMatch(query=search_text, fields=['title', 'description', 'notes'])
-                    )
-                if selected_section: 
-                    if selected_section == 'новинки': 
-                        products = products.query('match', notes='NEW')
-                    elif selected_section == 'акции': 
-                        products = products.query('match', notes='акция')
-                    elif selected_section == 'скидки': 
-                        products = products.query('match', notes='скидка')
+                    products = products.annotate(
+                        similarity=Greatest(
+                            TrigramSimilarity('title', search_text),
+                            TrigramSimilarity('description', search_text),
+                            TrigramSimilarity('notes', search_text),
+                            Value(0.0) 
+                        )
+                    ).filter(similarity__gt=0.1).order_by('-similarity')  
 
-                products = products.to_queryset()
+                if selected_section:
+                    section_filters = {
+                        'новинки': Q(notes__icontains='NEW'),
+                        'акции': Q(notes__icontains='акция'),
+                        'скидки': Q(notes__icontains='скидка'),
+                    }
+                    products = products.filter(section_filters.get(selected_section, Q()))
                 
             if not search_text and not selected_section: 
                 products = Product.objects.all()

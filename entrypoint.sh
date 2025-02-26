@@ -19,11 +19,15 @@ while ! nc -z elasticsearch 9200; do
 done
 echo "Elasticsearch is up!"
 
+
+PGPASSWORD=$POSTGRES_PASSWORD psql -h db -U $POSTGRES_USER -d $POSTGRES_DB -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
+
+
 python manage.py migrate
 python manage.py loaddata products/fixtures/category.json 
 python manage.py collectstatic --noinput
 
-python manage.py search_index --rebuild -f
+# python manage.py search_index --rebuild -f
 
 celery -A Aleucos worker -l info -P prefork  &
 celery -A Aleucos  beat -l info &

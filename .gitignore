@@ -180,3 +180,5 @@ celerybeat-schedule.dir
 
 amocrm_tokens/
 static/admin/
+
+grafana_data/
