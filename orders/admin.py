@@ -25,6 +25,11 @@ class OrderItemInline(admin.TabularInline):
     model = OrderItem
     extra = 0
 
+    def get_readonly_fields(self, request, obj=None):
+        if request.user.groups.filter(name=Config.get_instance().managers_group_name).exists():
+            return [field.name for field in self.model._meta.fields if field.name != 'quantity']
+        return super().get_readonly_fields(request, obj)
+
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
