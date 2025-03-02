@@ -6,6 +6,7 @@ from django.core.files.uploadedfile import UploadedFile
 from django.core.files.storage import default_storage
 from openpyxl_image_loader import SheetImageLoader
 from openpyxl.drawing.image import Image
+from openpyxl.drawing.spreadsheet_drawing import AnchorMarker, TwoCellAnchor
 from decimal import Decimal, getcontext, ROUND_HALF_UP
 from openpyxl.reader.excel import load_workbook
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -16,10 +17,17 @@ import os
 from loguru import logger
 from tempfile import NamedTemporaryFile
 from .models import Category, Product, Brand, ImportProductsStatus
+from openpyxl.styles import Alignment, Font, PatternFill, Border, Side
 from .exceptions import ProductImportError, EndOfTable
 from .documents import ProductDocument
 from Aleucos import settings
 from configs.models import Config
+from PIL import Image, ImageDraw, ImageFont
+from PIL import Image as PILImage, ImageDraw, ImageFont
+
+from openpyxl.drawing.image import Image
+from openpyxl.styles import Alignment, Font, PatternFill, Border, Side
+from openpyxl.drawing.spreadsheet_drawing import AnchorMarker, TwoCellAnchor
 
 
 class CatalogImporter:
@@ -215,7 +223,28 @@ class CatalogImporter:
         Brand.objects.all().delete()
 
 
-class CatalogExporter: 
+def add_watermark(image_path, output_path, text="©Aleucos", font_path="arial_bolditalicmt.ttf", font_size=30, position="bottom_right", opacity=255):
+    image = PILImage.open(image_path).convert("RGBA")
+    txt_layer = PILImage.new("RGBA", image.size, (255, 255, 255, 0))
+    draw = ImageDraw.Draw(txt_layer)
+    font = ImageFont.truetype(font_path, font_size)
+    text_width, text_height = draw.textbbox((0, 0), text, font=font)[2:]
+    positions = {
+        "top_left": (10, 10),
+        "top_right": (image.width - text_width - 10, 10),
+        "bottom_left": (10, image.height - text_height - 10),
+        "bottom_right": (image.width - text_width - 10, image.height - text_height - 10),
+        "center": ((image.width - text_width) // 2, (image.height - text_height) // 2)
+    }
+    text_position = positions.get(position, positions["bottom_right"])
+    shadow_offset = (1, 1)
+    draw.text((text_position[0] + shadow_offset[0], text_position[1] + shadow_offset[1]), text, font=font, fill=(0, 0, 0, opacity // 2))
+    draw.text(text_position, text, font=font, fill=(255, 255, 255, opacity))
+    watermarked_image = PILImage.alpha_composite(image, txt_layer)
+    watermarked_image.convert("RGB").save(output_path, "JPEG")
+
+
+class CatalogExporter:
     @staticmethod
     def export_catalog_to_xlsx() -> str:
         catalog_template_path = os.path.join(settings.MEDIA_ROOT, 'catalog', Config.get_instance().export_catalog_template_filename)
@@ -223,48 +252,93 @@ class CatalogExporter:
 
         try:
             workbook = load_workbook(filename=catalog_template_path, data_only=True)
-        except PermissionError: 
+        except PermissionError:
             logger.error('Ошибка при экспорте каталога: файл занят другим процессом')
-        worksheet = workbook.worksheets[1]
+            return ""
+        
+        worksheet = workbook['Актуальное наличие на складе']
+        
+        def new_column(ws):
+            ws.merge_cells('T1:W3')
+            ws['T1'] = "Остаток"
+            ws['T1'].alignment = Alignment(horizontal='center', vertical='center')
+            ws['T1'].font = Font(size=38, bold=True)
+            ws['T1'].fill = PatternFill(start_color='F5F5DC', end_color='F5F5DC', fill_type='solid')
+            
+            border = Border(
+                top=Side(border_style='medium', color='000000'),
+                bottom=Side(border_style='medium', color='000000'),
+                left=Side(border_style='medium', color='000000'),
+                right=Side(border_style='medium', color='000000')
+            )
+            
+            for row in ws['T1:W3']:
+                for cell in row:
+                    cell.border = border
+
+        new_column(worksheet)
 
         products = Product.objects.all()
+        curr_row_index = 4
 
-        current_row_index = 4
-        for product in products: 
-            image_path = os.path.join(settings.MEDIA_ROOT, product.photo.name)
-            image = Image(image_path)
-            image.width, image.height = 100, 100
+        for product in products:
+            worksheet.merge_cells(f'T{curr_row_index}:W{curr_row_index}')
             
+            worksheet[f'A{curr_row_index}'] = str(product.barcode)
+            worksheet[f'B{curr_row_index}'] = product.brand.title
+            worksheet[f'C{curr_row_index}'] = product.title
+            worksheet[f'D{curr_row_index}'] = product.description
+            worksheet[f'F{curr_row_index}'] = product.volume
+            worksheet[f'G{curr_row_index}'] = product.weight
+            worksheet[f'H{curr_row_index}'] = product.notes
+            worksheet[f'J{curr_row_index}'] = product.price_before_200k
+            worksheet[f'K{curr_row_index}'] = product.price_after_200k
+            worksheet[f'L{curr_row_index}'] = product.price_after_500k
+            worksheet[f'T{curr_row_index}'] = product.remains
+            worksheet[f'T{curr_row_index}'].alignment = Alignment(horizontal='center', vertical='center')
+            worksheet[f'T{curr_row_index}'].font = Font(size=25)
 
-            worksheet[f'A{current_row_index}'] = str(product.barcode)
-            worksheet[f'B{current_row_index}'] = product.brand.title
-            worksheet[f'C{current_row_index}'] = product.title
-            worksheet[f'D{current_row_index}'] = product.description
-            worksheet.add_image(image, f'E{current_row_index}')
-            worksheet[f'F{current_row_index}'] = product.volume
-            worksheet[f'G{current_row_index}'] = product.weight
-            worksheet[f'H{current_row_index}'] = product.notes
-            worksheet[f'J{current_row_index}'] = product.price_before_200k
-            worksheet[f'K{current_row_index}'] = product.price_after_200k
-            worksheet[f'L{current_row_index}'] = product.price_after_500k
-            worksheet[f'M{current_row_index}'] = 0 if not product.remains else int(product.remains)
+            image_path = os.path.join(settings.MEDIA_ROOT, product.photo.name)
+            try:
+                img = Image(image_path)
+                img_width = img.width
+                img_height = img.height
 
-            current_row_index += 1
+                column_width = worksheet.column_dimensions['E'].width * 7
+                row_height = worksheet.row_dimensions[curr_row_index].height
 
-        temp_file_path = None  
+                offset_x = (column_width - img_width) / 2
+                offset_y = (row_height - img_height) / 2
 
+                column_index = 4 
+                _from = AnchorMarker(col=column_index, row=curr_row_index - 1, colOff=offset_x, rowOff=offset_y)
+                to = AnchorMarker(col=column_index + 1, row=curr_row_index, colOff=-offset_x, rowOff=-offset_y)
+
+                img.anchor = TwoCellAnchor(editAs="twoCell", _from=_from, to=to)
+                worksheet.add_image(img)
+            except FileNotFoundError:
+                worksheet[f'E{curr_row_index}'] = "Файл не найден"
+
+            curr_row_index += 1
+
+        worksheet['J2'] = f"=SUMPRODUCT(J4:J{curr_row_index - 1}, M4:M{curr_row_index - 1})"
+        worksheet['K2'] = f"=SUMPRODUCT(K4:K{curr_row_index - 1}, M4:M{curr_row_index - 1})"
+        worksheet['L2'] = f"=SUMPRODUCT(L4:L{curr_row_index - 1}, M4:M{curr_row_index - 1})"
+
+        temp_file_path = None
         try:
             with NamedTemporaryFile(delete=False, suffix='.xlsx', dir=os.path.join(settings.MEDIA_ROOT, 'tmp')) as temp_file:
                 workbook.save(temp_file.name)
                 temp_file_path = temp_file.name
             os.replace(temp_file_path, exported_catalog_path)
-        except Exception as e: 
-            print(e)
-        finally: 
+        except Exception as e:
+            logger.error(f'Ошибка при сохранении файла: {e}')
+        finally:
             if temp_file_path and os.path.exists(temp_file_path):
                 os.remove(temp_file_path)
 
         return exported_catalog_path
+
 
 
 class ElasticSearchService: 
