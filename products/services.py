@@ -24,10 +24,21 @@ from Aleucos import settings
 from configs.models import Config
 from PIL import Image, ImageDraw, ImageFont
 from PIL import Image as PILImage, ImageDraw, ImageFont
-
 from openpyxl.drawing.image import Image
 from openpyxl.styles import Alignment, Font, PatternFill, Border, Side
 from openpyxl.drawing.spreadsheet_drawing import AnchorMarker, TwoCellAnchor
+from io import BytesIO
+from .models import WatermarkConfig
+from dataclasses import dataclass
+from datetime import datetime
+
+
+@dataclass
+class WatermarkConfigLocal: 
+    font_size: int 
+    text: str 
+    position: str
+    opacity: int
 
 
 class CatalogImporter:
@@ -36,12 +47,19 @@ class CatalogImporter:
         workbook = load_workbook(filename=xlsx_file, data_only=True)
         worksheet = workbook.worksheets[1]
         image_loader = SheetImageLoader(worksheet)
+        watermark_conf_admin = WatermarkConfig.get_instance()
+        watermark_conf = WatermarkConfigLocal(
+            font_size=watermark_conf_admin.font_size, 
+            text=watermark_conf_admin.text, 
+            position=watermark_conf_admin.position,
+            opacity=watermark_conf_admin.opacity,
+        )
 
         products_data = []
 
         for index, row in enumerate(worksheet.iter_rows(min_row=4, values_only=True), 4):
             try:
-                product_data = CatalogImporter.process_row(index, row, image_loader)
+                product_data = CatalogImporter.process_row(index, row, image_loader, watermark_conf)
                 if product_data:
                     products_data.append(product_data)
 
@@ -86,16 +104,22 @@ class CatalogImporter:
         product = Product.objects.filter(barcode=product_data['barcode']).first()
         if product: 
             product.remains = product_data['remains']
-            logger.info(f'У товара "{product_data["barcode"]}" обновлён остаток')
+            product.will_arrive_at = product_data['arriving_date']
+            logger.info(f'У товара "{product_data["barcode"]}" обновлён остаток ({product.remains} шт.)')
+            product.save()
         else: 
             photo = product_data['photo']
-            if product_data['photo']: 
-                print(type(product_data["photo"]))
 
             if photo is None:
                 photo = settings.DEFAULT_IMAGE_PATH
             else:
                 CatalogImporter.delete_image_if_exists(photo.name)
+
+            category, created = Category.objects.get_or_create(title=product_data['category'])
+            if created: 
+                logger.info(f'Была добавлена новая категория: {category.title}')
+
+            print(category)
 
             product = Product(
                 barcode=product_data['barcode'],
@@ -110,14 +134,15 @@ class CatalogImporter:
                 price_after_200k=product_data['price_after_200k'],
                 price_after_500k=product_data['price_after_500k'],
                 is_in_stock=product_data['is_in_stock'],
-                category=product_data['category'],
-                remains=product_data['remains']
+                category=category,
+                remains=product_data['remains'], 
+                will_arrive_at=product_data['arriving_date']
             )
             product.save()
             logger.info(f'Товар "{product_data["title"]}" сохранён в базу данных')
 
     @staticmethod
-    def process_row(index: int, row: tuple, image_loader: SheetImageLoader) -> None:
+    def process_row(index: int, row: tuple, image_loader: SheetImageLoader, watermark_conf: WatermarkConfigLocal) -> None:
         barcode = row[0]
         brand_title = row[1]
         title = row[2]
@@ -129,7 +154,9 @@ class CatalogImporter:
         price_before_200k = row[9]
         price_after_200k = row[10]
         price_after_500k = row[11]
-        remains = row[12]
+        remains = row[16]
+        category = row[17]
+        arriving_date = None
 
         if brand_title is None and title is None and barcode is None:
             raise EndOfTable()
@@ -141,12 +168,25 @@ class CatalogImporter:
             price_after_200k, 
             price_after_500k, 
             remains,
+            category,
         )
 
         remains = 0 if remains is None else int(remains)
         is_in_stock = bool(remains)
+
+        if not is_in_stock: 
+            arriving_date = row[18] 
+            if arriving_date: 
+                if type(arriving_date) == str:         
+                    try:
+                        arriving_date = datetime.strptime(arriving_date, "%d.%m.%Y")
+                        print("Дата успешно распаршена:", arriving_date)
+                    except ValueError as e:
+                        raise ProductImportError(f'Ошибка парсинга даты: {arriving_date}. {str(e)}')
+                elif type(arriving_date) != datetime: 
+                    arriving_date = None
         
-        photo = CatalogImporter.get_image_or_none(barcode, index, image_loader)
+        photo = CatalogImporter.get_image_or_none(barcode, index, image_loader, watermark_conf)
 
         if weight is not None:
             weight = CatalogImporter.convert_str_to_decimal(str(weight))
@@ -167,21 +207,38 @@ class CatalogImporter:
             'price_after_200k': price_after_200k,
             'price_after_500k': price_after_500k,
             'is_in_stock': is_in_stock,
-            'category': random.choice(Category.objects.all()),
-            'remains': remains
+            'category': category,
+            'remains': remains, 
+            'arriving_date': arriving_date,
         }
 
         return product_data
 
     @staticmethod
-    def get_image_or_none(barcode: str, row_index: int, image_loader: SheetImageLoader) -> ContentFile | None:
+    def get_image_or_none(barcode: str, row_index: int, image_loader: SheetImageLoader, watermark_conf: WatermarkConfigLocal) -> ContentFile | None:
         try:
             image = image_loader.get(f'E{row_index}')
             image_stream = io.BytesIO()
             image.save(image_stream, format='PNG')
             image_stream.seek(0)
-            return ContentFile(image_stream.read(), f'{barcode}.png')
-        except Exception:
+
+            watermarked_image = add_watermark(
+                image_stream, 
+                barcode, 
+                text=watermark_conf.text, 
+                font_size=watermark_conf.font_size, 
+                position=watermark_conf.position, 
+                opacity=watermark_conf.opacity
+            )
+
+            if watermarked_image:
+                logger.info(f"Водяной знак успешно добавлен на изображение для товара с баркодом {barcode}.")
+            else:
+                logger.warning(f"Не удалось добавить водяной знак для товара с баркодом {barcode}.")
+
+            return watermarked_image
+        except Exception as e:
+            logger.error(str(e))
             return None
 
     @staticmethod
@@ -203,7 +260,8 @@ class CatalogImporter:
         price_before_200k: float | None,
         price_after_200k: float | None,
         price_after_500k: float | None, 
-        remains: int | str | None
+        remains: int | str | None, 
+        category: str | None
     ) -> None:
         if title is None:
             raise ProductImportError(f'У товара со штрихкодом {barcode} отсутствует название')
@@ -213,6 +271,8 @@ class CatalogImporter:
             raise ProductImportError(f'У товара {title} со штрихкодом {barcode} отсутствует цена')
         elif not str(barcode).strip().isnumeric():
             raise ProductImportError(f'У товара неверный штрихкод: {barcode}')
+        elif str(category) == "" or category is None:
+            raise ProductImportError(f'У товара со штрихкодом {barcode} не указана категория')
         if remains: 
             if not str(remains).strip().isnumeric(): 
                 raise ProductImportError(f'У товара неверный остаток на складе: {remains}')
@@ -223,12 +283,12 @@ class CatalogImporter:
         Brand.objects.all().delete()
 
 
-def add_watermark(image_path, output_path, text="©Aleucos", font_path="arial_bolditalicmt.ttf", font_size=30, position="bottom_right", opacity=255):
+def add_watermark(image_path, barcode: str, text="©Aleucos", font_size=30, position="bottom_left", opacity=255):
     image = PILImage.open(image_path).convert("RGBA")
     txt_layer = PILImage.new("RGBA", image.size, (255, 255, 255, 0))
     draw = ImageDraw.Draw(txt_layer)
-    font = ImageFont.truetype(font_path, font_size)
-    text_width, text_height = draw.textbbox((0, 0), text, font=font)[2:]
+    font = ImageFont.load_default()
+    text_width, text_height = draw.textbbox((0, 0), text)[2:]
     positions = {
         "top_left": (10, 10),
         "top_right": (image.width - text_width - 10, 10),
@@ -236,12 +296,17 @@ def add_watermark(image_path, output_path, text="©Aleucos", font_path="arial_bo
         "bottom_right": (image.width - text_width - 10, image.height - text_height - 10),
         "center": ((image.width - text_width) // 2, (image.height - text_height) // 2)
     }
-    text_position = positions.get(position, positions["bottom_right"])
+    text_position = positions.get(position, positions["bottom_left"])
     shadow_offset = (1, 1)
     draw.text((text_position[0] + shadow_offset[0], text_position[1] + shadow_offset[1]), text, font=font, fill=(0, 0, 0, opacity // 2))
     draw.text(text_position, text, font=font, fill=(255, 255, 255, opacity))
     watermarked_image = PILImage.alpha_composite(image, txt_layer)
-    watermarked_image.convert("RGB").save(output_path, "JPEG")
+    
+    output_stream = BytesIO()
+    watermarked_image.convert("RGB").save(output_stream, "PNG")
+    output_stream.seek(0)
+
+    return ContentFile(output_stream.read(), f"{barcode}.png")
 
 
 class CatalogExporter:

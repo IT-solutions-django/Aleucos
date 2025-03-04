@@ -58,14 +58,7 @@ class Product(models.Model):
     def __str__(self) -> str:
         return f'{self.title}'
     
-    def save(self, *args, **kwargs) -> None:
-        # Присваиваем случайную категорию
-        if self.barcode is None:
-            categories = Category.objects.all()
-            
-            if categories.exists():
-                self.category = random.choice(categories)
-        
+    def save(self, *args, **kwargs) -> None:        
         if self.remains == 0: 
             self.is_in_stock = False 
         else: 
@@ -100,3 +93,34 @@ class ImportProductsStatus(models.Model):
     def __str__(self) -> str: 
         return self.text
     
+
+class WatermarkConfig(models.Model):
+    POSITION_CHOICES = [
+        ("top_left", "Слева сверху"),
+        ("top_right", "Справа сверху"),
+        ("bottom_left", "Слева снизу"),
+        ("bottom_right", "Справа снизу"),
+        ("center", "По центру"),
+    ]
+    
+    position = models.CharField('Позиция', max_length=20, choices=POSITION_CHOICES, default="bottom_right")
+    font_size = models.PositiveIntegerField('Размер шрифта', default=30)
+    text = models.CharField('Текст', max_length=255, default="©Aleucos")
+    opacity = models.PositiveIntegerField('Прозрачность', default=180, help_text="(0-255)")
+
+    def __str__(self):
+        return f"Водяной знак: {self.text},  {self.position}"
+    
+    def save(self, *args, **kwargs):
+        if self.__class__.objects.count():
+            self.pk = self.__class__.objects.first().pk
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def get_instance(cls) -> "WatermarkConfig":
+        instance, created = cls.objects.get_or_create(id=1)
+        return instance
+    
+    class Meta: 
+        verbose_name = 'настройки вотермарки'
+        verbose_name_plural = 'Вотермарка'
