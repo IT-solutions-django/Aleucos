@@ -5,6 +5,7 @@ from .services import (
     get_max_product_price, 
     get_max_product_weight
 )
+from .templatetags.products_tags import price_format
 
 
 class XlsxImportProductsForm(forms.Form):
@@ -18,7 +19,7 @@ class SearchAndFilterForm(forms.Form):
         super().__init__(*args, **kwargs)
         
         self.max_product_price = round(get_max_product_price(), 0)
-        self.fields['price_max'].widget.attrs['placeholder'] = f'До {self.max_product_price} ₽'
+        self.fields['price_max'].widget.attrs['placeholder'] = f'До {price_format(self.max_product_price)} ₽'
 
         self.max_product_weight = round(get_max_product_weight(), 0)
         self.fields['weight_max'].widget.attrs['placeholder'] = f'До {self.max_product_weight} кг'
@@ -169,7 +170,7 @@ class SearchAndFilterForm(forms.Form):
     barcode = forms.DecimalField(
         widget=forms.NumberInput(
             attrs={ 
-                'class': 'sidebar__price-input sidebar__price-input--full-width filter-input', 
+                'class': 'sidebar__price-input width-100 filter-input', 
                 'placeholder': 'Введите штрихкод...', 
                 'min': 0,
                 'step': 1,
@@ -177,6 +178,19 @@ class SearchAndFilterForm(forms.Form):
             }
         ),
         required=False
+    )
+
+    brand_search = forms.CharField(
+        widget=forms.NumberInput(
+            attrs={ 
+                'class': 'sidebar__price-input filter-input width-100', 
+                'placeholder': 'Поиск', 
+                'min': 0,
+                'step': 1,
+                'maxlength': 12
+            }
+        ),
+        required=False, 
     )
  
     def clean_price_max(self): 

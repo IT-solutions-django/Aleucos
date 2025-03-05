@@ -19,20 +19,22 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'iconmoon/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/normolize.css' %}">
+    <link rel="stylesheet" href="{% static 'css/reset.css' %}">
     <!-- <link rel="stylesheet" href="./node_modules/swiper/swiper-bundle.min.css"> -->
     <!-- <link rel="stylesheet" href="./node_modules/bootstrap/dist/css/bootstrap.min.css"> -->
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/meadia.css' %}">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <script src="{% static 'js/header.js' %}" defer=""></script>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
 
     <title>Aleucos оптовые поставки корейской косметики</title>
 </head>
-<body class="body">
-    <header class="header header--visible">
-        <div class="container ">
+<body>
+    <header class="header">
+        <div class="container">
             <div class="row header__inner align-items-center">
                 <div class="col header__logo">
                     <a href="/" class="header__logo-link">
@@ -76,7 +78,7 @@
         </div>
     </header>
 
-    <div class="container" style="margin-top: 100px;">
+    <div class="container">
 
         {% if messages %}
             <div class="alert-container">
@@ -102,15 +104,12 @@
             <div class="footer__inner">
                 <div class="row">
                     <div class="col-auto">
-                        <a href="{% url 'home:home' %}" class="footer__text">@2024 Aleucos</a>
+                        <a href="{% url 'home:home' %}" class="footer__text">@2025 Aleucos</a>
                     </div>
                     <div class="col">
                         <div class="row footer__menu justify-content-md-center">
                             <div class="col-auto">
                                 <a href="{% url 'products:products_list' %}"><p class="footer__text">Каталог</p></a>
-                            </div>
-                            <div class="col-auto">
-                                <a href="#certificatsBlock"><p class="footer__text">Сертификаты</p></a>
                             </div>
                             <div class="col-auto">
                                 <a href="#answersBlock"><p class="footer__text">Вопрос-ответ</p></a>
@@ -124,15 +123,15 @@
                         </div>
                     </div>
                     <div class="col-auto">
-                        <div class="row">
+                        <div class="footer__messagers">
                             <div class="col-auto">
                                 <a href="tel:+79644541700" class="footer__link">
-                                    <img src="{% static 'img/tg.svg' %}" alt="" class="footer__link-img">
+                                    <img src="{% static 'img/Whatsapp.svg' %}" alt="" class="footer__link-img">
                                 </a>
                             </div>
                             <div class="col-auto">
                                 <a href="https://www.instagram.com/@aleucos.vl" class="footer__link">
-                                    <img src="{% static 'img/wtsp.svg' %}" alt="" class="footer__link-img">
+                                    <img src="{% static 'img/telegram.svg' %}" alt="" class="footer__link-img">
                                 </a>
                             </div>
                         </div>

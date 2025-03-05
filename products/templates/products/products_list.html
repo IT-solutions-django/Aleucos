@@ -1,211 +1,162 @@
+{% extends "base.html" %}
 {% load static %}
+{% load products_tags %}
 
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Каталог</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+{% block content %}
+<!-- <link rel="stylesheet" href="{% static 'css/my_style.css' %}"> -->
 
-    <link rel="stylesheet" href="{% static 'css/reset.css' %}">
-    <link rel="stylesheet" href="{% static 'css/my_style.css' %}">
-</head>
-<body>
-    <nav class="navbar">
-        <a href="{% url 'home:home' %}">
-            <img src="{% static 'img/Слой 1.svg' %}" alt="Aleucos" width="80" height="62.48">
-        </a>
-
-
-        <div class="navbar__items_div">
-            <div class="navbar__item">
-                <a href="{% url 'products:products_list' %}" class="color-black">Каталог</a>
-            </div>
-            <div class="navbar__item">
-                <a href="#" class="color-black">Сертификаты</a>
-            </div>
-            <div class="navbar__item">
-                <a href="#" class="color-black">Вопрос-ответ</a>
-            </div>
-            <div class="navbar__item">
-                <a href="#" class="color-black">Контакты</a>
-            </div>
+<main class="catalog">
+    <div class="heading-wrapper">
+        <div class="heading-label">
+            <a href="{% url 'products:products_list' %}" class="color-black">Каталог</a>
         </div>
-
-
-        <form id="filter-form" action="{% url 'products:filters' %}" class="navbar__search-form">
-        {{ form.q }}
-
-        <div class="navbar__icons-div">
-            <div class="navbar__icon">
-                <a href="{% if request.user.is_authenticated %}{% url 'users:account' %}{% else %}{% url 'users:login' %}{% endif %}"><img src="{% static 'img/Depth 5, Frame 1.svg' %}" alt="account" width="40" height="40"></a>
-            </div>
-            <div class="navbar__icon cart-icon">
-                <a href="{% if request.user.is_authenticated %}{% url 'carts:cart_items' %}{% else %}{% url 'users:login' %}{% endif %}"><img src="{% static 'img/Depth 5, Frame 2.svg' %}" alt="cart" width="24" height="24">
-                    <div class="navbar__cart-icon-positions-counter-div" {% if request.cart.products|length == 0 %} style="display: none"; {% endif %}>
-                        <p class="navbar__cart-icon-positions-counter-label">{{ request.cart.products|length }}</p>
-                    </div>
-                </a>
-            </div>
+        <div class="breadcrumb">
+            <a href="" class="green-link">Главная</a>
+            <p>/</p>
+            <a href="">Каталог</a>
         </div>
-    </nav>
+    </div>
 
-    <main class="main-content">
 
-        <div class="header-div">
-            <div class="header-label">
-                <a href="{% url 'products:products_list' %}" class="color-black">Каталог</a>
-            </div>
-            <div class="breadcrumb">
-                <div class="breadcrumb-item-div">
-                    <a href="{% url 'home:home' %}" class="breadcrumb-item">Главная</a>
-                    <img src="{% static 'img/Frame.svg' %}" alt="cart" width="16" height="16" class="breadcrumb-divider">
+    <div class="catalog-body">
+        <div class="sidebar">
+            <div id="sidebar__categories-div" class="sidebar__section">
+                <div class="sidebar__section-heading">
+                    <p>Категория</p>
                 </div>
-                
-                <div class="breadcrumb-item-div">
-                    <a href="{% url 'products:products_list' %}" class="breadcrumb-item">Каталог</a>
-                </div>
-            </div>
-        </div>
-
-
-        <div class="content d-flex">
-            <div class="sidebar-div">
-                <div id="sidebar__categories-div" class="sidebar__section-div">
-                    <div class="sidebar__section-header-div">
-                        <p class="sidebar__section-header-label">Категория</p>                        
+                <div>
+                    <div class="sidebar__section-points">
+                        {% for category in form.categories %}
+                        {% if forloop.counter <= 8 %} 
+                            <div class="sidebar__section-item-div">
+                                <label class="sidebar__checkbox-item hover-green">
+                                    {{ category }}
+                                </label>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
                     </div>
-                    <div>
-                        <div class="sidebar__section">
-                            {% for category in form.categories %}
-                                {% if forloop.counter <= 8 %}
-                                    <div class="sidebar__section-item-div">
-                                        <label class="sidebar__brand-item-label">
-                                            {{ category }}
-                                        </label>
-                                    </div>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-                        <div id="hiddenCategories" style="display: none;">
-                            {% for category in form.categories %}
-                                {% if forloop.counter > 8 %}
-                                    <div class="sidebar__section-item-div">
-                                        <label class="sidebar__brand-item-label">
-                                            {{ category }}
-                                        </label>
-                                    </div>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-                        <div class="sidebar__section-item-div">
-                            <p><a id="showMoreCategoriesButton" class="sidebar__section-item-label color-blue" onclick="">Посмотреть все</a></p>
-                        </div>
-                    </div>
-                </div>   
-                
-                <div class="sidebar__section-div">
-                    <div class="sidebar__section-header-div">
-                        <p class="sidebar__section-header-label">Поиск по штрихкоду</p>                        
-                    </div>
-                    <div class="sidebar__price-inputs-div">
-                        {{ form.barcode }}
-                    </div>
-                </div>
-
-                <div class="sidebar__section-div">
-                    <div class="sidebar__section-header-div">
-                        <p class="sidebar__section-header-label">Цена, ₽</p>                        
-                    </div>
-                    <div class="sidebar__price-inputs-div">
-                        {{ form.price_min }}
-                        {{ form.price_max }}
-                    </div>
-                </div>
-
-                <div class="sidebar__section-div">
-                    <div class="sidebar__section-header-div">
-                        <p class="sidebar__section-header-label">Вес, кг</p>                        
-                    </div>
-                    <div class="sidebar__price-inputs-div">
-                        {{ form.weight_min }}
-                        {{ form.weight_max }}
-                    </div>
-                </div>
-
-                <div class="sidebar__section-div">
-                    <div class="sidebar__section-header-div">
-                        <p class="sidebar__section-header-label">Объём, л</p>                        
-                    </div>
-                    <div class="sidebar__price-inputs-div">
-                        {{ form.volume_min }}
-                        {{ form.volume_max }}
-                    </div>
-                </div>
-
-                <div class="sidebar__section-div">
-                    <div class="sidebar__section-header-div">
-                        <p class="sidebar__section-header-label">Производитель</p>                        
-                    </div>
-
-                    <div>
-
-                        {% for brand in form.brands %}
-                            {% if forloop.counter <= 8 %}
-                                <div class="sidebar__section-item-div">
-                                    <label class="sidebar__brand-item-label">
-                                        {{ brand }}
-                                    </label>
-                                </div>
-                            {% endif %}
-                        {% endfor %}
-
-                        <div id="hiddenBrands" style="display: none;">
-                            {% for brand in form.brands %}
-                                {% if forloop.counter > 8 %}
-                                    <div class="sidebar__section-item-div">
-                                        <label class="sidebar__brand-item-label">
-                                            {{ brand }}
-                                        </label>
-                                    </div>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-                        
-                        <div class="sidebar__section-item-div">
-                            <p><a id="showMoreBrandsButton" class="sidebar__section-item-label color-blue">Посмотреть все</a></p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="sidebar__section-div">
-                    <div class="sidebar__section-header-div">
-                        <p class="sidebar__section-header-label">Наличие</p>  
-                    </div>                      
-                    <div>
+                    <div id="hiddenCategories" style="display: none;">
+                        {% for category in form.categories %}
+                        {% if forloop.counter > 8 %}
                         <div class="sidebar__section-item-div">
                             <label class="sidebar__brand-item-label">
-                                {{ form.is_in_stock }}
-                                {{ form.is_in_stock.label }}
+                                {{ category }}
                             </label>
                         </div>
+                        {% endif %}
+                        {% endfor %}
                     </div>
+                </div>
+                <div class="sidebar__section-item-div">
+                    <p><a id="showMoreCategoriesButton" class="sidebar__section-item-label color-blue"
+                            onclick="">Посмотреть все</a></p>
+                </div>
+            </div>
+
+            <div class="sidebar__section">
+                <div class="sidebar__section-heading">
+                    <p>Поиск по штрихкоду</p>
+                </div>
+                <div class="sidebar__price-inputs-div">
+                    {{ form.barcode }}
+                </div>
+            </div>
+
+            <div class="sidebar__section">
+                <div class="sidebar__section-heading">
+                    <p>Цена, ₽</p>
+                </div>
+                <div class="sidebar__price-inputs-div">
+                    {{ form.price_min }}
+                    {{ form.price_max }}
+                </div>
+            </div>
+
+            <div class="sidebar__section">
+                <div class="sidebar__section-heading">
+                    <p>Вес, кг</p>
+                </div>
+                <div class="sidebar__price-inputs-div">
+                    {{ form.weight_min }}
+                    {{ form.weight_max }}
+                </div>
+            </div>
+
+            <div class="sidebar__section">
+                <div class="sidebar__section-heading">
+                    <p>Объём, л</p>
+                </div>
+                <div class="sidebar__price-inputs-div">
+                    {{ form.volume_min }}
+                    {{ form.volume_max }}
+                </div>
+            </div>
+
+            <div class="sidebar__section">
+                <div class="sidebar__section-heading">
+                    <p>Производитель</p>
                 </div>
 
-                <div class="sidebar__section-div">
-                    <div id="resetFiltersButton" class="sidebar__reset-filters-div">
-                        <div>Очистить всё</div>
+                {{ form.brand_search }}
+
+                <div class="sidebar__section-points">
+                    {% for brand in form.brands %}
+                    {% if forloop.counter <= 8 %} 
+                    <div class="sidebar__section-item-div">
+                        <label class="sidebar__brand-item-label">
+                            {{ brand }}
+                        </label>
+                    </div>
+                {% endif %}
+                {% endfor %}
+                </div>
+
+                <div id="hiddenBrands" style="display: none;">
+                    {% for brand in form.brands %}
+                    {% if forloop.counter > 8 %}
+                    <div class="sidebar__section-item-div">
+                        <label class="sidebar__brand-item-label">
+                            {{ brand }}
+                        </label>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+
+                <div class="sidebar__section-item-div">
+                    <p><a id="showMoreBrandsButton" class="sidebar__section-item-label color-blue">Посмотреть все</a>
+                    </p>
+                </div>
+            </div>
+
+            <div class="sidebar__section stock-section">
+                <div class="sidebar__section-heading">
+                    <p>Наличие</p>
+                </div>
+                <div>
+                    <div class="sidebar__section-item-div">
+                        <label class="sidebar__brand-item-label">
+                            {{ form.is_in_stock }}
+                            {{ form.is_in_stock.label }}
+                        </label>
                     </div>
                 </div>
+            </div>
+
+            <div class="sidebar__section">
+                <div id="resetFiltersButton" class="sidebar__reset-filters">
+                    <div>Очистить всё</div>
+                </div>
+            </div>
         </div>
 
         <div class="catalog__content">
             <div>
-                <div class="catalog__topics-div">
+                <div class="catalog__topics">
                     {% for section in form.sections %}
-                        <div class="{% if section.choice_label == 'все' %}catalog__topics-active-item-div{% else %}catalog__topics-item-div{% endif %}">
-                            <p>
+                        <div class="catalog__topic {% if section.choice_label == 'все' %}active{% endif %}">
+                            <p class="hover-green">
                                 {{ section }}
                             </p>
                         </div>
@@ -213,267 +164,195 @@
                 </form>
                 </div>
             </div>
-            <div>
-                <div class="catalog__section">
-                    <div class="catalog__section-header-div">
-                        <p class="catalog__section-header-label">Товары</p>
-                    </div>
-                    <div id="productGrid" class="catalog__product-grid">
-                        {% for product in products %}
-                            <div class="catalog__card">
-                                <div class="catalog__card-image-div">
-                                    <img src="{{ product.photo.url }}" alt="cart" class="catalog__cart-image">
-                                </div>
-                                <div>
-                                    <div class="catalog__card-title-div truncate-text">
+            <div class="catalog__cards-container">
+                <div class="catalog__content-heading">
+                    <p>Популярное</p>
+                </div>
+                <div id="productGrid" class="catalog__cards">
+                    {% for product in products %}
+                        <div class="catalog__card">
+                            <div class="catalog__card-image">
+                                <img src="{{ product.photo.url }}" alt="cart" class="catalog__cart-image">
+                            </div>
+                            <div class="catalog__card-bottom">
+                                {% if request.user.is_authenticated %}
+                                    <div class="catalog__card-name">
                                         <p>{{ product.title }}</p>
                                     </div>
-                                    <div class="catalog__card-info-div">
-                                        <p>{{ product.brand }}</p> 
-                                    </div>
-                                    <div class="catalog__card-info-div">
-                                        <p>{{ product.category }}</p>
-                                    </div>
-                                    <div class="catalog__card-description-div truncate-text">
-                                        <small>{{ product.description }}</small>
-                                    </div>
-                                    <div class="catalog__card-info-div">
-                                        <small>Объём: {% if product.volume %}{{ product.volume }}{% else %}-{% endif %}</small> 
-                                    </div>
-                                    <div class="catalog__card-info-div">
-                                        <small>Вес: {% if product.weight %}{{ product.weight }}{% else %}-{% endif %}</small> 
-                                    </div>
-                                    <div class="catalog__card-info-div">
-                                        <small>Заметки: {% if product.notes %}{{ product.notes }}{% else %}-{% endif %}</small> 
-                                    </div>
-                                    {% if request.user.is_authenticated %}
-                                    <div class="catalog__card-info-div">
-                                        <small>Осталось {{ product.remains }} шт.</small> 
-                                    </div>
-                                    {% endif %}
-                                    <div>
-                                        {% if request.user.is_authenticated %}
-                                            <div class="catalog__card-price-div">
-                                                <p class="catalog__card-price-label">{{ product.price_before_200k|floatformat:2 }} ₽</p>
+                                    <div class="catalog__card-price-block">
+                                        <div class="catalog__card-price">
+                                            <p>{{ product.price_before_200k|floatformat:2|price_format }} ₽</p>
+                                        </div>
+                                        {% if product.quantity_in_cart != 0 %}
+                                            <div class="catalog__card-cart-controls">
+                                                <button id="{{ product.barcode }}" class="catalog__card-cart-control-minus">
+                                                    <img src="{% static 'img/Vector (1).svg' %}" alt="cart">
+                                                </button>
+                                                <input type="number" id="quantity-input-{{ product.barcode }}" class="catalog__card-quantity-input" value="{{ product.quantity_in_cart }}">
+                                                <button id="{{ product.barcode }}" class="catalog__card-cart-control-plus">
+                                                    <img src="{% static 'img/Vector (2).svg' %}" alt="cart">
+                                                </button>
                                             </div>
-                                            {% if product.quantity_in_cart != 0 %}
-                                                <div class="catalog__card-quantity-controls-div">
-                                                    <button id="{{ product.barcode }}" class="catalog__card-cart-control-minus">
-                                                        <img src="{% static 'img/Vector (1).svg' %}" alt="cart">
-                                                    </button>
-                                                    <input type="number" id="quantity-input-{{ product.barcode }}" class="catalog__card-quantity-input" value="{{ product.quantity_in_cart }}">
-                                                    <button id="{{ product.barcode }}" class="catalog__card-cart-control-plus">
-                                                        <img src="{% static 'img/Vector (2).svg' %}" alt="cart">
-                                                    </button>
-                                                </div>
-                                            {% else %}
-                                                {% if product.remains == 0 %}
-                                                    <div style="display: inline-block;">
-                                                        <p>Нет в наличии</p>
-                                                    </div>
-                                                {% else %}
-                                                    <div class="catalog__card-add-to-cart-div">
-                                                        <div id="{{ product.barcode }}" class="catalog__card-add-to-cart-label add-to-cart">В корзину</div>
-                                                    </div>
-                                                {% endif %}
-                                            {% endif %}
+                                        {% else %}
+                                            <div id="{{ product.barcode }}" class="catalog__card-cart-button">
+                                                В корзину
+                                            </div>
                                         {% endif %}
                                     </div>
-                                </div>
-                            </div>
-                    {% endfor %}
-                    </div>
-                </div>
-
-                <div class="pagination-div">                    
-                    <div id="pagination" class="pagination__controls-div">
-                        {% if products.paginator.num_pages > 1 %} 
-                            {% if products.has_previous %}
-                                <div class="pagination__page-control-div">
-                                    <p><a href="?page={{ products.previous_page_number }}" class="pagination-link color-black">Предыдущая</a></p>
-                                </div>
-                            {% endif %}
-                            {% for p in products.paginator.page_range %}
-                                {% if forloop.counter <= 5 %}
-                                    {% if products.number == p %}
-                                        <div class="pagination__page-number-div-active">
-                                            <p><a href="?page={{ p }}" class="color-white pagination-link">{{ p }}</a></p>
-                                        </div>
-                                    {% else %}
-                                        <div class="pagination__page-number-div">
-                                            <p><a href="?page={{ p }}" class="color-black pagination-link">{{ p }}</a></p>
-                                        </div>
-                                    {% endif %}
                                 {% endif %}
-                            {% endfor %}
-                            {% if products.paginator.num_pages > 5 %}
-                                <div class="pagination__page-number-div">
-                                    <p>...</p>
-                                </div>
-                                {% if products.number == products.paginator.num_pages %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="pagination">   
+                <button class="pagination__show-more">
+                    Показать ещё
+                </button>                 
+                <div id="pagination" class="pagination__controls">
+                    {% if products.paginator.num_pages > 1 %} 
+                        {% if products.has_previous %}
+                            <div class="pagination__page-control-div">
+                                <p><a href="?page={{ products.previous_page_number }}" class="pagination-link color-black">Предыдущая</a></p>
+                            </div>
+                        {% endif %}
+                        {% for p in products.paginator.page_range %}
+                            {% if forloop.counter <= 5 %}
+                                {% if products.number == p %}
                                     <div class="pagination__page-number-div-active">
-                                        <p><a href="?page={{ products.paginator.num_pages }}" class="pagination-link color-white">{{ products.paginator.num_pages }}</a></p>
+                                        <p><a href="?page={{ p }}" class="color-white pagination-link">{{ p }}</a></p>
                                     </div>
                                 {% else %}
                                     <div class="pagination__page-number-div">
-                                        <p><a href="?page={{ products.paginator.num_pages }}" class="pagination-link color-black">{{ products.paginator.num_pages }}</a></p>
+                                        <p><a href="?page={{ p }}" class="color-black pagination-link">{{ p }}</a></p>
                                     </div>
                                 {% endif %}
-                            {% endif %} 
-                            {% if products.has_next %}
-                                <div class="pagination__page-control-div">
-                                    <p><a href="?page={{ products.next_page_number }}" class="pagination-link color-black">Следующая</a></p>
+                            {% endif %}
+                        {% endfor %}
+                        {% if products.paginator.num_pages > 5 %}
+                            <div class="pagination__page-number-div">
+                                <p>...</p>
+                            </div>
+                            {% if products.number == products.paginator.num_pages %}
+                                <div class="pagination__page-number-div-active">
+                                    <p><a href="?page={{ products.paginator.num_pages }}" class="pagination-link color-white">{{ products.paginator.num_pages }}</a></p>
+                                </div>
+                            {% else %}
+                                <div class="pagination__page-number-div">
+                                    <p><a href="?page={{ products.paginator.num_pages }}" class="pagination-link color-black">{{ products.paginator.num_pages }}</a></p>
                                 </div>
                             {% endif %}
+                        {% endif %} 
+                        {% if products.has_next %}
+                            <div class="pagination__page-control-div">
+                                <p><a href="?page={{ products.next_page_number }}" class="pagination-link color-black">Следующая</a></p>
+                            </div>
                         {% endif %}
-                    </div>
-
-                    <div class="catalog__section-header-div" id="noProductsFoundLabel" style="display: none;">
-                        <p class="catalog__empty-catalog-label">Ничего не найдено...</p>
-                    </div>
+                    {% endif %}
                 </div>
 
-            </div>
-        </div>
-
-    </main>
-
-    <footer class="footer">
-        <div class="footer__content">
-            <div class="footer__left">
-                <a href="#!">
-                    <p class="footer__copyright-label">© 2024 Aleucos</p>
-                </a>
-            </div>
-
-            <div class="footer__center">
-                <div class="footer__item">
-                    <a href="{% url 'products:products_list' %}" class="color-gray">Каталог</a>
-                </div>
-                <div class="footer__item">
-                    <a href="#" class="color-gray">Сертификаты</a>
-                </div>
-                <div class="footer__item">
-                    <a href="#" class="color-gray">Вопрос-ответ</a>
-                </div>
-                <div class="footer__item">
-                    <a href="#" class="color-gray">Контакты</a>
-                </div>
-                <div class="footer__item">
-                    <a href="#" class="color-gray">Политика конфиденциальности</a>
-                </div>
-            </div>
-
-            <div class="footer__right">
-                <div class="footer__icon">
-                    <a href="#!">
-                        <img src="{% static 'img/Subtract.svg' %}" alt="telegram">
-                    </a>
-                </div>
-                <div class="footer__icon">
-                    <a href="#!">
-                        <img src="{% static 'img/Subtract (1).svg' %}" alt="instagram">
-                    </a>
+                <div class="catalog__section-header-div" id="noProductsFoundLabel" style="display: none;">
+                    <p class="catalog__empty-catalog-label">Ничего не найдено...</p>
                 </div>
             </div>
         </div>
-    </footer>
+    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-// Ввод фильтров
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('searchInput');
-    const filters = document.querySelectorAll('.filter-input');
-    let typingTimer;
-    
-    filters.forEach(function(filter) {
-        filter.addEventListener('change', function() {
-            sendFiltersData();
+    // Ввод фильтров
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.getElementById('searchInput');
+        const filters = document.querySelectorAll('.filter-input');
+        let typingTimer;
+
+        filters.forEach(function (filter) {
+            filter.addEventListener('change', function () {
+                sendFiltersData();
+            });
+        });
+
+        searchInput.addEventListener('input', function () {
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(function () {
+                sendFiltersData();
+            }, 300);
         });
     });
 
-    searchInput.addEventListener('input', function() {
-        clearTimeout(typingTimer);
-        typingTimer = setTimeout(function() {
-            sendFiltersData(); 
-        }, 300);
+    // Сохранить фильтры при пагинации
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('filter-form');
+        const paginationContainer = document.getElementById('pagination');
+
+        paginationContainer.addEventListener('click', function (event) {
+            if (event.target.tagName === 'A' && event.target.classList.contains('pagination-link')) {
+                event.preventDefault();
+
+                const formData = new FormData(form);
+                const url = form.action;
+
+                const params = new URLSearchParams();
+                formData.forEach((value, key) => {
+                    params.append(key, value);
+                });
+
+                const pageUrl = `${event.target.href}&${params.toString()}`;
+
+                window.location.href = pageUrl;
+            }
+        });
     });
-});
 
-// Сохранить фильтры при пагинации
-document.addEventListener('DOMContentLoaded', function () {
-    const form = document.getElementById('filter-form');
-    const paginationContainer = document.getElementById('pagination');
+    // Отправить запрос с фильтрами
+    function sendFiltersData() {
+        const form = document.getElementById('filter-form');
 
-    paginationContainer.addEventListener('click', function (event) {
-        if (event.target.tagName === 'A' && event.target.classList.contains('pagination-link')) {
-            event.preventDefault(); 
+        const formData = new FormData(form);
+        const url = form.action;
 
-            const formData = new FormData(form);
-            const url = form.action;
+        const params = new URLSearchParams();
+        formData.forEach((value, key) => {
+            params.append(key, value);
+        });
 
-            const params = new URLSearchParams();
-            formData.forEach((value, key) => {
-                params.append(key, value);
+        fetch(`${url}?${params.toString()}`, {
+            method: 'GET',
+        })
+            .then(response => response.json())
+            .then(data => {
+                updateCatalog(data);
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
             });
-
-            const pageUrl = `${event.target.href}&${params.toString()}`;
-
-            window.location.href = pageUrl;
-        }
-    });
-});
-
-// Отправить запрос с фильтрами
-function sendFiltersData() {
-    const form = document.getElementById('filter-form');
-
-    const formData = new FormData(form);
-    const url = form.action; 
-
-    const params = new URLSearchParams();
-    formData.forEach((value, key) => {
-        params.append(key, value);
-    });
-
-    fetch(`${url}?${params.toString()}`, {
-        method: 'GET',
-    })
-    .then(response => response.json()) 
-    .then(data => {
-        updateCatalog(data);
-    })
-    .catch(error => {
-        console.error('Ошибка:', error);
-    });
-}
-
-// Перерисовать каталог
-function updateCatalog(data) {
-    const productGrid = document.getElementById('productGrid');
-    const paginationContainer = document.getElementById('pagination');
-    const emptyCatalogLabel = document.getElementById('noProductsFoundLabel');
-    productGrid.innerHTML = null;
-    paginationContainer.innerHTML = null;
-
-    if (!data.products) {
-        emptyCatalogLabel.style.display = 'block';
-        return;
-    } else {
-        emptyCatalogLabel.style.display = 'none';
     }
 
-    data.products.forEach(product => {
-        const productCard = document.createElement('div');
-        productCard.classList.add('catalog__card');
+    // Перерисовать каталог
+    function updateCatalog(data) {
+        const productGrid = document.getElementById('productGrid');
+        const paginationContainer = document.getElementById('pagination');
+        const emptyCatalogLabel = document.getElementById('noProductsFoundLabel');
+        productGrid.innerHTML = null;
+        paginationContainer.innerHTML = null;
 
-        console.log(product.title)
+        if (!data.products) {
+            emptyCatalogLabel.style.display = 'block';
+            return;
+        } else {
+            emptyCatalogLabel.style.display = 'none';
+        }
 
-        productCard.innerHTML = `
+        data.products.forEach(product => {
+            const productCard = document.createElement('div');
+            productCard.classList.add('catalog__card');
+
+            console.log(product.title)
+
+            productCard.innerHTML = `
     <div class="catalog__card">
         <div class="catalog__card-image-div">
             <img src="${product.photo}" alt="cart" class="catalog__cart-image">
@@ -517,11 +396,11 @@ function updateCatalog(data) {
                             <img src="/static/img/Vector (2).svg" alt="cart">
                         </button>
                     </div>
-                ` : product.remains == 0 ? 
-                `<div style="display: inline-block;">
+                ` : product.remains == 0 ?
+                    `<div style="display: inline-block;">
                     <p>Нет в наличии</p>
                 </div>` :
-                `
+                    `
                     <div class="catalog__card-add-to-cart-div">
                         <div id="${product.barcode}" class="catalog__card-add-to-cart-label add-to-cart">В корзину</div>
                     </div>
@@ -530,79 +409,79 @@ function updateCatalog(data) {
         </div>
     </div>
 `;
-        productGrid.appendChild(productCard);
-    });
-    updatePagination(data);
-}
-
-// Обновить элементы управления пагинацией
-function updatePagination(data) {
-    const paginationContainer = document.getElementById('pagination');
-    const totalPages = data.total_pages;
-    const currentPage = data.current_page;
-    
-    paginationContainer.innerHTML = '';
-
-    if (totalPages == 1) {
-        return;
+            productGrid.appendChild(productCard);
+        });
+        updatePagination(data);
     }
 
-    if (data.has_previous) {
-        const prevPage = document.createElement('div');
-        prevPage.classList.add('pagination__page-control-div');
-        prevPage.innerHTML = '<p><a class="pagination-link color-black" href="?page=' + (data.current_page - 1) + '">Предыдущая</a></p>';
-        paginationContainer.appendChild(prevPage);
-    }
+    // Обновить элементы управления пагинацией
+    function updatePagination(data) {
+        const paginationContainer = document.getElementById('pagination');
+        const totalPages = data.total_pages;
+        const currentPage = data.current_page;
 
-    for (let i = 1; i <= totalPages; i++) {
-        if (i <= 5) {  
-            const pageDiv = document.createElement('div');
-            if (i === currentPage) {
-                pageDiv.classList.add('pagination__page-number-div-active');
-                pageDiv.innerHTML = '<p><a href="?page=' + i + '" class="pagination-link color-white">' + i + '</a></p>';
-            } else {
-                pageDiv.classList.add('pagination__page-number-div');
-                pageDiv.innerHTML = '<p><a href="?page=' + i + '" class="pagination-link color-black">' + i + '</a></p>';
+        paginationContainer.innerHTML = '';
+
+        if (totalPages == 1) {
+            return;
+        }
+
+        if (data.has_previous) {
+            const prevPage = document.createElement('div');
+            prevPage.classList.add('pagination__page-control-div');
+            prevPage.innerHTML = '<p><a class="pagination-link color-black" href="?page=' + (data.current_page - 1) + '">Предыдущая</a></p>';
+            paginationContainer.appendChild(prevPage);
+        }
+
+        for (let i = 1; i <= totalPages; i++) {
+            if (i <= 5) {
+                const pageDiv = document.createElement('div');
+                if (i === currentPage) {
+                    pageDiv.classList.add('pagination__page-number-div-active');
+                    pageDiv.innerHTML = '<p><a href="?page=' + i + '" class="pagination-link color-white">' + i + '</a></p>';
+                } else {
+                    pageDiv.classList.add('pagination__page-number-div');
+                    pageDiv.innerHTML = '<p><a href="?page=' + i + '" class="pagination-link color-black">' + i + '</a></p>';
+                }
+                paginationContainer.appendChild(pageDiv);
+            } else if (i === 6) {
+                const dotsDiv = document.createElement('div');
+                dotsDiv.classList.add('pagination__page-number-div');
+                dotsDiv.innerHTML = '<p>...</p>';
+                paginationContainer.appendChild(dotsDiv);
             }
-            paginationContainer.appendChild(pageDiv);
-        } else if (i === 6) { 
-            const dotsDiv = document.createElement('div');
-            dotsDiv.classList.add('pagination__page-number-div');
-            dotsDiv.innerHTML = '<p>...</p>';
-            paginationContainer.appendChild(dotsDiv);
+        }
+        if (data.total_pages > 5) {
+            const lastPageDiv = document.createElement('div');
+            if (currentPage === totalPages) {
+                lastPageDiv.classList.add('pagination__page-number-div-active');
+                lastPageDiv.innerHTML = '<p><a class="pagination-link color-white" href="?page=' + totalPages + '">' + totalPages + '</a></p>';
+            } else {
+                lastPageDiv.classList.add('pagination__page-number-div');
+                lastPageDiv.innerHTML = '<p><a class="pagination-link color-black" href="?page=' + totalPages + '">' + totalPages + '</a></p>';
+            }
+            paginationContainer.appendChild(lastPageDiv);
+        }
+        if (data.has_next) {
+            const nextPage = document.createElement('div');
+            nextPage.classList.add('pagination__page-control-div');
+            nextPage.innerHTML = '<p><a class="pagination-link color-black" href="?page=' + (data.current_page + 1) + '">Следующая</a></p>';
+            paginationContainer.appendChild(nextPage);
         }
     }
-    if (data.total_pages > 5) {
-        const lastPageDiv = document.createElement('div');
-        if (currentPage === totalPages) {
-            lastPageDiv.classList.add('pagination__page-number-div-active');
-            lastPageDiv.innerHTML = '<p><a class="pagination-link color-white" href="?page=' + totalPages + '">' + totalPages + '</a></p>';
-        } else {
-            lastPageDiv.classList.add('pagination__page-number-div');
-            lastPageDiv.innerHTML = '<p><a class="pagination-link color-black" href="?page=' + totalPages + '">' + totalPages + '</a></p>';
-        }
-        paginationContainer.appendChild(lastPageDiv);
-    }
-    if (data.has_next) {
-        const nextPage = document.createElement('div');
-        nextPage.classList.add('pagination__page-control-div');
-        nextPage.innerHTML = '<p><a class="pagination-link color-black" href="?page=' + (data.current_page + 1) + '">Следующая</a></p>';
-        paginationContainer.appendChild(nextPage);
-    }
-}
 
-// Добавить товар в корзину
-document.addEventListener("click", function(event) {
-    const button = event.target.closest(".add-to-cart");
-    if (button) {
-        event.preventDefault(); 
-        const card = button.closest(".card");
-        const barcode = button.id; 
-        const addToCartDivBackup = button.parentElement.cloneNode(deep=true);
+    // Добавить товар в корзину
+    document.addEventListener("click", function (event) {
+        const button = event.target.closest(".add-to-cart");
+        if (button) {
+            event.preventDefault();
+            const card = button.closest(".card");
+            const barcode = button.id;
+            const addToCartDivBackup = button.parentElement.cloneNode(deep = true);
 
-        const cartControls = document.createElement('div'); 
-        cartControls.classList.add('catalog__card-quantity-controls-div');
-        cartControls.innerHTML = `
+            const cartControls = document.createElement('div');
+            cartControls.classList.add('catalog__card-quantity-controls-div');
+            cartControls.innerHTML = `
             <button id="${barcode}" class="catalog__card-cart-control-minus">
                 <img src="{% static 'img/Vector (1).svg' %}" alt="cart">
             </button>
@@ -611,254 +490,256 @@ document.addEventListener("click", function(event) {
                 <img src="{% static 'img/Vector (2).svg' %}" alt="cart">
             </button>
         `;
-        button.parentElement.insertAdjacentElement('afterend', cartControls);
-        button.parentElement.remove();
+            button.parentElement.insertAdjacentElement('afterend', cartControls);
+            button.parentElement.remove();
+
+            fetch("{% url 'carts:change' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: new URLSearchParams({
+                    'barcode': barcode,
+                    'quantity': 1,
+                    'append': true
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert("Ошибка: " + data.error);
+
+                        cartControls.insertAdjacentElement('beforebegin', addToCartDivBackup);
+                        cartControls.remove()
+                    }
+                    updateCartIcon(Object.keys(data.cart.products).length);
+                })
+                .catch(error => console.error("Ошибка при добавлении/удалении из корзины:", error));
+        }
+    });
+
+    function throttle(func, delay) {
+        let lastCall = 0;
+        return function (...args) {
+            const now = (new Date()).getTime();
+            if (now - lastCall < delay) {
+                return;
+            }
+            lastCall = now;
+            return func(...args);
+        };
+    }
+
+    // Увеличить количество товара в корзине 
+    document.addEventListener("click", function (event) {
+        const plusButton = event.target.closest(".catalog__card-cart-control-plus");
+        if (plusButton) {
+            event.preventDefault();
+            throttle(increaseQuantity(plusButton), 500);
+        }
+    });
+    function increaseQuantity(plusButton) {
+        plusButton.disabled = true;
+
+        const barcode = plusButton.id;
+        const quantityInput = plusButton.previousElementSibling;
+        let oldQuantity = parseInt(quantityInput.value);
+        quantity = oldQuantity + 1;
+        if (quantity < 1) {
+            quantity = 1;
+        }
+        quantityInput.value = quantity;
 
         fetch("{% url 'carts:change' %}", {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
-                "X-CSRFToken": "{{ csrf_token }}" 
+                "X-CSRFToken": "{{ csrf_token }}"
             },
             body: new URLSearchParams({
                 'barcode': barcode,
-                'quantity': 1, 
-                'append': true 
+                'quantity': 1,
+                'append': true
             })
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                alert("Ошибка: " + data.error);
-
-                cartControls.insertAdjacentElement('beforebegin', addToCartDivBackup);
-                cartControls.remove()
-            } 
-            updateCartIcon(Object.keys(data.cart.products).length);
-        })
-        .catch(error => console.error("Ошибка при добавлении/удалении из корзины:", error));
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+                plusButton.disabled = false;
+                if (data.error) {
+                    alert(data.error);
+                    quantityInput.value = oldQuantity;
+                }
+            })
+            .catch(error => {
+                console.error("Ошибка при добавлении/удалении из корзины:", error)
+                plusButton.disabled = false;
+            });
     }
-});
 
-function throttle(func, delay) {
-    let lastCall = 0;
-    return function(...args) {
-        const now = (new Date()).getTime();
-        if (now - lastCall < delay) {
-            return;
+    // Уменьшить количество товара в корзине 
+    document.addEventListener("click", function (event) {
+        const minusButton = event.target.closest(".catalog__card-cart-control-minus");
+        if (minusButton) {
+            event.preventDefault();
+            throttle(decreaseQuantity(minusButton), 500);
         }
-        lastCall = now;
-        return func(...args);
-    };
-}
-
-// Увеличить количество товара в корзине 
-document.addEventListener("click", function(event) {
-    const plusButton = event.target.closest(".catalog__card-cart-control-plus");
-    if (plusButton) {
-        event.preventDefault();
-        throttle(increaseQuantity(plusButton), 500);  
-    }
-});
-function increaseQuantity(plusButton) {
-    plusButton.disabled = true;
-
-    const barcode = plusButton.id;
-    const quantityInput = plusButton.previousElementSibling;
-    let oldQuantity = parseInt(quantityInput.value);
-    quantity = oldQuantity + 1;
-    if (quantity < 1) {
-        quantity = 1;
-    }
-    quantityInput.value = quantity;
-
-    fetch("{% url 'carts:change' %}", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "X-CSRFToken": "{{ csrf_token }}"
-        },
-        body: new URLSearchParams({
-            'barcode': barcode,
-            'quantity': 1, 
-            'append': true 
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log(data)
-        plusButton.disabled = false;
-        if (data.error) {
-            alert(data.error);
-            quantityInput.value = oldQuantity;
-        }
-    })
-    .catch(error => {
-        console.error("Ошибка при добавлении/удалении из корзины:", error)
-        plusButton.disabled = false;
     });
-}
+    function decreaseQuantity(minusButton) {
+        minusButton.disabled = true;
+        console.log('Уменьшаем колво')
 
-// Уменьшить количество товара в корзине 
-document.addEventListener("click", function(event) {
-    const minusButton = event.target.closest(".catalog__card-cart-control-minus");
-    if (minusButton) {
-        event.preventDefault();
-        throttle(decreaseQuantity(minusButton), 500);  
-    }
-});
-function decreaseQuantity(minusButton) {
-    minusButton.disabled = true;
-    console.log('Уменьшаем колво')
-
-    const barcode = minusButton.id;
-    const quantityInput = minusButton.nextElementSibling;
-    let quantity = parseInt(quantityInput.value);
-    quantity -= 1;
-    if (quantity < 1) {
-        const addToCartButton = document.createElement('div'); 
-        addToCartButton.classList.add('catalog__card-add-to-cart-div');
-        addToCartButton.innerHTML = `
+        const barcode = minusButton.id;
+        const quantityInput = minusButton.nextElementSibling;
+        let quantity = parseInt(quantityInput.value);
+        quantity -= 1;
+        if (quantity < 1) {
+            const addToCartButton = document.createElement('div');
+            addToCartButton.classList.add('catalog__card-add-to-cart-div');
+            addToCartButton.innerHTML = `
             <div id="${barcode}" class="catalog__card-add-to-cart-label add-to-cart">В корзину</div>
         `;
-        minusButton.parentElement.insertAdjacentElement('afterend', addToCartButton);
-        minusButton.parentElement.remove();
-    }
-    quantityInput.value = quantity;
+            minusButton.parentElement.insertAdjacentElement('afterend', addToCartButton);
+            minusButton.parentElement.remove();
+        }
+        quantityInput.value = quantity;
 
-    fetch("{% url 'carts:change' %}", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "X-CSRFToken": "{{ csrf_token }}"
-        },
-        body: new URLSearchParams({
-            'barcode': barcode,
-            'quantity': -1, 
-            'append': true 
+        fetch("{% url 'carts:change' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: new URLSearchParams({
+                'barcode': barcode,
+                'quantity': -1,
+                'append': true
+            })
         })
-    })
-    .then(response => response.json())
-    .then(data => {
-        minusButton.disabled = false;
-        updateCartIcon(Object.keys(data.cart.products).length);
-    })
-    .catch(error => {
-        console.error("Ошибка при добавлении/удалении из корзины:", error)
-        minusButton.disabled = false;
-    });
-}
+            .then(response => response.json())
+            .then(data => {
+                minusButton.disabled = false;
+                updateCartIcon(Object.keys(data.cart.products).length);
+            })
+            .catch(error => {
+                console.error("Ошибка при добавлении/удалении из корзины:", error)
+                minusButton.disabled = false;
+            });
+    }
 
-// Изменить количество товара в корзине через инпут
-document.addEventListener('DOMContentLoaded', function() {
-    const productGrid = document.getElementById('productGrid');
+    // Изменить количество товара в корзине через инпут
+    document.addEventListener('DOMContentLoaded', function () {
+        const productGrid = document.getElementById('productGrid');
 
-    productGrid.addEventListener('change', function(event) {
-        const inputElement = event.target;
-        
-        if (inputElement.classList.contains('catalog__card-quantity-input')) {
-            const newQuantity = parseInt(inputElement.value);
-            const barcode = inputElement.id.replace('quantity-input-', '');
+        productGrid.addEventListener('change', function (event) {
+            const inputElement = event.target;
 
-            if (isNaN(newQuantity) || newQuantity < 1) {
-                alert('Пожалуйста, введите верное значение.');
-                inputElement.value = 1; 
-                return;
+            if (inputElement.classList.contains('catalog__card-quantity-input')) {
+                const newQuantity = parseInt(inputElement.value);
+                const barcode = inputElement.id.replace('quantity-input-', '');
+
+                if (isNaN(newQuantity) || newQuantity < 1) {
+                    alert('Пожалуйста, введите верное значение.');
+                    inputElement.value = 1;
+                    return;
+                }
+
+                updateCartQuantity(barcode, newQuantity, inputElement);
             }
-
-            updateCartQuantity(barcode, newQuantity, inputElement);
-        }
+        });
     });
-});
-function updateCartQuantity(barcode, newQuantity, inputElement) {
-    fetch("{% url 'carts:change' %}", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "X-CSRFToken": "{{ csrf_token }}"
-        },
-        body: new URLSearchParams({
-            'barcode': barcode,
-            'quantity': newQuantity, 
+    function updateCartQuantity(barcode, newQuantity, inputElement) {
+        fetch("{% url 'carts:change' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: new URLSearchParams({
+                'barcode': barcode,
+                'quantity': newQuantity,
+            })
         })
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log(data)
-        if (data.error) {
-            inputElement.value = 1;
-            alert("Товара недостаточно на складе")
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+                if (data.error) {
+                    inputElement.value = 1;
+                    alert("Товара недостаточно на складе")
+                }
+            })
+            .catch(error => {
+                console.error("Ошибка при добавлении/удалении из корзины:", error)
+            });
+    }
+
+    // Обновить счётчик позиций на иконке корзины
+    function updateCartIcon(count) {
+
+        const cartIcon = document.querySelector('.navbar__cart-icon-positions-counter-div');
+        const cartCounterLabel = document.querySelector('.navbar__cart-icon-positions-counter-label');
+        if (count > 0) {
+            cartIcon.style.display = 'flex';
+            cartCounterLabel.textContent = count;
+        } else {
+            cartIcon.style.display = 'none';
+            cartCounterLabel.textContent = '0';
         }
+    }
+
+    // Показать больше категорий
+    document.getElementById('showMoreCategoriesButton').addEventListener('click', function (event) {
+        event.preventDefault();
+        const hiddenCategories = document.getElementById('hiddenCategories');
+
+        if (hiddenCategories.style.display === 'none') {
+            hiddenCategories.style.display = 'block';
+            this.textContent = 'Скрыть';
+        } else {
+            hiddenCategories.style.display = 'none';
+            this.textContent = 'Посмотреть все';
+        }
+    });
+
+    // Показать больше брендов
+    document.getElementById('showMoreBrandsButton').addEventListener('click', function (event) {
+        event.preventDefault();
+        const hiddenBrands = document.getElementById('hiddenBrands');
+
+        if (hiddenBrands.style.display === 'none') {
+            hiddenBrands.style.display = 'block';
+            this.textContent = 'Скрыть';
+        } else {
+            hiddenBrands.style.display = 'none';
+            this.textContent = 'Посмотреть все';
+        }
+    });
+
+    // Очистить все фильтры 
+    document.getElementById('resetFiltersButton').addEventListener('click', function (event) {
+        window.location.href = window.location.pathname;
+
+    });
+
+    // Выбрать раздел каталога
+    topicsButtons = document.querySelectorAll('.catalog__topics-item-div, .catalog__topics-active-item-div');
+    topicsButtons.forEach(topicButton => {
+        topicButton.addEventListener('click', function (event) {
+            selectTopic(topicButton);
+        });
     })
-    .catch(error => {
-        console.error("Ошибка при добавлении/удалении из корзины:", error)
-    });
-}
+    function selectTopic(topicButton) {
+        const items = document.querySelectorAll('.catalog__topics-item-div, .catalog__topics-active-item-div');
 
-// Обновить счётчик позиций на иконке корзины
-function updateCartIcon(count) {
+        items.forEach(item => {
+            item.classList.remove('catalog__topics-active-item-div');
+            item.classList.add('catalog__topics-item-div');
+        });
 
-    const cartIcon = document.querySelector('.navbar__cart-icon-positions-counter-div');
-    const cartCounterLabel = document.querySelector('.navbar__cart-icon-positions-counter-label');
-    if (count > 0) {
-        cartIcon.style.display = 'flex';
-        cartCounterLabel.textContent = count; 
-    } else {
-        cartIcon.style.display = 'none';
-        cartCounterLabel.textContent = '0'; 
+        topicButton.classList.remove('catalog__topics-item-div');
+        topicButton.classList.add('catalog__topics-active-item-div');
     }
-}
-
-// Показать больше категорий
-document.getElementById('showMoreCategoriesButton').addEventListener('click', function(event) {
-    event.preventDefault(); 
-    const hiddenCategories = document.getElementById('hiddenCategories');
-    
-    if (hiddenCategories.style.display === 'none') {
-        hiddenCategories.style.display = 'block';
-        this.textContent = 'Скрыть'; 
-    } else {
-        hiddenCategories.style.display = 'none';
-        this.textContent = 'Посмотреть все'; 
-    }
-});
-
-// Показать больше брендов
-document.getElementById('showMoreBrandsButton').addEventListener('click', function(event) {
-    event.preventDefault(); 
-    const hiddenBrands = document.getElementById('hiddenBrands');
-    
-    if (hiddenBrands.style.display === 'none') {
-        hiddenBrands.style.display = 'block';
-        this.textContent = 'Скрыть'; 
-    } else {
-        hiddenBrands.style.display = 'none';
-        this.textContent = 'Посмотреть все'; 
-    }
-});
-
-// Очистить все фильтры 
-document.getElementById('resetFiltersButton').addEventListener('click', function(event) {
-    window.location.href = window.location.pathname;
-
-});
-
-// Выбрать раздел каталога
-topicsButtons = document.querySelectorAll('.catalog__topics-item-div, .catalog__topics-active-item-div');
-topicsButtons.forEach(topicButton => {
-    topicButton.addEventListener('click', function(event) {
-        selectTopic(topicButton);
-    });
-})
-function selectTopic(topicButton) {
-    const items = document.querySelectorAll('.catalog__topics-item-div, .catalog__topics-active-item-div');
-
-    items.forEach(item => {
-        item.classList.remove('catalog__topics-active-item-div');
-        item.classList.add('catalog__topics-item-div');
-    });
-
-    topicButton.classList.remove('catalog__topics-item-div');
-    topicButton.classList.add('catalog__topics-active-item-div');
-}
 </script>
+
+{% endblock %}
