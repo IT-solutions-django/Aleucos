@@ -2,6 +2,8 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.views import View
 from elasticsearch_dsl.query import MultiMatch
+from django.db.models.functions import Cast
+from django.db.models import TextField
 from carts.services import Cart
 from django.core.paginator import Paginator
 from .models import Product
@@ -39,6 +41,7 @@ class ProductsListView(View):
             
             search_text = cd.get('q') 
             selected_section = cd.get('sections') 
+            barcode = cd.get('barcode')
             
             if search_text or (selected_section and selected_section != 'все'):
                 if search_text:
@@ -58,6 +61,11 @@ class ProductsListView(View):
                         'скидки': Q(notes__icontains='скидка'),
                     }
                     products = products.filter(section_filters.get(selected_section, Q()))
+
+                if barcode:
+                    products = products.annotate(
+                        barcode_similarity=TrigramSimilarity('barcode', barcode)
+                    ).filter(barcode_similarity__gt=0.2).order_by('-barcode_similarity')
                 
             if not search_text and not selected_section: 
                 products = Product.objects.all()
@@ -122,6 +130,7 @@ class CatalogFiltersView(View):
             
             search_text = cd.get('q') 
             selected_section = cd.get('sections') 
+            barcode = cd.get('barcode')
             
             if search_text or (selected_section and selected_section != 'все'):
                 if search_text:
@@ -141,9 +150,13 @@ class CatalogFiltersView(View):
                         'скидки': Q(notes__icontains='скидка'),
                     }
                     products = products.filter(section_filters.get(selected_section, Q()))
-                
+
             if not search_text and not selected_section: 
                 products = Product.objects.all()
+
+            if barcode:
+                products = products.filter(barcode__icontains=barcode)
+            
 
             selected_categories = cd.get('categories')
             if selected_categories:

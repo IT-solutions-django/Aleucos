@@ -165,6 +165,19 @@ class SearchAndFilterForm(forms.Form):
         ), 
         required=False, 
     )
+
+    barcode = forms.DecimalField(
+        widget=forms.NumberInput(
+            attrs={ 
+                'class': 'sidebar__price-input sidebar__price-input--full-width filter-input', 
+                'placeholder': 'Введите штрихкод...', 
+                'min': 0,
+                'step': 1,
+                'maxlength': 12
+            }
+        ),
+        required=False
+    )
  
     def clean_price_max(self): 
         cd = self.cleaned_data

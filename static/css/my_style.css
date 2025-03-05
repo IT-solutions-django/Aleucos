@@ -672,3 +672,6 @@ p {
     width: 40px;
     height: 40px;
 }
+.sidebar__price-input--full-width {
+    width: 300px;
+}

@@ -1,8 +1,38 @@
+@import 'config.css';
+
+@font-face {
+  font-family: 'Evolventa';
+  src: url('fonts/Evolventa/Evolventa-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Evolventa';
+  src: url('fonts/Evolventa/Evolventa-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Evolventa';
+  src: url('fonts/EvolventaEvolventa-Oblique.ttf') format('truetype');
+  font-weight: normal;
+  font-style: oblique;
+}
+
+@font-face {
+  font-family: 'Evolventa';
+  src: url('fonts/Evolventa/Evolventa-BoldOblique.ttf') format('truetype');
+  font-weight: bold;
+  font-style: oblique;
+}
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: "Evolventa", sans-serif;
 }
 
 
@@ -50,6 +80,8 @@ h1,h2,p {
 
 .header__inner {
   position: relative;
+  justify-content: space-between;
+
 }
 
 .header__service-box {
@@ -99,19 +131,36 @@ h1,h2,p {
 }
 
 .header__menu {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%,-50%);
+  flex-grow: 1;
+  justify-content: center;
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 60px;
+}
+.header__logo {
+  width: min-content;
+  width: 70px;
+  max-width: 70px;
 }
 
 .header__menu-link {
   font-size: 16px;
   font-weight: 500;
   color: #0D1C12;
+}
+
+.header__request-button {
+  padding: 11px 16px;
+  background-color: var(--color-green);
+  font-family: var(--font-evolventa);
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  border-radius: 20px;
+  text-wrap: nowrap;
+}
+.padding-0 {
+  padding: 0 !important;
 }
 
 .offer__inner {

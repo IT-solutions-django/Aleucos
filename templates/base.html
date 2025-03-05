@@ -23,6 +23,11 @@
     <!-- <link rel="stylesheet" href="./node_modules/bootstrap/dist/css/bootstrap.min.css"> -->
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/meadia.css' %}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+
     <title>Aleucos оптовые поставки корейской косметики</title>
 </head>
 <body class="body">
@@ -36,14 +41,16 @@
                 </div>
                 <div class="col-auto header__menu">
                     <a href="{% url 'products:products_list' %}" class="header__menu-link">Каталог</a>
-                    <a href="#certificatsBlock"><button class="header__menu-link">Сертификаты</button></a>
-                    <a href="#answersBlock"><button class="header__menu-link">Вопрос</button></a>
+                    <a href="#answersBlock"><button class="header__menu-link">Вопрос-ответ</button></a>
                     <a href="#contactsBlock"><button class="header__menu-link">Контакты</button></a>
                 </div>
                 <div class="col-auto header__service">
                     <div class="row header__service-box">
+                        <div class="col padding-0">
+                            <button class="header__request-button">Оставить заявку</button>
+                        </div>
                         <div class="col header__service-input--box">
-                            <input class="header__service-input" placeholder="Поиск по сайту" type="text">
+                            <input class="header__service-input" placeholder="Поиск" type="text">
                         </div>
                         <div class="col header__service-links">
                             <button class="header__service-link">
