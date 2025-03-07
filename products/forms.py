@@ -103,35 +103,6 @@ class SearchAndFilterForm(forms.Form):
         ), 
     )
 
-    volume_min = forms.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        required=False,
-        label='Мин. объём',
-        widget=forms.NumberInput(
-            attrs={ 
-                'class': 'sidebar__price-input filter-input', 
-                'placeholder': 'От 0 л', 
-                'min': 0,
-                'step': 0.1,
-            }
-        ), 
-    )
-    
-    volume_max = forms.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        required=False,
-        widget=forms.NumberInput(
-            attrs={ 
-                'class': 'sidebar__price-input filter-input', 
-                'placeholder': 'До 2 л', 
-                'min': 0,
-                'step': 0.1,
-            }
-        ), 
-    )
-
     brands = forms.MultipleChoiceField(
         widget=forms.CheckboxSelectMultiple(
             attrs={
@@ -158,6 +129,8 @@ class SearchAndFilterForm(forms.Form):
             ('новинки', 'новинки'),
             ('акции', 'акции'),
             ('скидки', 'скидки'),
+            ('подешевле', 'подешевле'),
+            ('подороже', 'подороже'),
         ),
         widget=forms.RadioSelect(
             attrs={
@@ -181,7 +154,7 @@ class SearchAndFilterForm(forms.Form):
     )
 
     brand_search = forms.CharField(
-        widget=forms.NumberInput(
+        widget=forms.TextInput(
             attrs={ 
                 'class': 'sidebar__price-input filter-input width-100', 
                 'placeholder': 'Поиск', 

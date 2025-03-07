@@ -152,12 +152,19 @@ class CatalogFiltersView(View):
                     ).filter(similarity__gt=0.1).order_by('-similarity')  
 
                 if selected_section:
-                    section_filters = {
-                        'новинки': Q(notes__icontains='NEW'),
-                        'акции': Q(notes__icontains='акция'),
-                        'скидки': Q(notes__icontains='скидка'),
-                    }
-                    products = products.filter(section_filters.get(selected_section, Q()))
+                    if selected_section in ('подешевле', 'подороже'): 
+                        match selected_section: 
+                            case 'подешевле': 
+                                products = products.order_by('price_before_200k')
+                            case 'подороже': 
+                                products = products.order_by('-price_before_200k')
+                    else:
+                        section_filters = {
+                            'новинки': Q(notes__icontains='NEW'),
+                            'акции': Q(notes__icontains='акция'),
+                            'скидки': Q(notes__icontains='скидка'),
+                        }
+                        products = products.filter(section_filters.get(selected_section, Q()))
 
             if not search_text and not selected_section: 
                 products = Product.objects.all()

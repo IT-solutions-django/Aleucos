@@ -1470,6 +1470,20 @@ label {
   padding: 8px 16px;
   border-radius: 100px;
 }
+.catalog__topic-like {
+  padding: 8px 16px;
+  cursor: pointer;
+}
+#viewModeButton {
+  display: flex;
+  gap: 10px;
+}
+#viewModeButton p {
+  transition: all 0.3s ease;
+}
+#viewModeButton:hover p {
+  color: var(--color-green);
+}
 .catalog__topic.active {
   background-color: var(--color-light-green);
 }
@@ -1480,6 +1494,7 @@ label {
   display: flex;
   flex-direction: column;
   gap: 24px;
+  flex: 1;
 }
 .catalog__cards-container {
   display: flex;
@@ -1515,6 +1530,9 @@ label {
   align-items: center;
   justify-content: center;
 }
+.catalog__card-not-in-stock {
+  padding: 8px;
+}
 .catalog__card-image img {
   mix-blend-mode: multiply;
   max-height: 150px;
@@ -1525,6 +1543,8 @@ label {
   display: flex; 
   flex-direction: column;
   gap: 16px;
+  justify-content: space-between;
+  flex: 1;
 }
 .catalog__card-name {
   font-size: 16px;
@@ -1602,7 +1622,7 @@ label {
   align-items: center;
   align-self: center;
   width: 40px;
-  height: 40px;
+  height: 26px;
   text-align: center; 
 }
 .pagination {
@@ -1611,10 +1631,7 @@ label {
 
 }
 .pagination__show-more {
-  padding: 16px 24px;
-  background-color: #F4F5F7;
-  border-radius: 20px;
-  height: min-content;
+  
 }
 .pagination__controls {
   background-color: #F4F5F7;
@@ -1636,20 +1653,31 @@ label {
   display: inline-flex;
   justify-content: center;
   align-items: center;
+  /* color: #0D1C12;
+  border-radius: 21px;
+  padding: 7px 12px; */
+}
+.pagination__page-number-div p a {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
   color: #0D1C12;
   border-radius: 21px;
   padding: 7px 12px;
+  border-radius: 21px;
 }
 .pagination__page-control-div {
   display: inline-flex;
   justify-content: center;
   align-items: center;
   height: 32px;
+}
+.pagination__page-control-div p a {
   color: #0D1C12;
   border-radius: 21px;
   padding: 7px 12px;
 }
-.pagination__page-number-div:hover, .pagination__page-control-div:hover {
+.pagination__page-number-div p a:hover, .pagination__page-control-div p a:hover {
   background-color: #DAE8DE;
 }
 .pagination__page-number-div-active a {
