@@ -3,8 +3,6 @@
 {% load products_tags %}
 
 {% block content %}
-<!-- <link rel="stylesheet" href="{% static 'css/my_style.css' %}"> -->
-
 <main class="catalog">
     <div class="heading-wrapper">
         <div class="heading-label">
@@ -20,6 +18,7 @@
 
     <div class="catalog-body">
         <div class="sidebar">
+            <form id="filter-form" action="/products/filters/" method="get"> 
             <div id="sidebar__categories-div" class="sidebar__section">
                 <div class="sidebar__section-heading">
                     <p>Категория</p>
@@ -168,7 +167,7 @@
                 <div class="catalog__content-heading">
                     <p>Популярное</p>
                 </div>
-                <div id="productGrid" class="catalog__cards">
+                <div id="catalogCards" class="catalog__cards">
                     {% for product in products %}
                         <div class="catalog__card">
                             <div class="catalog__card-image">
@@ -177,7 +176,7 @@
                             <div class="catalog__card-bottom">
                                 {% if request.user.is_authenticated %}
                                     <div class="catalog__card-name">
-                                        <p>{{ product.title }}</p>
+                                        <a href="{{ product.get_absolute_url }}" class="hover-green">{{ product.title }}</a>
                                     </div>
                                     <div class="catalog__card-price-block">
                                         <div class="catalog__card-price">
@@ -194,7 +193,7 @@
                                                 </button>
                                             </div>
                                         {% else %}
-                                            <div id="{{ product.barcode }}" class="catalog__card-cart-button">
+                                            <div id="{{ product.barcode }}" class="catalog__card-cart-button add-to-cart">
                                                 В корзину
                                             </div>
                                         {% endif %}
@@ -250,10 +249,9 @@
                         {% endif %}
                     {% endif %}
                 </div>
-
-                <div class="catalog__section-header-div" id="noProductsFoundLabel" style="display: none;">
-                    <p class="catalog__empty-catalog-label">Ничего не найдено...</p>
-                </div>
+            </div>
+            <div class="catalog__section-header-div" id="noProductsFoundLabel" style="display: none;">
+                <p class="catalog__empty-catalog-label">Ничего не найдено...</p>
             </div>
         </div>
     </div>
@@ -263,25 +261,65 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    // Ввод фильтров
-    document.addEventListener('DOMContentLoaded', function () {
-        const searchInput = document.getElementById('searchInput');
-        const filters = document.querySelectorAll('.filter-input');
-        let typingTimer;
+    // Функция debounce
+function debounce(func, delay) {
+    let timeoutId;
+    return function (...args) {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+            func.apply(this, args);
+        }, delay);
+    };
+}
 
-        filters.forEach(function (filter) {
-            filter.addEventListener('change', function () {
-                sendFiltersData();
-            });
+// Фильтрация
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('searchInput');
+    const filters = document.querySelectorAll('.filter-input');
+    let pagination = document.getElementById('pagination');
+    let paginationContainer = document.querySelector('.pagination');
+
+    // Функция для отправки данных на сервер
+    const sendFiltersData = debounce(function () {
+        const formData = new FormData(document.getElementById('filter-form'));
+        console.log(formData)
+
+        const params = new URLSearchParams();
+        formData.forEach((value, key) => {
+            params.append(key, value);
         });
 
-        searchInput.addEventListener('input', function () {
-            clearTimeout(typingTimer);
-            typingTimer = setTimeout(function () {
-                sendFiltersData();
-            }, 300);
+        fetch(`/products/filters?${params.toString()}`, {
+            method: 'GET',
+        })
+        .then(response => response.json())
+        .then(data => {
+            const catalogCards = document.getElementById('catalogCards');
+            if (data.cards) {
+                catalogCards.innerHTML = data.cards;
+                pagination.innerHTML = data.pagination;
+                paginationContainer.style.display = 'flex';
+                document.getElementById('noProductsFoundLabel').style.display = 'none';
+            } else {
+                catalogCards.innerHTML = null;
+                pagination.innerHTML = null;
+                paginationContainer.style.display = 'none';
+                document.getElementById('noProductsFoundLabel').style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
         });
+    }, 150); 
+
+    // Навешиваем обработчики событий
+    filters.forEach(function (filter) {
+        filter.addEventListener('change', sendFiltersData);
+        console.log('навесил обрабоьчтик')
     });
+
+    searchInput.addEventListener('input', sendFiltersData);
+});
 
     // Сохранить фильтры при пагинации
     document.addEventListener('DOMContentLoaded', function () {
@@ -472,26 +510,26 @@
 
     // Добавить товар в корзину
     document.addEventListener("click", function (event) {
-        const button = event.target.closest(".add-to-cart");
+        const button = event.target.closest(".catalog__card-cart-button");
         if (button) {
             event.preventDefault();
-            const card = button.closest(".card");
+            const card = button.closest(".catalog__card");
             const barcode = button.id;
-            const addToCartDivBackup = button.parentElement.cloneNode(deep = true);
+            const addToCartButtonBackup = button.cloneNode(true); 
 
             const cartControls = document.createElement('div');
-            cartControls.classList.add('catalog__card-quantity-controls-div');
+            cartControls.classList.add('catalog__card-cart-controls');
             cartControls.innerHTML = `
-            <button id="${barcode}" class="catalog__card-cart-control-minus">
-                <img src="{% static 'img/Vector (1).svg' %}" alt="cart">
-            </button>
-            <input type="number" id="quantity-input-${barcode}" class="catalog__card-quantity-input" min=1 value="1">
-            <button id="${barcode}" class="catalog__card-cart-control-plus">
-                <img src="{% static 'img/Vector (2).svg' %}" alt="cart">
-            </button>
-        `;
-            button.parentElement.insertAdjacentElement('afterend', cartControls);
-            button.parentElement.remove();
+                <button id="${barcode}" class="catalog__card-cart-control-minus">
+                    <img src="{% static 'img/Vector (1).svg' %}" alt="cart">
+                </button>
+                <input type="number" id="quantity-input-${barcode}" class="catalog__card-quantity-input" min="1" value="1">
+                <button id="${barcode}" class="catalog__card-cart-control-plus">
+                    <img src="{% static 'img/Vector (2).svg' %}" alt="cart">
+                </button>
+            `;
+
+            button.replaceWith(cartControls);
 
             fetch("{% url 'carts:change' %}", {
                 method: "POST",
@@ -509,11 +547,9 @@
                 .then(data => {
                     if (data.error) {
                         alert("Ошибка: " + data.error);
-
-                        cartControls.insertAdjacentElement('beforebegin', addToCartDivBackup);
-                        cartControls.remove()
+                        cartControls.replaceWith(addToCartButtonBackup);
                     }
-                    updateCartIcon(Object.keys(data.cart.products).length);
+                    updateCartIcon(Object.keys(data.cart.products).length); 
                 })
                 .catch(error => console.error("Ошибка при добавлении/удалении из корзины:", error));
         }
@@ -723,22 +759,20 @@
     });
 
     // Выбрать раздел каталога
-    topicsButtons = document.querySelectorAll('.catalog__topics-item-div, .catalog__topics-active-item-div');
+    topicsButtons = document.querySelectorAll('.catalog__topic');
     topicsButtons.forEach(topicButton => {
         topicButton.addEventListener('click', function (event) {
             selectTopic(topicButton);
         });
     })
     function selectTopic(topicButton) {
-        const items = document.querySelectorAll('.catalog__topics-item-div, .catalog__topics-active-item-div');
+        const items = document.querySelectorAll('.catalog__topic');
 
         items.forEach(item => {
-            item.classList.remove('catalog__topics-active-item-div');
-            item.classList.add('catalog__topics-item-div');
+            item.classList.remove('active');
         });
 
-        topicButton.classList.remove('catalog__topics-item-div');
-        topicButton.classList.add('catalog__topics-active-item-div');
+        topicButton.classList.add('active');
     }
 </script>
 

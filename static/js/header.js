@@ -7,7 +7,6 @@ console.log(navbarHeight)
 
 window.addEventListener('scroll', function() {        
     didScroll = true;    
-    console.log('lf')
 });    
 
 setInterval(function() {        

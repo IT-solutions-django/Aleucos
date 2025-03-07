@@ -7,6 +7,8 @@ import random
 from django.utils.translation import gettext_lazy as _
 from Aleucos import settings
 from users.models import User
+from django.utils.text import slugify
+from django.urls import reverse
 
 
 class Brand(models.Model): 
@@ -50,6 +52,7 @@ class Product(models.Model):
     remains = models.PositiveIntegerField(_('Остаток на складе'), default=0)
     created_at = models.DateTimeField(_('Дата создания'), auto_now_add=True)
     will_arrive_at = models.DateField(_('Дата прибытия (если в пути)'), null=True, blank=True)
+    slug = models.SlugField('Слаг', blank=True, max_length=80)
 
     class Meta: 
         verbose_name = _('Товар')
@@ -58,11 +61,17 @@ class Product(models.Model):
     def __str__(self) -> str:
         return f'{self.title}'
     
+    def get_absolute_url(self) -> str: 
+        return reverse('products:product', args=[self.slug])
+    
     def save(self, *args, **kwargs) -> None:        
         if self.remains == 0: 
             self.is_in_stock = False 
         else: 
             self.is_in_stock = True
+
+        if not self.slug:
+            self.slug = f"{self.barcode}-{slugify(self.title[:50])}"
 
         super(Product, self).save(*args, **kwargs)
     

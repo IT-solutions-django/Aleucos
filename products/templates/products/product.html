@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load static %}
+{% load products_tags %} 
+
+{% block content %}
+<main class="product">
+    <div class="breadcrumb">
+        <a href="" class="hover-green">Главная</a>
+        <p>/</p>
+        <a href="" class="hover-green">Каталог</a>
+        <p>/</p>
+        <a href="" class="hover-green">{{ product.category.title }}</a>
+    </div>
+    <div class="product__section">
+        <div class="product__card">
+            <div class="product__name">{{ product.brand.title }} - {{ product.title }} {% if product.volume %}({{ product.volume }}){% endif %}</div>
+            <div class="product__body">
+                <div class="product__image">
+                    <img src="{{ product.photo.url }}" alt="">
+                </div>
+                <div class="product__data">
+                    <div class="product__price-block">
+                        <div class="product__price">
+                            {{ product.price_before_200k|floatformat:2|price_format }} ₽
+                        </div>
+                        <div class="catalog__card-cart-button add-to-cart">
+                            В корзину
+                        </div>
+                        <div class="product__get-price">
+                            Получить прайс
+                        </div>
+                    </div>
+                    <div class="product__info-block">
+                        <div>
+                            Штрихкод: {{ product.barcode }}
+                        </div>
+                        <div class="product__info-subheading">
+                            Описание 
+                        </div>
+                        <div class="product__info-text">
+                            Балансирующий тонер для лица предназначен для жирной кожи. Гидролаты растений (розмарина, череды, чистотела, шалфея, подорожника) оказывают тонизирующее, противовоспалительное, успокаивающее и увлажняющее действие. Салициловая кислота способствует отшелушиванию омертвевших клеток, ускоряет выравнивание и обновление кожи. Средство улучшает микроциркуляцию, сокращает выделению себума, нормализует работу сальной железы, подавляет воспалительные процессы, минимизирует следы постакне. Быстро и надолго освежает и матирует кожу.
+                        </div>
+                        <div class="product__info-subheading">
+                            Состав 
+                        </div>
+                        <div class="product__info-text">
+                            В состав тонера входит гиалуроновая кислота, глицерин, пантенол и пептиды. Универсальное средство без спирта подходит для всех типов кожи. Успокаивающий тонер избавляет от шелушения и покраснений, обеззараживает и интенсивно увлажняет лицо.
+                        </div>
+                        <div class="product__info-subheading">
+                            Характеристики 
+                        </div>
+                        <div class="product__specs">
+                            <div class="product__specs-row">
+                                <p>Бренд</p>
+                                <p>{{ product.brand.title }}</p>
+                            </div>
+                            <div class="product__specs-row">
+                                <p>Тип продукта</p>
+                                <p>Тонер</p>
+                            </div>
+                            {% if product.weight %}
+                                <div class="product__specs-row">
+                                    <p>Вес</p>
+                                    <p>{{ product.weight }} кг</p>
+                                </div>
+                            {% endif %}
+                            {% if product.volume %}
+                                <div class="product__specs-row">
+                                    <p>Объём</p>
+                                    <p>{{ product.volume }}</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="product__section">
+        <div class="product__similar-heading">
+            Похожие товары
+        </div>
+        <div>
+            ...
+        </div>
+    </div>
+</main>
+{% endblock %}

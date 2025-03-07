@@ -38,7 +38,7 @@ class CategoryAdmin(admin.ModelAdmin):
 @admin.register(Product) 
 class ProductAdmin(admin.ModelAdmin): 
     list_display = ['pk', 'barcode', 'brand', 'title', 'volume', 'weight', 'category', 'photo',
-                    'price_before_200k', 'is_in_stock', 'remains', 'will_arrive_at',] 
+                    'price_before_200k', 'is_in_stock', 'remains', 'will_arrive_at', 'slug',] 
     search_fields = ['brand__title', 'title', 'barcode']
     list_filter = (
         'is_in_stock',

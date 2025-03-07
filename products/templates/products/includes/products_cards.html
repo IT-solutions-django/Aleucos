@@ -1,0 +1,37 @@
+{% load static %}
+{% load products_tags %}
+
+{% for product in products %}
+    <div class="catalog__card">
+        <div class="catalog__card-image">
+            <img src="{{ product.photo.url }}" alt="cart" class="catalog__cart-image">
+        </div>
+        <div class="catalog__card-bottom">
+            {% if request.user.is_authenticated %}
+                <div class="catalog__card-name">
+                    <p>{{ product.title }}</p>
+                </div>
+                <div class="catalog__card-price-block">
+                    <div class="catalog__card-price">
+                        <p>{{ product.price_before_200k|floatformat:2|price_format }} ₽</p>
+                    </div>
+                    {% if product.quantity_in_cart != 0 %}
+                        <div class="catalog__card-cart-controls">
+                            <button id="{{ product.barcode }}" class="catalog__card-cart-control-minus">
+                                <img src="{% static 'img/Vector (1).svg' %}" alt="cart">
+                            </button>
+                            <input type="number" id="quantity-input-{{ product.barcode }}" class="catalog__card-quantity-input" value="{{ product.quantity_in_cart }}">
+                            <button id="{{ product.barcode }}" class="catalog__card-cart-control-plus">
+                                <img src="{% static 'img/Vector (2).svg' %}" alt="cart">
+                            </button>
+                        </div>
+                    {% else %}
+                        <div id="{{ product.barcode }}" class="catalog__card-cart-button">
+                            В корзину
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endfor %}

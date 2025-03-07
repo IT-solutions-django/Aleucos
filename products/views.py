@@ -13,6 +13,8 @@ from .models import ImportProductsStatus
 from django.db.models import Q, Value
 from django.db.models.functions import Greatest
 from django.contrib.postgres.search import TrigramSimilarity
+from django.template.loader import render_to_string 
+from django.shortcuts import get_object_or_404
 
 
 class ImportProductsStatusView(View): 
@@ -100,7 +102,10 @@ class ProductsListView(View):
 
 
         cart_data = request.cart.to_dict()
-        products_in_cart = {barcode: item['quantity'] for barcode, item in cart_data['products'].items()}
+        products_in_cart = {
+            barcode: item['quantity'] 
+            for barcode, item in cart_data['products'].items()
+        }
 
         for product in products:
             product.quantity_in_cart = request.cart[Cart.KeyNames.PRODUCTS].get(str(product.barcode), {}).get(Cart.KeyNames.QUANTITY, 0)
@@ -123,6 +128,9 @@ class ProductsListView(View):
 class CatalogFiltersView(View): 
     def get(self, request):
         form = SearchAndFilterForm(request.GET)
+
+        print(form.data)
+
         if form.is_valid():
             cd = form.cleaned_data
 
@@ -192,37 +200,74 @@ class CatalogFiltersView(View):
             })
         
         products = products.select_related('brand').all()
+
+        cart_data = request.cart.to_dict()
+        products_in_cart = {
+            barcode: item['quantity'] 
+            for barcode, item in cart_data['products'].items()
+        }
+
+        for product in products:
+            product.quantity_in_cart = request.cart[Cart.KeyNames.PRODUCTS].get(str(product.barcode), {}).get(Cart.KeyNames.QUANTITY, 0)
         
         page_number = request.GET.get('page', 1) 
-        paginator = Paginator(products, 16)  
-        page_obj = paginator.get_page(page_number)
+        products = Paginator(products, 16)  
+        products = products.get_page(page_number)
 
-        if not page_obj.object_list:
+        if not products.object_list:
             return JsonResponse({
                 'products': None,
+                'pagination': None,
             })
-
-        products_json = [
-        {
-            'barcode': product.barcode,
-            'title': product.title,
-            'description': product.description,
-            'photo': product.photo.url,
-            'brand': product.brand.title, 
-            'category': product.category.title, 
-            'price_before_200k': product.price_before_200k, 
-            'volume': product.volume, 
-            'weight': product.weight, 
-            'notes': product.notes, 
-            'remains': product.remains,
-        }
-        for product in page_obj.object_list]
+        
+        products_cards = render_to_string('products/includes/products_cards.html', {
+            'products': products,
+            'request': request,
+        }) 
+        pagination = render_to_string('products/includes/pagination.html', {
+            'products': products,
+            'request': request,
+        }) 
 
         return JsonResponse({
-            'products': products_json,
-            'has_next': page_obj.has_next(),  
-            'has_previous': page_obj.has_previous(),  
-            'current_page': page_obj.number,  
-            'total_pages': paginator.num_pages,  
-            'cart': request.cart.to_dict(),
+            'cards': products_cards,
+            'pagination': pagination,
+            'products_in_cart': products_in_cart
         })
+        
+
+        # products_json = [
+        # {
+        #     'barcode': product.barcode,
+        #     'title': product.title,
+        #     'description': product.description,
+        #     'photo': product.photo.url,
+        #     'brand': product.brand.title, 
+        #     'category': product.category.title, 
+        #     'price_before_200k': product.price_before_200k, 
+        #     'volume': product.volume, 
+        #     'weight': product.weight, 
+        #     'notes': product.notes, 
+        #     'remains': product.remains,
+        # }
+        # for product in page_obj.object_list]
+
+        # return JsonResponse({
+        #     'products': products_json,
+        #     'has_next': page_obj.has_next(),  
+        #     'has_previous': page_obj.has_previous(),  
+        #     'current_page': page_obj.number,  
+        #     'total_pages': paginator.num_pages,  
+        #     'cart': request.cart.to_dict(),
+        # })
+    
+
+class ProductView(View): 
+    template_name = 'products/product.html' 
+
+    def get(self, request, product_slug: str): 
+        product = get_object_or_404(Product, slug=product_slug)
+        context = {
+            'product': product,
+        }
+        return render(request, self.template_name, context)
