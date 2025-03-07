@@ -51,15 +51,21 @@
                         <div class="col padding-0">
                             <button class="header__request-button">Оставить заявку</button>
                         </div>
-                        <div class="col header__service-input--box">
-                            <input id="searchInput" class="header__service-input" placeholder="Поиск" type="text">
-                        </div>
                         <div class="col header__service-links">
                             <button class="header__service-link">
                                 <a href="{% if request.user.is_authenticated %}{% url 'users:account' %}{% else %}{% url 'users:login' %}{% endif %}"><img src="{% static 'img/person.svg' %}" alt="" class="header__service-img"></a>
                             </button>
                             <button class="header__service-link">
                                 <a href="{% if request.user.is_authenticated %}{% url 'carts:cart_items' %}{% else %}{% url 'users:login' %}{% endif %}"><img src="{% static 'img/store.svg' %}" alt="" class="header__service-img"></a>
+                            </button>
+                            <input id="searchInput" class="header__service-input" placeholder="Поиск" type="text">
+                            <button id="openSearchInput" class="header__service-link">
+                                <img src="{% static 'img/black-search-icon.svg' %}" 
+                                    data-close-img="{% static 'img/close-search-button.svg' %}"
+                                    data-open-img="{% static 'img/black-search-icon.svg' %}" 
+                                    alt="" 
+                                    class="header__service-img"
+                                >
                             </button>
                             <div class="dropdown dropdown__header">
                                 <button class="btn btn-secondary dropdown-toggle header__menu-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false"></button>
@@ -261,6 +267,22 @@
                     }
                 });
             }
+        })
+    </script>
+
+    <script defer>
+        document.addEventListener('DOMContentLoaded', function () {
+            let openSearchButton = document.getElementById('openSearchInput'); 
+            let searchInput = document.getElementById('searchInput')
+            openSearchButton.addEventListener('click', () => {
+                let image = openSearchButton.querySelector('img');
+                searchInput.classList.toggle('active');
+                if (new URL(image.src).pathname == image.dataset.openImg) {
+                    image.src = image.dataset.closeImg;
+                } else {
+                    image.src = image.dataset.openImg;
+                }
+            });
         })
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>

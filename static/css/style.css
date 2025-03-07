@@ -97,6 +97,7 @@ main {
 .header__inner {
   /* position: relative; */
   justify-content: space-between;
+  position: relative;
 
 }
 
@@ -109,14 +110,29 @@ main {
 }
 
 .header__service-input {
-  width: 230px;
   outline: none;
-  padding: 11px 11px 11px 48px;
   height: 40px;
-  border-radius: 27px;
+  border-radius: 20px;
   border: none;
-  background-color: #EDF5EF;
-  position: relative;
+  background-color: var(--color-light-green);
+
+  right: 40px;
+  position: absolute;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  width: 0;
+  overflow: hidden;
+  transition: width 0.3s ease, padding 0.3s ease;
+  background-image: url('../img/black-search-icon.svg');
+  background-repeat: no-repeat;
+  background-position: left 15px center;
+}
+
+.header__service-input.active {
+  z-index: 10000;
+  width: 328px;
+  padding: 11px 11px 11px 48px;
 }
 
 .header__service-input--box {
@@ -139,6 +155,16 @@ main {
   display: flex;
   align-items: center;
   gap: 24px;
+  justify-content: center;
+}
+#openSearchInput {
+  display: flex;
+  align-items: center;
+}
+#openSearchInput {
+  width: 20px;
+  height: 20px;
+  justify-content: center;
 }
 
 .header__service-link {
@@ -152,6 +178,9 @@ main {
   display: flex;
   align-items: center;
   gap: 60px;
+  position: absolute;
+  right: 50%;
+  left: 50%; 
 }
 .header__logo {
   width: min-content;
@@ -164,6 +193,7 @@ main {
   font-size: 16px;
   font-weight: 500;
   color: #0D1C12;
+  text-wrap: nowrap;
 }
 
 .header__request-button {
