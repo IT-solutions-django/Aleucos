@@ -3,23 +3,64 @@
 {% block title %}Личный кабинет{% endblock %}
 
 {% block content %}
-
-    <h2>Личный кабинет</h2>
-
-    <div class="mb-4">
-        <div class="d-flex justify-content-end">
-            <div class="btn-group">
-                <a href="{% url 'users:password_change' %}" class="btn btn-outline-primary">Сменить пароль</a>
-                
-                <a href="{% url 'users:login' %}" class="btn btn-outline-secondary">Сменить аккаунт</a>
-
-                <form method="post" action="{% url 'users:logout' %}" class="d-inline">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-outline-danger">Выйти из аккаунта</button>
-                </form>
+<main class="account">
+    <div class="heading-wrapper">
+        <div class="heading-label">
+            <a href="{% url 'products:products_list' %}" class="color-black">Личный кабинет</a>
+        </div>
+    </div>
+    <div class="account-body">
+        <div class="account__sidebar">
+            <div class="account__user-info">
+                <div class="account__user-info-heading">Ваш менеджер</div> 
+                <div class="account__user-info-body">
+                    <p><span class="bold">Имя: </span>Иван</p>
+                    <p><span class="bold">email: </span>{{ request.user.email }}</p>
+                    <p><span class="bold">Город: </span>Новосибирск</p>
+                    <p><span class="bold">Имя: </span>Скидка: 5%</p>
+                </div>
+            </div>
+        </div>
+        <div class="account__content">
+            <div class="account__sort-block">
+                <p class="account__sort active">Все</p>
+                <p class="account__sort">Сначала новые</p>
+                <p class="account__sort">Сначала старые</p>
+                <p class="account__sort">Выбрать период</p>
+            </div>
+            <div class="account_heading">
+                Ваши заказы
+            </div>
+            <div class="account__order">
+                <div class="account__order-heading">
+                    Заказ №438934984
+                </div>
+                <div>
+                    <span class="bold">Статус:</span> Транспортировка
+                </div>
+                <div class="cart-table">
+                        <div class="cart-header">
+                            <span>Производитель</span>
+                            <span>Штрихкод</span>
+                            <span>Товар</span>
+                            <span>Кол-во</span>
+                            <span>Цена за штуку</span>
+                            <span>Цена по позиции</span>
+                        </div>
+                            <div class="cart-row" data-barcode="{{ barcode }}">
+                                <span>
+                                    AHC
+                                </span>
+                                <span>63543456</span>
+                                <span class="product-unit-price">200 ₽</span>
+                                <span>49898</span>
+                                <span class="product-total-price">{{ item.total_product_price }} ₽</span>
+                            </div>
+                </div>
             </div>
         </div>
     </div>
+</main>
 
     <div class="mb-4">
         <h3 class="my-4">Менеджер</h3>
