@@ -5,122 +5,102 @@
 {% block title %}Корзина{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'css/my_style.css' %}">
-<div class="container">
-    <h2 class="my-4">Ваша корзина</h2>
-
-    {% if cart.products %}
-
-    <div id="errors-container">
-
+<main class="cart">
+    <div class="heading-wrapper">
+        <div class="heading-label">
+            <a href="{% url 'products:products_list' %}" class="color-black">Ваша корзина</a>
+        </div>
+        <div class="breadcrumb">
+            <a href="{% url 'home:home' %}" class="hover-green">Главная</a>
+            <p>/</p>
+            <a href="" class="hover-green">Корзина</a>
+        </div>
     </div>
 
-    <div id="cartTableBlock">
-        <div class="d-flex justify-content-end">
-            <button onclick="flushCart()" class="btn btn-danger ms-3">Очистить корзину</button>
-        </div>
-        <h4 id="totalOrderPrice">Итого: {{ cart.total_price }} ₽</h4>
-
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th scope="col">Фото</th>
-                    <th scope="col">Название</th>
-                    <th scope="col">Штрихкод</th>
-                    <th scope="col">Цена за штуку</th>
-                    <th scope="col">Количество</th>
-                    <th scope="col">На складе</th>
-                    <th scope="col">Цена по позиции</th>
-                    <th scope="col">Действия</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for barcode, item in cart.products.items %}
-                <tr data-barcode="{{ barcode }}">
-                    <td><img src="{{ barcode|product_image_url }}" alt="{{ barcode }}" class="img-thumbnail" style="height: 60px; width: 60px; object-fit: contain;"></td>
-                    <td>{{ barcode|product_title }}</td>
-                    <td>{{ barcode }}</td>
-                    <td>{{ item.unit_price }} ₽</td>
-                    <td>
-                        <div class="input-group">
-                            <input type="number" class="form-control form-control-sm" id="quantity-{{ barcode }}" value="{{ item.quantity }}" min="1" oninput="checkQuantity('{{ barcode }}')">
-                        </div>
-                    </td>
-                    <td>{{ barcode|product_remains }} шт.</td>
-                    <td>{{ item.total_product_price }} ₽</td>
-                    <td>
-                        <button class="btn btn-success btn-sm" data-barcode="{{ barcode }}" onclick="deleteFromCart('{{ barcode }}')">Удалить</button>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-        <div class="d-flex justify-content-end mb-4">
-            <button onclick="checkCart()" class="btn btn-lg btn-success">Далее</button>
-        </div>
-
-        <div id="order-form" style="display: none;" class="mt-4">
-            <h4>Выберите условия доставки и способ оплаты</h4>
-            <form id="checkout-form" method="POST" action="{% url 'carts:create_order' %}">
-                {% csrf_token %}
-
-                <div class="form-group">
-                    <label for="city-options" class="form-label">Ваш город</label>
-                    <div class="city-options" id="city-options">
-                        {% for city in cities %}
-                            <div class="city-option" data-value="{{ city.id }}">
-                                <div class="title">{{ city.name }}</div>
-                            </div>
-                        {% endfor %}
+    <div class="cart-table">
+        {% if cart.products %}
+            <div class="cart-header">
+                <span>Фото</span>
+                <span>Название</span>
+                <span>Штрих-код</span>
+                <span>Цена за штуку</span>
+                <span>Кол-во</span>
+                <span>На складе</span>
+                <span>Цена по позиции</span>
+                <span></span>
+            </div>
+            {% for barcode, item in cart.products.items %}
+                <div class="cart-row" data-barcode="{{ barcode }}">
+                    <div class="cart-row__image">
+                        <img src="{{ barcode|product_image_url }}" alt="{{ barcode }}">
                     </div>
-                    <input type="hidden" name="city" id="city-input" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="delivery-options" class="form-label">Способ доставки</label>
-                    <div class="delivery-options" id="delivery-options">
-                        {% for term in delivery_terms %}
-                            <div class="delivery-option" data-value="{{ term.id }}">
-                                <div class="title">{{ term.title }}</div>
-                            </div>
-                        {% endfor %}
+                    <span>{{ barcode|product_title }}</span>
+                    <span>{{ barcode }}</span>
+                    <span class="product-unit-price">{{ item.unit_price }} ₽</span>
+                    <div class="cart-quantity">
+                        <input id="quantity-{{ barcode }}" value="{{ item.quantity }}" oninput="checkQuantity('{{ barcode }}')">
+                        <button data-barcode="{{ barcode }}" class="minus-button">-</button>
+                        <button data-barcode="{{ barcode }}" class="plus-button">+</button>
                     </div>
-                    <input type="hidden" name="delivery_terms" id="delivery-input" required>
+                    <span>{{ barcode|product_remains }}</span>
+                    <span class="product-total-price">{{ item.total_product_price }} ₽</span>
+                    <button class="delete-btn" data-barcode="{{ barcode }}" onclick="deleteFromCart('{{ barcode }}')">удалить</button>
                 </div>
-
-                <div class="form-group">
-                    <label for="payment-options" class="form-label">Способ оплаты</label>
-                    <div class="payment-options" id="payment-options">
-                        {% for method in payment_methods %}
-                            <div class="payment-option" data-value="{{ method.id }}">
-                                <div class="title">{{ method.title }}</div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                    <input type="hidden" name="payment_method" id="payment-input" required>
-                </div>
-
-                <div class="mb-3">
-                    <label for="comment" class="form-label">Комментарий к заказу</label>
-                    <textarea class="form-control" id="comment" name="comment" rows="3"></textarea>
-                </div>
-                <button type="submit" class="btn btn-success" id="submit-button" disabled>Оформить заказ</button>
-            </form>
-        </div>
-
+            {% endfor %}
+        {% else %}
+            <div>
+                Ваша корзина пуста
+            </div>
+            <div>
+                <a class="hover-green" href="{% url 'products:products_list' %}">Перейти к каталогу →</a>
+            </div>
+        {% endif %}
     </div>
-
-    {% else %}
-        <div class="mb-4">
-            <p>Ваша корзина пуста.</p>
+    <div class="continue__buttons">
+        <button onclick="checkCart()" class="continue-button">Продолжить</button>
+        <a href="" class="get-price-button">Получить прайс</a>
+    </div>
+    <div id="cart__next" class="cart__next">
+        <p class="cart__next-subheading">Выберете условия доставки и способ оплаты</p>
+        <input type="text" placeholder="Ваш город" class="cart__next-input">
+        <div class="cart__next-terms">
+            <div class="cart__next-delivery-terms">
+                <p class="cart__next-label">Способ доставки</p>
+                <div class="cart__next-delivery-terms-tiles">
+                    <div class="cart__next-delivery-term">
+                        Деловые линии
+                    </div>
+                    <div class="cart__next-delivery-term">
+                        CDEK
+                    </div>
+                    <div class="cart__next-delivery-term">
+                        Boxberry
+                    </div>
+                </div>
+            </div>
+            <div class="cart__next-payment-terms">
+                <p class="cart__next-label">Способ оплаты</p>
+                <div class="cart__next-delivery-terms-tiles">
+                    <div class="cart__next-delivery-term">
+                        СБП
+                    </div>
+                    <div class="cart__next-delivery-term">
+                        Наличные
+                    </div>
+                    <div class="cart__next-delivery-term">
+                        Расчётный счёт
+                    </div>
+                </div>
+            </div>
         </div>
-        
-        <div class="my-4">
-            <a href="{% url 'products:products_list' %}" class="btn btn-success">Перейти к каталогу</a>
+        <div class="cart__next-comment">
+            <p class="cart__next-label">Комментарий</p>
+            <textarea rows="3" placeholder="Оставьте комментарий к заказу" name="" id="">
+            </textarea>
         </div>
-    {% endif %}
-</div>
+        <button onclick="checkCart()" class="continue-button">Оформить заказ</button>
+    </div>
+</main>
 {% endblock %}
 
 {% block script %}
@@ -251,7 +231,7 @@ const deleteFromCart = (barcode) => {
         } else {
             cart = data.cart 
 
-            const row = document.querySelector(`tr[data-barcode="${barcode}"]`);
+            const row = document.querySelector(`div[data-barcode="${barcode}"]`);
             console.log(row);
             if (row) {
                 row.remove();
@@ -287,7 +267,7 @@ function checkCart() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            document.getElementById('order-form').style.display = 'block';
+            document.getElementById('cart__next').style.display = 'flex';
         } else {
             let errorsContainer = document.getElementById('errors-container');
             errorsContainer.innerHTML = '';  
@@ -304,21 +284,114 @@ function checkCart() {
 
 const updateCartDisplay = (cart) => {
     for (const barcode in cart.products) {
-        const row = document.querySelector(`tr[data-barcode="${barcode}"]`);
+        const row = document.querySelector(`div[data-barcode="${barcode}"]`);
         if (row) {
             const product = cart.products[barcode];
             
-            const productUnitPrice = row.querySelector('td:nth-child(4)');
+            const productUnitPrice = row.querySelector('.product-unit-price');
             productUnitPrice.textContent = `${product.unit_price} ₽`;
 
             const quantityInput = row.querySelector(`input[id="quantity-${barcode}"]`);
             quantityInput.value = product.quantity;
 
-            const productTotalPrice = row.querySelector('td:nth-child(7)');
+            const productTotalPrice = row.querySelector('.product-total-price');
             productTotalPrice.textContent = `${product.total_product_price} ₽`;
         }
     }
 };
+
+document.addEventListener("DOMContentLoaded", () => {
+    let plusButtons = document.querySelectorAll('.plus-button'); 
+    let minusButtons = document.querySelectorAll('.minus-button');
+    plusButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            increaseQuantity(button);
+        });
+    });
+    minusButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            decreaseQuantity(button);
+        });
+    });
+});
+
+
+function increaseQuantity(plusButton) {
+    plusButton.disabled = true;
+
+    const barcode = plusButton.dataset.barcode;
+    const quantityInput = document.getElementById(`quantity-${barcode}`);
+    let oldQuantity = parseInt(quantityInput.value);
+    quantity = oldQuantity + 1;
+    if (quantity < 1) {
+        quantity = 1;
+    }
+    quantityInput.value = quantity;
+
+    fetch("{% url 'carts:change' %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: new URLSearchParams({
+            'barcode': barcode,
+            'quantity': 1,
+            'append': true
+        })
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data)
+            plusButton.disabled = false;
+            if (data.error) {
+                alert(data.error);
+                quantityInput.value = oldQuantity;
+            }
+            else {
+                updateCartDisplay(data.cart);
+            }
+        })
+        .catch(error => {
+            console.error("Ошибка при добавлении/удалении из корзины:", error)
+            plusButton.disabled = false;
+        });
+    }
+
+    function decreaseQuantity(minusButton) {
+        minusButton.disabled = true;
+        console.log('Уменьшаем колво')
+
+        const barcode = minusButton.dataset.barcode;
+        const quantityInput = document.getElementById(`quantity-${barcode}`);
+        let quantity = parseInt(quantityInput.value);
+        quantity -= 1;
+        quantityInput.value = quantity;
+
+        fetch("{% url 'carts:change' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: new URLSearchParams({
+                'barcode': barcode,
+                'quantity': -1,
+                'append': true
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data)
+            minusButton.disabled = false;
+            updateCartDisplay(data.cart);
+        })
+        .catch(error => {
+            console.error("Ошибка при добавлении/удалении из корзины:", error)
+            minusButton.disabled = false;
+        });
+    }
+
 
 </script>
 {% endblock %}
