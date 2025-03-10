@@ -1,5 +1,5 @@
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views import View
 from elasticsearch_dsl.query import MultiMatch
 from django.db.models.functions import Cast
@@ -15,6 +15,10 @@ from django.db.models.functions import Greatest
 from django.contrib.postgres.search import TrigramSimilarity
 from django.template.loader import render_to_string 
 from django.shortcuts import get_object_or_404
+from configs.models import Config
+from Aleucos import settings
+from django.http import FileResponse
+import os
 
 
 class ImportProductsStatusView(View): 
@@ -241,32 +245,6 @@ class CatalogFiltersView(View):
             'pagination': pagination,
             'products_in_cart': products_in_cart
         })
-        
-
-        # products_json = [
-        # {
-        #     'barcode': product.barcode,
-        #     'title': product.title,
-        #     'description': product.description,
-        #     'photo': product.photo.url,
-        #     'brand': product.brand.title, 
-        #     'category': product.category.title, 
-        #     'price_before_200k': product.price_before_200k, 
-        #     'volume': product.volume, 
-        #     'weight': product.weight, 
-        #     'notes': product.notes, 
-        #     'remains': product.remains,
-        # }
-        # for product in page_obj.object_list]
-
-        # return JsonResponse({
-        #     'products': products_json,
-        #     'has_next': page_obj.has_next(),  
-        #     'has_previous': page_obj.has_previous(),  
-        #     'current_page': page_obj.number,  
-        #     'total_pages': paginator.num_pages,  
-        #     'cart': request.cart.to_dict(),
-        # })
     
 
 class ProductView(View): 
@@ -278,3 +256,20 @@ class ProductView(View):
             'product': product,
         }
         return render(request, self.template_name, context)
+    
+
+class ExportCatalogView(View): 
+    def get(self, request): 
+        filename = os.path.join(settings.MEDIA_ROOT, 'catalog', Config.get_instance().export_catalog_filename)
+        try:
+            response = FileResponse(open(filename, 'rb'))
+            return response
+        except FileNotFoundError:
+            self.message_user(request, 'Файл для экспорта не найден', level='error')
+            return redirect('admin:products_product_changelist')
+        except PermissionError:
+            self.message_user(request, 'Файл для экспорта не найден', level='error')
+            return redirect('admin:products_product_changelist')
+        except Exception: 
+            self.message_user(request, 'Файл для экспорта не найден', level='error')
+            return redirect('admin:products_product_changelist')

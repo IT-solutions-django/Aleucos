@@ -119,12 +119,12 @@ class OrderAdmin(admin.ModelAdmin):
 
 @admin.register(PaymentMethod)
 class PaymentMethodAdmin(admin.ModelAdmin): 
-    list_display = ['pk', 'title']
+    list_display = ['title']
 
 
 @admin.register(DeliveryTerm)
 class DeliveryTermAdmin(admin.ModelAdmin): 
-    list_display = ['pk', 'title']
+    list_display = ['title']
 
 
 @admin.register(ImportOrderStatus)

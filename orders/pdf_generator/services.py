@@ -23,6 +23,8 @@ def generate_pdf_bill(
         items: Iterable, 
         order
     ) -> None: 
+    print(items)
+
     pdf = canvas.Canvas(output_filename)
     pdf.setTitle(pdf_title) 
 

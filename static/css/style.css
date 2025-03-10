@@ -1892,6 +1892,7 @@ label {
   background-color: #ECF4EE;
 }
 .cart .continue-button {
+  display: block;
   font-weight: bold;
   background-color: var(--color-green);
   border-radius: 20px;
@@ -1900,6 +1901,8 @@ label {
   width: min-content;
   word-wrap: nowrap;
   text-wrap: nowrap;
+
+  transition: all 0.3s ease;
 }
 .cart .get-price-button {
   border: 1px solid rgb(145, 145, 145, 0.2);
@@ -1919,6 +1922,8 @@ label {
   flex-direction: column;
   gap: 30px;
   padding: 60px 0px;
+
+  max-width: 1040px;
 }
 .cart__next-subheading {
   font-size: 20px;
@@ -1929,6 +1934,27 @@ label {
   padding: 15.5px 40px;
   width: min-content; 
   border-radius: 20px;
+}
+.empty-cart-block {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 40px;
+}
+.empty-cart-label {
+  font-size: 18px;
+  font-weight: 800;
+}
+.cart__next-input.labeled {
+  display: flex;
+  gap: 20px;
+}
+.cart__next-input.labeled label, 
+.cart__next-input.labeled input {
+  text-wrap: nowrap;
+}
+.cart__next-input.labeled input {
+  border-bottom: 1px solid black;
 }
 .cart__next-terms {
   display: flex;
@@ -1954,10 +1980,36 @@ label {
   padding: 20px;
   background-color: #F4F5F7;
   border-radius: 20px;
+  border: 2px solid transparent;
+  cursor: pointer;
 
   display: flex;
   align-items: center;
   justify-content: center;
+
+  transition: all 0.3s ease;
+}
+.cart__next-delivery-term.selected {
+  border-color: var(--color-green);
+  background-color: var(--color-light-green);
+}
+.cart__next-delivery-term .tile-flex {
+  display: flex;
+  gap: 10px;
+}
+.cart__next-delivery-term, 
+.cart__next-delivery-term p {
+  font-size: 14px;
+  font-weight: bold;
+}
+.continue-button:disabled {
+  background-color: #F4F5F7;
+  color: gray;
+  font-weight: 400;
+  cursor:auto;
+}
+.continue-button:hover {
+   opacity: 0.8;
 }
 .cart__next-comment {
   display: flex;
@@ -1986,7 +2038,23 @@ label {
   background-color: #F4F5F7;
   border-radius: 0px 40px 40px 0px;
   padding: 30px 30px 30px 0px;
-  padding-left: calc();
+}
+
+.account__sidebar {
+  position: relative; 
+  background: #f5f5f5; 
+  z-index: 1; 
+}
+
+.account__sidebar::before {
+  content: ""; 
+  position: absolute;
+  top: 0;
+  left: -100vw; 
+  width: 100vw; 
+  height: 100%;
+  background: inherit; 
+  z-index: -1; 
 }
 .account__user-info {
   display: flex;

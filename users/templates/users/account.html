@@ -16,7 +16,7 @@
                 <div class="account__user-info-body">
                     <p><span class="bold">Имя: </span>Иван</p>
                     <p><span class="bold">email: </span>{{ request.user.email }}</p>
-                    <p><span class="bold">Город: </span>Новосибирск</p>
+                    <p><span class="bold">Город: </span>{% if request.user.city %}{{ request.user.ciry }}{% endif %}</p>
                     <p><span class="bold">Имя: </span>Скидка: 5%</p>
                 </div>
             </div>

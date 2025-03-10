@@ -5,6 +5,11 @@
 {% block title %}Корзина{% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+
+
 <main class="cart">
     <div class="heading-wrapper">
         <div class="heading-label">
@@ -48,98 +53,137 @@
                 </div>
             {% endfor %}
         {% else %}
-            <div>
+        <div class="empty-cart-block">
+            <div class="empty-cart-label">
                 Ваша корзина пуста
             </div>
             <div>
-                <a class="hover-green" href="{% url 'products:products_list' %}">Перейти к каталогу →</a>
+                <a class="hover-green continue-button" href="{% url 'products:products_list' %}">Перейти к каталогу →</a>
             </div>
+        </div>
         {% endif %}
     </div>
-    <div class="continue__buttons">
-        <button onclick="checkCart()" class="continue-button">Продолжить</button>
-        <a href="" class="get-price-button">Получить прайс</a>
-    </div>
-    <div id="cart__next" class="cart__next">
-        <p class="cart__next-subheading">Выберете условия доставки и способ оплаты</p>
-        <input type="text" placeholder="Ваш город" class="cart__next-input">
-        <div class="cart__next-terms">
-            <div class="cart__next-delivery-terms">
-                <p class="cart__next-label">Способ доставки</p>
-                <div class="cart__next-delivery-terms-tiles">
-                    <div class="cart__next-delivery-term">
-                        Деловые линии
+    {% if cart.products %}
+        <div class="continue__buttons">
+            <button onclick="checkCart()" class="continue-button">Продолжить</button>
+            <a href="{% url 'products:export_catalog' %}" class="get-price-button">Получить прайс</a>
+        </div>
+        <form id="cart__next" class="cart__next" method="POST" action="/carts/create-order/">
+            {% csrf_token %}
+            <p class="cart__next-subheading">Выберете условия доставки и способ оплаты</p>
+            <div class="cart__next-input labeled">
+                <label for="city-input"><strong>Ваш город</strong></label>
+                <input type="text" id="city-input" name="city">
+            </div>
+            <div class="cart__next-terms">
+                <input type="hidden" id="delivery-input" name="delivery_terms">
+                <input type="hidden" id="payment-input" name="payment_method">
+
+                <div class="cart__next-delivery-terms">
+                    <p class="cart__next-label">Способ доставки</p>
+                    <div class="cart__next-delivery-terms-tiles">
+                        {% for delivery_term in delivery_terms %}
+                            {% if delivery_term.logo %}
+                                <div class="cart__next-delivery-term" data-value="{{ delivery_term.id }}">
+                                    <img src="{{ delivery_term.logo.url }}" alt="Логотип {{ delivery_term.title }}">
+                                </div>
+                            {% else %}
+                                <div class="cart__next-delivery-term" data-value="{{ delivery_term.id }}">
+                                    {{ delivery_term.title }}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
                     </div>
-                    <div class="cart__next-delivery-term">
-                        CDEK
-                    </div>
-                    <div class="cart__next-delivery-term">
-                        Boxberry
+                </div>
+                <div class="cart__next-payment-terms">
+                    <p class="cart__next-label">Способ оплаты</p>
+                    <div class="cart__next-delivery-terms-tiles">
+                        {% for payment_method in payment_methods %}
+                            <div class="cart__next-delivery-term" data-value="{{ payment_method.id }}">
+                                {% if payment_method.logo %}
+                                    {% if payment_method.title == 'Наличные' or payment_method.title == 'Расчетный счет' %}
+                                    <div class="tile-flex">
+                                        <img src="{{ payment_method.logo.url }}" alt="Логотип {{ payment_method.title }}">
+                                        <p>{{ payment_method.title }}</p>
+                                    </div>
+                                    {% else %}
+                                        <img src="{{ payment_method.logo.url }}" alt="Логотип {{ payment_method.title }}">
+                                    {% endif %}
+                                {% else %}
+                                    {{ payment_method.title }}
+                                {% endif %}
+                            </div>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
-            <div class="cart__next-payment-terms">
-                <p class="cart__next-label">Способ оплаты</p>
-                <div class="cart__next-delivery-terms-tiles">
-                    <div class="cart__next-delivery-term">
-                        СБП
-                    </div>
-                    <div class="cart__next-delivery-term">
-                        Наличные
-                    </div>
-                    <div class="cart__next-delivery-term">
-                        Расчётный счёт
-                    </div>
-                </div>
+            <div class="cart__next-comment">
+                <p class="cart__next-label">Комментарий</p>
+                <textarea rows="3" placeholder="Оставьте комментарий к заказу" name="comment" id="comment-input"></textarea>
             </div>
-        </div>
-        <div class="cart__next-comment">
-            <p class="cart__next-label">Комментарий</p>
-            <textarea rows="3" placeholder="Оставьте комментарий к заказу" name="" id="">
-            </textarea>
-        </div>
-        <button onclick="checkCart()" class="continue-button">Оформить заказ</button>
-    </div>
+            <button id="submit-button" type="submit" class="continue-button">Оформить заказ</button>
+        </form>
+    {% endif %}
 </main>
 {% endblock %}
 
 {% block script %}
-<script>
-function validateForm() {
-    const cityInput = document.querySelector('#city-input');
-    const deliveryInput = document.querySelector('#delivery-input');
-    const paymentInput = document.querySelector('#payment-input');
-    const submitButton = document.querySelector('#submit-button');
-
-    if (cityInput.value && deliveryInput.value && paymentInput.value) {
-        console.log('ага')
-        console.log(submitButton)
-        submitButton.disabled = false; 
-    } else {
-        console.log('ytf')
-        submitButton.disabled = true; 
-    }
-}
-
-function handleTileSelection(containerClass, inputId) {
-    console.log("Привет")
-    const container = document.querySelector(containerClass);
-    const input = document.querySelector(inputId);
-
-    container.addEventListener('click', (event) => {
-        const target = event.target.closest('.city-option, .delivery-option, .payment-option'); // Ищем плитку
-        if (target) {
-            container.querySelectorAll('.selected').forEach((el) => el.classList.remove('selected'));
-            target.classList.add('selected');
-            input.value = target.getAttribute('data-value');
-            validateForm();
-        }
+<script defer>
+    $(document).ready(function () {
+        $("#city-input").autocomplete({
+            source: function (request, response) {
+                $.getJSON(`https://nominatim.openstreetmap.org/search?format=json&q=${request.term}`, function (data) {
+                    response($.map(data, function (item) {
+                        return {
+                            label: item.display_name,
+                            value: item.display_name
+                        };
+                    }));
+                });
+            },
+            minLength: 2
+        });
     });
-}
 
-handleTileSelection('.city-options', '#city-input');
-handleTileSelection('.delivery-options', '#delivery-input');
-handleTileSelection('.payment-options', '#payment-input');
+</script>
+
+<script defer>
+    document.addEventListener("DOMContentLoaded", function () {
+        function validateForm() {
+            const cityInput = document.querySelector('#city-input');
+            const deliveryInput = document.querySelector('#delivery-input');
+            const paymentInput = document.querySelector('#payment-input');
+            const submitButton = document.querySelector('#submit-button');
+    
+            if (cityInput.value.trim() && deliveryInput.value && paymentInput.value) {
+                submitButton.disabled = false;
+                console.log('Валидация успешна');
+            } else {
+                console.log('Валидация не пройдена');
+                submitButton.disabled = true;
+            }
+        }
+    
+        function handleTileSelection(containerClass, inputId) {
+            const container = document.querySelector(containerClass);
+            const input = document.querySelector(inputId);
+    
+            container.addEventListener('click', (event) => {
+                const target = event.target.closest('.cart__next-delivery-term');
+                if (target) {
+                    container.querySelectorAll('.selected').forEach((el) => el.classList.remove('selected'));
+                    target.classList.add('selected');
+                    input.value = target.getAttribute('data-value');
+                    validateForm();
+                }
+            });
+        }
+    
+        document.querySelector('#submit-button').disabled = true;
+        handleTileSelection('.cart__next-delivery-terms-tiles', '#delivery-input');
+        handleTileSelection('.cart__next-payment-terms .cart__next-delivery-terms-tiles', '#payment-input');
+        document.querySelector('#city-input').addEventListener('input', validateForm);
+    });
 </script>
 
 
@@ -256,6 +300,7 @@ const deleteFromCart = (barcode) => {
 };
 
 function checkCart() {
+    console.log('нажали')
     fetch('{% url "carts:check_cart" %}', {
         method: 'POST',
         headers: {
@@ -391,8 +436,6 @@ function increaseQuantity(plusButton) {
             minusButton.disabled = false;
         });
     }
-
-
 </script>
 {% endblock %}
  
