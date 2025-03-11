@@ -5,161 +5,185 @@
 {% block title %}Корзина{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'css/my_style.css' %}">
-<div class="container">
-    <h2 class="my-4">Ваша корзина</h2>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 
+
+<main class="cart">
+    <div class="heading-wrapper">
+        <div class="heading-label">
+            <a href="{% url 'products:products_list' %}" class="color-black">Ваша корзина</a>
+        </div>
+        <div class="breadcrumb">
+            <a href="{% url 'home:home' %}" class="hover-green">Главная</a>
+            <p>/</p>
+            <a href="" class="hover-green">Корзина</a>
+        </div>
+    </div>
+
+    <div class="cart-table">
+        {% if cart.products %}
+            <div class="cart-header">
+                <span>Фото</span>
+                <span>Название</span>
+                <span>Штрих-код</span>
+                <span>Цена за штуку</span>
+                <span>Кол-во</span>
+                <span>На складе</span>
+                <span>Цена по позиции</span>
+                <span></span>
+            </div>
+            {% for barcode, item in cart.products.items %}
+                <div class="cart-row" data-barcode="{{ barcode }}">
+                    <div class="cart-row__image">
+                        <img src="{{ barcode|product_image_url }}" alt="{{ barcode }}">
+                    </div>
+                    <span>{{ barcode|product_title }}</span>
+                    <span>{{ barcode }}</span>
+                    <span class="product-unit-price">{{ item.unit_price }} ₽</span>
+                    <div class="cart-quantity">
+                        <input id="quantity-{{ barcode }}" value="{{ item.quantity }}" oninput="checkQuantity('{{ barcode }}')">
+                        <button data-barcode="{{ barcode }}" class="minus-button">-</button>
+                        <button data-barcode="{{ barcode }}" class="plus-button">+</button>
+                    </div>
+                    <span>{{ barcode|product_remains }}</span>
+                    <span class="product-total-price">{{ item.total_product_price }} ₽</span>
+                    <button class="delete-btn" data-barcode="{{ barcode }}" onclick="deleteFromCart('{{ barcode }}')">удалить</button>
+                </div>
+            {% endfor %}
+        {% else %}
+        <div class="empty-cart-block">
+            <div class="empty-cart-label">
+                Ваша корзина пуста
+            </div>
+            <div>
+                <a class="hover-green continue-button" href="{% url 'products:products_list' %}">Перейти к каталогу →</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
     {% if cart.products %}
-
-    <div id="errors-container">
-
-    </div>
-
-    <div id="cartTableBlock">
-        <div class="d-flex justify-content-end">
-            <button onclick="flushCart()" class="btn btn-danger ms-3">Очистить корзину</button>
+        <div class="continue__buttons">
+            <button onclick="checkCart()" class="continue-button">Продолжить</button>
+            <a href="{% url 'products:export_catalog' %}" class="get-price-button">Получить прайс</a>
         </div>
-        <h4 id="totalOrderPrice">Итого: {{ cart.total_price }} ₽</h4>
+        <form id="cart__next" class="cart__next" method="POST" action="/carts/create-order/">
+            {% csrf_token %}
+            <p class="cart__next-subheading">Выберете условия доставки и способ оплаты</p>
+            <div class="cart__next-input labeled">
+                <label for="city-input"><strong>Ваш город</strong></label>
+                <input type="text" id="city-input" name="city">
+            </div>
+            <div class="cart__next-terms">
+                <input type="hidden" id="delivery-input" name="delivery_terms">
+                <input type="hidden" id="payment-input" name="payment_method">
 
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th scope="col">Фото</th>
-                    <th scope="col">Название</th>
-                    <th scope="col">Штрихкод</th>
-                    <th scope="col">Цена за штуку</th>
-                    <th scope="col">Количество</th>
-                    <th scope="col">На складе</th>
-                    <th scope="col">Цена по позиции</th>
-                    <th scope="col">Действия</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for barcode, item in cart.products.items %}
-                <tr data-barcode="{{ barcode }}">
-                    <td><img src="{{ barcode|product_image_url }}" alt="{{ barcode }}" class="img-thumbnail" style="height: 60px; width: 60px; object-fit: contain;"></td>
-                    <td>{{ barcode|product_title }}</td>
-                    <td>{{ barcode }}</td>
-                    <td>{{ item.unit_price }} ₽</td>
-                    <td>
-                        <div class="input-group">
-                            <input type="number" class="form-control form-control-sm" id="quantity-{{ barcode }}" value="{{ item.quantity }}" min="1" oninput="checkQuantity('{{ barcode }}')">
-                        </div>
-                    </td>
-                    <td>{{ barcode|product_remains }} шт.</td>
-                    <td>{{ item.total_product_price }} ₽</td>
-                    <td>
-                        <button class="btn btn-success btn-sm" data-barcode="{{ barcode }}" onclick="deleteFromCart('{{ barcode }}')">Удалить</button>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-        <div class="d-flex justify-content-end mb-4">
-            <button onclick="checkCart()" class="btn btn-lg btn-success">Далее</button>
-        </div>
-
-        <div id="order-form" style="display: none;" class="mt-4">
-            <h4>Выберите условия доставки и способ оплаты</h4>
-            <form id="checkout-form" method="POST" action="{% url 'carts:create_order' %}">
-                {% csrf_token %}
-
-                <div class="form-group">
-                    <label for="city-options" class="form-label">Ваш город</label>
-                    <div class="city-options" id="city-options">
-                        {% for city in cities %}
-                            <div class="city-option" data-value="{{ city.id }}">
-                                <div class="title">{{ city.name }}</div>
+                <div class="cart__next-delivery-terms">
+                    <p class="cart__next-label">Способ доставки</p>
+                    <div class="cart__next-delivery-terms-tiles">
+                        {% for delivery_term in delivery_terms %}
+                            {% if delivery_term.logo %}
+                                <div class="cart__next-delivery-term" data-value="{{ delivery_term.id }}">
+                                    <img src="{{ delivery_term.logo.url }}" alt="Логотип {{ delivery_term.title }}">
+                                </div>
+                            {% else %}
+                                <div class="cart__next-delivery-term" data-value="{{ delivery_term.id }}">
+                                    {{ delivery_term.title }}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="cart__next-payment-terms">
+                    <p class="cart__next-label">Способ оплаты</p>
+                    <div class="cart__next-delivery-terms-tiles">
+                        {% for payment_method in payment_methods %}
+                            <div class="cart__next-delivery-term" data-value="{{ payment_method.id }}">
+                                {% if payment_method.logo %}
+                                    {% if payment_method.title == 'Наличные' or payment_method.title == 'Расчетный счет' %}
+                                    <div class="tile-flex">
+                                        <img src="{{ payment_method.logo.url }}" alt="Логотип {{ payment_method.title }}">
+                                        <p>{{ payment_method.title }}</p>
+                                    </div>
+                                    {% else %}
+                                        <img src="{{ payment_method.logo.url }}" alt="Логотип {{ payment_method.title }}">
+                                    {% endif %}
+                                {% else %}
+                                    {{ payment_method.title }}
+                                {% endif %}
                             </div>
                         {% endfor %}
                     </div>
-                    <input type="hidden" name="city" id="city-input" required>
                 </div>
-
-                <div class="form-group">
-                    <label for="delivery-options" class="form-label">Способ доставки</label>
-                    <div class="delivery-options" id="delivery-options">
-                        {% for term in delivery_terms %}
-                            <div class="delivery-option" data-value="{{ term.id }}">
-                                <div class="title">{{ term.title }}</div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                    <input type="hidden" name="delivery_terms" id="delivery-input" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="payment-options" class="form-label">Способ оплаты</label>
-                    <div class="payment-options" id="payment-options">
-                        {% for method in payment_methods %}
-                            <div class="payment-option" data-value="{{ method.id }}">
-                                <div class="title">{{ method.title }}</div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                    <input type="hidden" name="payment_method" id="payment-input" required>
-                </div>
-
-                <div class="mb-3">
-                    <label for="comment" class="form-label">Комментарий к заказу</label>
-                    <textarea class="form-control" id="comment" name="comment" rows="3"></textarea>
-                </div>
-                <button type="submit" class="btn btn-success" id="submit-button" disabled>Оформить заказ</button>
-            </form>
-        </div>
-
-    </div>
-
-    {% else %}
-        <div class="mb-4">
-            <p>Ваша корзина пуста.</p>
-        </div>
-        
-        <div class="my-4">
-            <a href="{% url 'products:products_list' %}" class="btn btn-success">Перейти к каталогу</a>
-        </div>
+            </div>
+            <div class="cart__next-comment">
+                <p class="cart__next-label">Комментарий</p>
+                <textarea rows="3" placeholder="Оставьте комментарий к заказу" name="comment" id="comment-input"></textarea>
+            </div>
+            <button id="submit-button" type="submit" class="continue-button">Оформить заказ</button>
+        </form>
     {% endif %}
-</div>
+</main>
 {% endblock %}
 
 {% block script %}
-<script>
-function validateForm() {
-    const cityInput = document.querySelector('#city-input');
-    const deliveryInput = document.querySelector('#delivery-input');
-    const paymentInput = document.querySelector('#payment-input');
-    const submitButton = document.querySelector('#submit-button');
-
-    if (cityInput.value && deliveryInput.value && paymentInput.value) {
-        console.log('ага')
-        console.log(submitButton)
-        submitButton.disabled = false; 
-    } else {
-        console.log('ytf')
-        submitButton.disabled = true; 
-    }
-}
-
-function handleTileSelection(containerClass, inputId) {
-    console.log("Привет")
-    const container = document.querySelector(containerClass);
-    const input = document.querySelector(inputId);
-
-    container.addEventListener('click', (event) => {
-        const target = event.target.closest('.city-option, .delivery-option, .payment-option'); // Ищем плитку
-        if (target) {
-            container.querySelectorAll('.selected').forEach((el) => el.classList.remove('selected'));
-            target.classList.add('selected');
-            input.value = target.getAttribute('data-value');
-            validateForm();
-        }
+<script defer>
+    $(document).ready(function () {
+        $("#city-input").autocomplete({
+            source: function (request, response) {
+                $.getJSON(`https://nominatim.openstreetmap.org/search?format=json&q=${request.term}`, function (data) {
+                    response($.map(data, function (item) {
+                        return {
+                            label: item.display_name,
+                            value: item.display_name
+                        };
+                    }));
+                });
+            },
+            minLength: 2
+        });
     });
-}
 
-handleTileSelection('.city-options', '#city-input');
-handleTileSelection('.delivery-options', '#delivery-input');
-handleTileSelection('.payment-options', '#payment-input');
+</script>
+
+<script defer>
+    document.addEventListener("DOMContentLoaded", function () {
+        function validateForm() {
+            const cityInput = document.querySelector('#city-input');
+            const deliveryInput = document.querySelector('#delivery-input');
+            const paymentInput = document.querySelector('#payment-input');
+            const submitButton = document.querySelector('#submit-button');
+    
+            if (cityInput.value.trim() && deliveryInput.value && paymentInput.value) {
+                submitButton.disabled = false;
+                console.log('Валидация успешна');
+            } else {
+                console.log('Валидация не пройдена');
+                submitButton.disabled = true;
+            }
+        }
+    
+        function handleTileSelection(containerClass, inputId) {
+            const container = document.querySelector(containerClass);
+            const input = document.querySelector(inputId);
+    
+            container.addEventListener('click', (event) => {
+                const target = event.target.closest('.cart__next-delivery-term');
+                if (target) {
+                    container.querySelectorAll('.selected').forEach((el) => el.classList.remove('selected'));
+                    target.classList.add('selected');
+                    input.value = target.getAttribute('data-value');
+                    validateForm();
+                }
+            });
+        }
+    
+        document.querySelector('#submit-button').disabled = true;
+        handleTileSelection('.cart__next-delivery-terms-tiles', '#delivery-input');
+        handleTileSelection('.cart__next-payment-terms .cart__next-delivery-terms-tiles', '#payment-input');
+        document.querySelector('#city-input').addEventListener('input', validateForm);
+    });
 </script>
 
 
@@ -251,7 +275,7 @@ const deleteFromCart = (barcode) => {
         } else {
             cart = data.cart 
 
-            const row = document.querySelector(`tr[data-barcode="${barcode}"]`);
+            const row = document.querySelector(`div[data-barcode="${barcode}"]`);
             console.log(row);
             if (row) {
                 row.remove();
@@ -276,6 +300,7 @@ const deleteFromCart = (barcode) => {
 };
 
 function checkCart() {
+    console.log('нажали')
     fetch('{% url "carts:check_cart" %}', {
         method: 'POST',
         headers: {
@@ -287,7 +312,7 @@ function checkCart() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            document.getElementById('order-form').style.display = 'block';
+            document.getElementById('cart__next').style.display = 'flex';
         } else {
             let errorsContainer = document.getElementById('errors-container');
             errorsContainer.innerHTML = '';  
@@ -304,22 +329,113 @@ function checkCart() {
 
 const updateCartDisplay = (cart) => {
     for (const barcode in cart.products) {
-        const row = document.querySelector(`tr[data-barcode="${barcode}"]`);
+        const row = document.querySelector(`div[data-barcode="${barcode}"]`);
         if (row) {
             const product = cart.products[barcode];
             
-            const productUnitPrice = row.querySelector('td:nth-child(4)');
+            const productUnitPrice = row.querySelector('.product-unit-price');
             productUnitPrice.textContent = `${product.unit_price} ₽`;
 
             const quantityInput = row.querySelector(`input[id="quantity-${barcode}"]`);
             quantityInput.value = product.quantity;
 
-            const productTotalPrice = row.querySelector('td:nth-child(7)');
+            const productTotalPrice = row.querySelector('.product-total-price');
             productTotalPrice.textContent = `${product.total_product_price} ₽`;
         }
     }
 };
 
+document.addEventListener("DOMContentLoaded", () => {
+    let plusButtons = document.querySelectorAll('.plus-button'); 
+    let minusButtons = document.querySelectorAll('.minus-button');
+    plusButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            increaseQuantity(button);
+        });
+    });
+    minusButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            decreaseQuantity(button);
+        });
+    });
+});
+
+
+function increaseQuantity(plusButton) {
+    plusButton.disabled = true;
+
+    const barcode = plusButton.dataset.barcode;
+    const quantityInput = document.getElementById(`quantity-${barcode}`);
+    let oldQuantity = parseInt(quantityInput.value);
+    quantity = oldQuantity + 1;
+    if (quantity < 1) {
+        quantity = 1;
+    }
+    quantityInput.value = quantity;
+
+    fetch("{% url 'carts:change' %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: new URLSearchParams({
+            'barcode': barcode,
+            'quantity': 1,
+            'append': true
+        })
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data)
+            plusButton.disabled = false;
+            if (data.error) {
+                alert(data.error);
+                quantityInput.value = oldQuantity;
+            }
+            else {
+                updateCartDisplay(data.cart);
+            }
+        })
+        .catch(error => {
+            console.error("Ошибка при добавлении/удалении из корзины:", error)
+            plusButton.disabled = false;
+        });
+    }
+
+    function decreaseQuantity(minusButton) {
+        minusButton.disabled = true;
+        console.log('Уменьшаем колво')
+
+        const barcode = minusButton.dataset.barcode;
+        const quantityInput = document.getElementById(`quantity-${barcode}`);
+        let quantity = parseInt(quantityInput.value);
+        quantity -= 1;
+        quantityInput.value = quantity;
+
+        fetch("{% url 'carts:change' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: new URLSearchParams({
+                'barcode': barcode,
+                'quantity': -1,
+                'append': true
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data)
+            minusButton.disabled = false;
+            updateCartDisplay(data.cart);
+        })
+        .catch(error => {
+            console.error("Ошибка при добавлении/удалении из корзины:", error)
+            minusButton.disabled = false;
+        });
+    }
 </script>
 {% endblock %}
  

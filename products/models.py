@@ -7,6 +7,8 @@ import random
 from django.utils.translation import gettext_lazy as _
 from Aleucos import settings
 from users.models import User
+from django.utils.text import slugify
+from django.urls import reverse
 
 
 class Brand(models.Model): 
@@ -30,6 +32,17 @@ class Category(models.Model):
 
     def __str__(self) -> str: 
         return self.title
+    
+
+class ProductType(models.Model): 
+    title = models.CharField(_('Название'), max_length=80, null=False, unique=True) 
+
+    class Meta:
+        verbose_name = _('Тип продукта')
+        verbose_name_plural = _('Типы продукта')
+
+    def __str__(self) -> str: 
+        return self.title
 
 
 class Product(models.Model): 
@@ -49,6 +62,10 @@ class Product(models.Model):
     is_in_stock = models.BooleanField(_('В наличии'), default=False)
     remains = models.PositiveIntegerField(_('Остаток на складе'), default=0)
     created_at = models.DateTimeField(_('Дата создания'), auto_now_add=True)
+    will_arrive_at = models.DateField(_('Дата прибытия (если в пути)'), null=True, blank=True)
+    slug = models.SlugField('Слаг', blank=True, max_length=80)
+    composition = models.TextField('Состав', max_length=500, null=True, blank=True)
+    product_type = models.ForeignKey(verbose_name='Тип продукта', to=ProductType, null=True, blank=True, on_delete=models.SET_NULL)
 
     class Meta: 
         verbose_name = _('Товар')
@@ -57,35 +74,19 @@ class Product(models.Model):
     def __str__(self) -> str:
         return f'{self.title}'
     
-    def save(self, *args, **kwargs) -> None:
-        # Присваиваем случайную категорию
-        if self.barcode is None:
-            categories = Category.objects.all()
-            
-            if categories.exists():
-                self.category = random.choice(categories)
-        
+    def get_absolute_url(self) -> str: 
+        return reverse('products:product', args=[self.slug])
+    
+    def save(self, *args, **kwargs) -> None:        
         if self.remains == 0: 
             self.is_in_stock = False 
         else: 
             self.is_in_stock = True
 
+        if not self.slug:
+            self.slug = f"{self.barcode}-{slugify(self.title[:50])}"
+
         super(Product, self).save(*args, **kwargs)
-
-
-@receiver(pre_save, sender=Product)
-def elasticsearch_sync_on_save(sender, instance, **kwargs) -> None: 
-    from .documents import ProductDocument
-
-    if settings.ELASTICSEARCH_SYNC: 
-        ProductDocument().update(instance)
-
-@receiver(pre_save, sender=Product)
-def elasticsearch_sync_on_save(sender, instance, **kwargs) -> None: 
-    from .documents import ProductDocument
-    
-    if settings.ELASTICSEARCH_SYNC: 
-        ProductDocument().update(instance)
     
 
 @receiver(pre_delete, sender=Product)
@@ -114,3 +115,34 @@ class ImportProductsStatus(models.Model):
     def __str__(self) -> str: 
         return self.text
     
+
+class WatermarkConfig(models.Model):
+    POSITION_CHOICES = [
+        ("top_left", "Слева сверху"),
+        ("top_right", "Справа сверху"),
+        ("bottom_left", "Слева снизу"),
+        ("bottom_right", "Справа снизу"),
+        ("center", "По центру"),
+    ]
+    
+    position = models.CharField('Позиция', max_length=20, choices=POSITION_CHOICES, default="bottom_right")
+    font_size = models.PositiveIntegerField('Размер шрифта', default=30)
+    text = models.CharField('Текст', max_length=255, default="©Aleucos")
+    opacity = models.PositiveIntegerField('Прозрачность', default=180, help_text="(0-255)")
+
+    def __str__(self):
+        return f"Водяной знак: {self.text},  {self.position}"
+    
+    def save(self, *args, **kwargs):
+        if self.__class__.objects.count():
+            self.pk = self.__class__.objects.first().pk
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def get_instance(cls) -> "WatermarkConfig":
+        instance, created = cls.objects.get_or_create(id=1)
+        return instance
+    
+    class Meta: 
+        verbose_name = 'настройки вотермарки'
+        verbose_name_plural = 'Вотермарка'

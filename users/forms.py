@@ -95,7 +95,7 @@ class ClientRegistrationForm(forms.ModelForm):
 class StaffRegistrationForm(forms.ModelForm): 
     class Meta:
         model = User
-        fields = ['last_name', 'first_name', 'patronymic', 'groups', 'phone', 'email', 'position', 'photo', 'work_start_date', 'password']
+        fields = ['last_name', 'first_name', 'patronymic', 'groups', 'phone', 'email', 'position', 'photo', 'work_start_date', 'password', 'is_active']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -125,7 +125,7 @@ class LoginForm(forms.Form):
         label = 'Электронная почта', 
         widget = forms.EmailInput(
             attrs = {
-                'placeholder': 'Введите электронную почту', 
+                'placeholder': 'Email или телефон', 
                 'class': 'login__input'
             }
         )
@@ -135,7 +135,7 @@ class LoginForm(forms.Form):
         label='Пароль', 
         widget=forms.PasswordInput(
             attrs={
-                'placeholder': 'Введите пароль', 
+                'placeholder': 'Пароль', 
                 'class': 'login__input'
             }
         )

@@ -28,6 +28,7 @@ urlpatterns = [
     path('users/', include('users.urls', namespace='users')),
     path('orders/', include('orders.urls', namespace='orders')),
     path('carts/', include('carts.urls', namespace='carts')),
+    path('contacts/', include('contacts.urls', namespace='contacts')),
     path('amocrm/', include('amo_webhooks.urls', namespace='amocrm')),
 ]
 

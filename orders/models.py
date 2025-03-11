@@ -29,6 +29,7 @@ class OrderStatus(models.Model):
 
 class PaymentMethod(models.Model):
     title = models.CharField(_('Название'), max_length=100)
+    logo = models.FileField('Логотип', upload_to='orders/payment_methods/', null=True, blank=True)
 
     class Meta:
         verbose_name = _('Способ оплаты')
@@ -40,6 +41,7 @@ class PaymentMethod(models.Model):
 
 class DeliveryTerm(models.Model):
     title = models.CharField(_('Название'), max_length=100)
+    logo = models.FileField('Логотип', upload_to='orders/delivery_terms/', null=True, blank=True)
 
     class Meta:
         verbose_name = _('Условие доставки')
@@ -67,7 +69,7 @@ class Order(models.Model):
     payment_method = models.ForeignKey(PaymentMethod, on_delete=models.SET_DEFAULT, default=1, verbose_name=_('Способ оплаты'))
     delivery_terms = models.ForeignKey(DeliveryTerm, on_delete=models.SET_DEFAULT, default=1, verbose_name=_('Условия доставки'))
     pdf_bill = models.FileField(_('Счёт'), upload_to='orders', null=True, blank=True)
-    city = models.ForeignKey(verbose_name='Город', to=City, on_delete=models.CASCADE)
+    city = models.CharField(verbose_name='Город', max_length=255, null=True, blank=True)
 
     class Meta:
         verbose_name = _('Заказ')
@@ -128,13 +130,20 @@ def after_order_save(sender, instance: Order, created, **kwargs):
         responsible_user_id = crm.get_user_id(user_email=responsible_user_email)
 
         id_in_amocrm = crm.create_lead(
-            name = f'Заказ с сайта №{instance.number}',
+            name = f'Тестовый заказ с сайта №{instance.number}',
             responsible_user_id = responsible_user_id, 
             contact_id = instance.user.id_in_amocrm if instance.user else None, 
             price = instance.total_price
         )
         instance.id_in_amocrm = id_in_amocrm 
         instance.save()
+    else: 
+        if instance.pdf_bill:
+            crm.update_lead_data(
+                order_id_in_amocrm=instance.id_in_amocrm, 
+                new_order_status=instance.status.title,
+                price=int(instance.total_price),
+            )
     pass
 
 

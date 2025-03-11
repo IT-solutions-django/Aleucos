@@ -51,6 +51,10 @@ class User(AbstractUser):
     active_orders_count = models.PositiveIntegerField(_('Число активных заказов'), default=0)
     id_in_amocrm = models.IntegerField('ID в amoCRM', null=True, blank=True)
 
+    legal_entity = models.CharField(_('Юр. лицо'), max_length=255, null=True, blank=True)
+    requisites = models.CharField(_('Реквизиты'), null=True, blank=True, max_length=255)
+    comments = models.TextField(_('Комментарии'), null=True, blank=True)
+    priority_transport_company = models.ForeignKey(verbose_name=_('Приоритетная ТК'), to='orders.DeliveryTerm', on_delete=models.SET_NULL, null=True, blank=True)
 
     username = models.CharField(_('Имя пользователя'), max_length=30, null=True, blank=True)
 

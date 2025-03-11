@@ -3,6 +3,7 @@
 
 {% block content %}
 
+<main>
     <section class="offer">
         <div class="container">
             <div class="offer__inner">
@@ -17,38 +18,6 @@
             </div>
         </div>
     </section>
-
-    <div class="modal " id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div data-toggle="modal" data-target="#testModal" class="modal-content modal__offer-content">
-                <div class="offer__form">
-                    <button type="button" class="btn-close offer__modal-btn" data-bs-dismiss="modal" aria-label="Close"></button>
-                    <form class="form contactForm" action="">
-                        <div class="contacts__form-box">
-                            <h2 class="contacts__form-title">Имя</h2>
-                            {{ contact_form.name }}
-                        </div>
-                        <div class="contacts__form-items">
-                            <div class="contacts__form-box">
-                                <h2 class="contacts__form-title">Телефон</h2>
-                                {{ contact_form.phone }}
-                            </div>
-                            <div class="contacts__form-box">
-                                <h2 class="contacts__form-title">Email</h2>
-                                {{ contact_form.email }}
-                            </div>
-                        </div>
-                        <div class="contacts__form-box box__marin-top">
-                            <h2 class="contacts__form-title">Сообщение</h2>
-                            <textarea placeholder="Введите текст сообщения" maxlength="150" class="contacts__form-input contacts__form-textarea"></textarea>
-                        </div>
-                        <div class="contacts__form-suptext">Нажимая на кнопку “Отправить заявку”, Вы даете согласие на <a class="contacts__form-suptext--link" href="">обработку персональных данных</a> и соглашаетесь с <a class="contacts__form-suptext--link" href="">политикой конфиденциальности.</a></div>
-                        <button class="contacts__form-btn section__btn">Оставить заявку</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <div class="modal " id="exampleModal2" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -186,180 +155,23 @@
                 <h2 class="hist__title">Хиты продаж</h2>
                 <div class="swiper mySwiper-2">
                     <div class="swiper-wrapper">
-                        <div class="swiper-slide hits__item">
-                            <div class="hits__item-img--box">
-                                <img class="hits__item-img" src="{% static 'img/Depth 7, Frame 0.png' %}" alt="">
-                            </div>
-                            <h2 class="hits__item-title">Benton - Aloe BHA Skin Toner 200ml (6.76 fl.oz)</h2>
-                            <div class="hits__item-box">
-                                <p class="hits__item-count">1 500 ₽</p>
-                                <a href="{% url 'products:products_list' %}">
-                                    <button class="hits__item-btn">
-                                        <img src="{% static 'img/store.svg' %}" alt="" class="hits__item-btn--img">
-                                        <p class="hits__item-btn--text">В корзину</p>
-                                    </button>
+                        {% for product in popular_products %}
+                            <div class="swiper-slide hits__item">
+                                <a href="{{ product.get_absolute_url }}"class="hits__item-img--box">
+                                    <img class="hits__item-img" src="{{ product.photo.url }}" alt="">
                                 </a>
+                                <a href="{{ product.get_absolute_url }}" class="hits__item-title hover-green">{{ product.brand }} - {{ product.title }} {% if product.volume %}({{ product.volume }}){% endif %}</a>
+                                <div class="hits__item-box">
+                                    <p class="hits__item-count">1 500 ₽</p>
+                                    <a href="{% url 'products:products_list' %}">
+                                        <button class="hits__item-btn">
+                                            <img src="{% static 'img/store.svg' %}" alt="" class="hits__item-btn--img">
+                                            <p class="hits__item-btn--text">В корзину</p>
+                                        </button>
+                                    </a>
+                                </div>
                             </div>
-                        </div>
-                        <div class="swiper-slide hits__item">
-                            <div class="hits__item-img--box">
-                                <img class="hits__item-img" src="{% static 'img/Hits2.png' %}" alt="">
-                            </div>
-                            <h2 class="hits__item-title">Cosrx - Advanced Snail 96 Mucin Power Essence 100ml (3.38 fl.oz)</h2>
-                            <div class="hits__item-box">
-                                <p class="hits__item-count">300 ₽</p>
-                                <a href="{% url 'products:products_list' %}">
-                                    <button class="hits__item-btn">
-                                        <img src="{% static 'img/store.svg' %}" alt="" class="hits__item-btn--img">
-                                        <p class="hits__item-btn--text">В корзину</p>
-                                    </button>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="swiper-slide hits__item">
-                            <div class="hits__item-img--box">
-                                <img class="hits__item-img" src="{% static 'img/Hits3.png' %}" alt="">
-                            </div>
-                            <h2 class="hits__item-title">Klairs - Freshly Juiced Vitamin Drop 35ml (1.18 fl.oz)</h2>
-                            <div class="hits__item-box">
-                                <p class="hits__item-count">2000 ₽</p>
-                                <a href="{% url 'products:products_list' %}">
-                                    <button class="hits__item-btn">
-                                        <img src="{% static 'img/store.svg' %}" alt="" class="hits__item-btn--img">
-                                        <p class="hits__item-btn--text">В корзину</p>
-                                    </button>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="swiper-slide hits__item">
-                            <div class="hits__item-img--box">
-                                <img class="hits__item-img" src="{% static 'img/Hits4.png' %}" alt="">
-                            </div>
-                            <h2 class="hits__item-title">Klairs - Freshly Juiced Vitamin Drop 35ml (1.18 fl.oz)</h2>
-                            <div class="hits__item-box">
-                                <p class="hits__item-count">500 ₽</p>
-                                <a href="{% url 'products:products_list' %}">
-                                    <button class="hits__item-btn">
-                                        <img src="{% static 'img/store.svg' %}" alt="" class="hits__item-btn--img">
-                                        <p class="hits__item-btn--text">В корзину</p>
-                                    </button>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="swiper-slide hits__item">
-                            <div class="hits__item-img--box">
-                                <img class="hits__item-img" src="{% static 'img/Depth 7, Frame 0.png' %}" alt="">
-                            </div>
-                            <h2 class="hits__item-title">Benton - Aloe BHA Skin Toner 200ml (6.76 fl.oz)</h2>
-                            <div class="hits__item-box">
-                                <p class="hits__item-count">1 500 ₽</p>
-                                <a href="{% url 'products:products_list' %}">
-                                    <button class="hits__item-btn">
-                                        <img src="{% static 'img/store.svg' %}" alt="" class="hits__item-btn--img">
-                                        <p class="hits__item-btn--text">В корзину</p>
-                                    </button>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="swiper-slide hits__item">
-                            <div class="hits__item-img--box">
-                                <img class="hits__item-img" src="{% static 'img/Hits2.png' %}" alt="">
-                            </div>
-                            <h2 class="hits__item-title">Cosrx - Advanced Snail 96 Mucin Power Essence 100ml (3.38 fl.oz)</h2>
-                            <div class="hits__item-box">
-                                <p class="hits__item-count">300 ₽</p>
-                                <a href="{% url 'products:products_list' %}">
-                                    <button class="hits__item-btn">
-                                        <img src="{% static 'img/store.svg' %}" alt="" class="hits__item-btn--img">
-                                        <p class="hits__item-btn--text">В корзину</p>
-                                    </button>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="swiper-slide hits__item">
-                            <div class="hits__item-img--box">
-                                <img class="hits__item-img" src="{% static 'img/Hits3.png' %}" alt="">
-                            </div>
-                            <h2 class="hits__item-title">Klairs - Freshly Juiced Vitamin Drop 35ml (1.18 fl.oz)</h2>
-                            <div class="hits__item-box">
-                                <p class="hits__item-count">2000 ₽</p>
-                                <a href="{% url 'products:products_list' %}">
-                                    <button class="hits__item-btn">
-                                        <img src="{% static 'img/store.svg' %}" alt="" class="hits__item-btn--img">
-                                        <p class="hits__item-btn--text">В корзину</p>
-                                    </button>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="swiper-slide hits__item">
-                            <div class="hits__item-img--box">
-                                <img class="hits__item-img" src="{% static 'img/Hits4.png' %}" alt="">
-                            </div>
-                            <h2 class="hits__item-title">Klairs - Freshly Juiced Vitamin Drop 35ml (1.18 fl.oz)</h2>
-                            <div class="hits__item-box">
-                                <p class="hits__item-count">500 ₽</p>
-                                <a href="{% url 'products:products_list' %}">
-                                    <button class="hits__item-btn">
-                                        <img src="{% static 'img/store.svg' %}" alt="" class="hits__item-btn--img">
-                                        <p class="hits__item-btn--text">В корзину</p>
-                                    </button>
-                                </a>
-                            </div>
-                        </div>
-                        <!-- <div class="swiper-slide hits__item">
-                            <div class="hits__item-img--box">
-                                <img class="hits__item-img" src="./images/Depth 7, Frame 0.png" alt="">
-                            </div>
-                            <h2 class="hits__item-title">Benton - Aloe BHA Skin Toner 200ml (6.76 fl.oz)</h2>
-                            <div class="hits__item-box">
-                                <p class="hits__item-count">1 500 ₽</p>
-                                <button class="hits__item-btn">
-                                    <img src="./images/store.svg" alt="" class="hits__item-btn--img">
-                                    <p class="hits__item-btn--text">В корзину</p>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="swiper-slide hits__item">
-                            <div class="hits__item-img--box">
-                                <img class="hits__item-img" src="./images/Hits2.png" alt="">
-                            </div>
-                            <h2 class="hits__item-title">Cosrx - Advanced Snail 96 Mucin Power Essence 100ml (3.38 fl.oz)</h2>
-                            <div class="hits__item-box">
-                                <p class="hits__item-count">300 ₽</p>
-                                <button class="hits__item-btn">
-                                    <img src="./images/store.svg" alt="" class="hits__item-btn--img">
-                                    <p class="hits__item-btn--text">В корзину</p>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="swiper-slide hits__item">
-                            <div class="hits__item-img--box">
-                                <img class="hits__item-img" src="./images/Hits3.png" alt="">
-                            </div>
-                            <h2 class="hits__item-title">Klairs - Freshly Juiced Vitamin Drop 35ml (1.18 fl.oz)</h2>
-                            <div class="hits__item-box">
-                                <p class="hits__item-count">2000 ₽</p>
-                                <button class="hits__item-btn">
-                                    <img src="./images/store.svg" alt="" class="hits__item-btn--img">
-                                    <p class="hits__item-btn--text">В корзину</p>
-                                </button>
-                            </div>
-                        </div> -->
-                        <div class="swiper-slide hits__item">
-                            <div class="hits__item-img--box">
-                                <img class="hits__item-img" src="{% static 'img/Hits4.png' %}" alt="">
-                            </div>
-                            <h2 class="hits__item-title">Klairs - Freshly Juiced Vitamin Drop 35ml (1.18 fl.oz)</h2>
-                            <div class="hits__item-box">
-                                <p class="hits__item-count">500 ₽</p>
-                                <a href="{% url 'products:products_list' %}">
-                                    <button class="hits__item-btn">
-                                        <img src="{% static 'img/store.svg' %}" alt="" class="hits__item-btn--img">
-                                        <p class="hits__item-btn--text">В корзину</p>
-                                    </button>
-                                </a>
-                            </div>
-                        </div>
+                        {% endfor %}
                     </div>     
                     
                 </div>
@@ -821,6 +633,8 @@
             </div>
         </div>
     </section>
+
+</main>
     {% endif %}
     
 <script>

@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'orders',
     'carts', 
     'amo_webhooks',
+    'contacts'
 ]
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
@@ -121,17 +122,17 @@ DATABASES = {
 #         'USER': 'admin', 
 #         'PASSWORD': 'admin', 
 #         'HOST': "127.0.0.1", 
-#         'PORT': "5432" 
+#         'PORT': "5433" 
 #     }
 # }
 
 
-ELASTICSEARCH_DSL = {
-    'default': {
-        'hosts': 'http://elasticsearch:9200', 
-        'timeout': 60,
-    }
-}
+# ELASTICSEARCH_DSL = {
+#     'default': {
+#         'hosts': 'http://elasticsearch:9200', 
+#         'timeout': 60,
+#     }
+# }
 
 # Для локальной разработки
 # ELASTICSEARCH_DSL = {
@@ -235,7 +236,7 @@ MESSAGE_TAGS = {
 }
 
 
-ELASTICSEARCH_SYNC = True
+ELASTICSEARCH_SYNC = False
 
 
 AUTH_USER_MODEL = 'users.User'

@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Контакты{% endblock %}
+
+{% block content %}
+<main class="contacts">
+    <div class="heading-wrapper">
+        <div class="heading-label">
+            <a href="{% url 'products:products_list' %}" class="color-black">Контакты</a>
+        </div>
+    </div>
+    <div class="contacts-body">
+        <div class="contacts__column left">
+            <div class="contacts__contact-info">
+                <div class="contacts__contact-info-phone">
+                    <p>+7 (964) 454-17-00</p>
+                    <div class="footer__messagers">
+                        <div class="col-auto">
+                            <a href="tel:+79644541700" class="footer__link">
+                                <img src="/static/img/Whatsapp.svg" alt="" class="footer__link-img">
+                            </a>
+                        </div>
+                        <div class="col-auto">
+                            <a href="https://www.instagram.com/@aleucos.vl" class="footer__link">
+                                <img src="/static/img/telegram.svg" alt="" class="footer__link-img">
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <p>aleucos@mail.ru</p>
+            </div>
+            <div class="contacts__managers-block">
+                <p class="contacts__subheading">Менеджеры</p>
+                <div class="contacts__managers">
+                    <div class="contacts__manager">
+                        <img src="{% static 'img/manager-photo.png' %}" alt="">
+                        <div class="contacts__manager-info">
+                            <p>Лепихова Татьяна</p>
+                            <p>+7 964 450-37-99</p>
+                            <p>lepihova@aleucos.ru</p>
+                        </div>
+                    </div>
+                    <div class="contacts__manager">
+                        <img src="{% static 'img/manager-photo.png' %}" alt="">
+                        <div class="contacts__manager-info">
+                            <p>Лепихова Татьяна</p>
+                            <p>+7 964 450-37-99</p>
+                            <p>lepihova@aleucos.ru</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="contacts__requisites-block">
+                <p class="contacts__subheading">Реквизиты</p>
+                <div class="contacts__requisites">
+                    <p><span>ИНН:</span><span>5402068150</span></p>
+                    <p><span>КПП:</span><span>1215400031714</span></p>
+                    <p><span>ОГРН:</span><span>1215400031714</span></p>
+                    <p><span>Дата регистрации:</span><span>26.07.2021</span></p>
+                    <p><span>Уставный капитал:</span><span>10 000 руб.</span></p>
+                    <p><span>Юр. адрес:</span><span>630001, Новосибирская область, г Новосибирск, Владимировская ул, зд. 26/1, этаж 5 офис 504 </span></p>
+                </div>
+            </div>
+        </div>
+        <div class="contacts__column">
+            <div class="contacts__map-block">
+                <p class="contacts__subheading">Мы на картах</p>
+                <p>г.Владивосток, ул. Днепровская, д.25д, стр.4а</p>
+                <div class="map" id="map"></div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
+
+{% block script %}
+<script defer>
+    ymaps.ready(function() {
+        var myMap = new ymaps.Map("map", {
+            center: [43.139841, 131.925972],
+            zoom: 16,
+            controls: []
+        });
+
+        var zoomControl = new ymaps.control.ZoomControl({
+            options: {
+                position: { right: 10, top: 50 },
+                size: "small"
+            }
+        });
+
+        myMap.controls.add(zoomControl);
+        myMap.behaviors.disable("scrollZoom");
+
+        var placemark = new ymaps.Placemark([43.139841, 131.925972], {
+            hintContent: "Волгоградская улица, 7А",
+            balloonContent: "Волгоградская улица, 7А"
+        }, {
+            iconLayout: "default#image",
+            iconImageHref: "/static/img/map-icon-here.svg",
+            iconImageSize: [50, 50],
+            iconImageOffset: [-15, -42]
+        });
+
+        myMap.geoObjects.add(placemark);
+    });
+</script>
+{% endblock %}
+
+{% endblock %}

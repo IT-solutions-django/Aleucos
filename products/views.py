@@ -1,13 +1,24 @@
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views import View
 from elasticsearch_dsl.query import MultiMatch
+from django.db.models.functions import Cast
+from django.db.models import TextField
 from carts.services import Cart
 from django.core.paginator import Paginator
 from .models import Product
 from .forms import SearchAndFilterForm
 from .documents import ProductDocument
 from .models import ImportProductsStatus
+from django.db.models import Q, Value
+from django.db.models.functions import Greatest
+from django.contrib.postgres.search import TrigramSimilarity
+from django.template.loader import render_to_string 
+from django.shortcuts import get_object_or_404
+from configs.models import Config
+from Aleucos import settings
+from django.http import FileResponse
+import os
 
 
 class ImportProductsStatusView(View): 
@@ -36,22 +47,31 @@ class ProductsListView(View):
             
             search_text = cd.get('q') 
             selected_section = cd.get('sections') 
+            barcode = cd.get('barcode')
             
             if search_text or (selected_section and selected_section != 'все'):
-                products = ProductDocument.search()
                 if search_text:
-                    products = products.query(
-                        MultiMatch(query=search_text, fields=['title', 'description', 'notes'])
-                    )
-                if selected_section: 
-                    if selected_section == 'новинки': 
-                        products = products.query('match', notes='NEW')
-                    elif selected_section == 'акции': 
-                        products = products.query('match', notes='акция')
-                    elif selected_section == 'скидки': 
-                        products = products.query('match', notes='скидка')
+                    products = products.annotate(
+                        similarity=Greatest(
+                            TrigramSimilarity('title', search_text),
+                            TrigramSimilarity('description', search_text),
+                            TrigramSimilarity('notes', search_text),
+                            Value(0.0) 
+                        )
+                    ).filter(similarity__gt=0.1).order_by('-similarity')  
 
-                products = products.to_queryset()
+                if selected_section:
+                    section_filters = {
+                        'новинки': Q(notes__icontains='NEW'),
+                        'акции': Q(notes__icontains='акция'),
+                        'скидки': Q(notes__icontains='скидка'),
+                    }
+                    products = products.filter(section_filters.get(selected_section, Q()))
+
+                if barcode:
+                    products = products.annotate(
+                        barcode_similarity=TrigramSimilarity('barcode', barcode)
+                    ).filter(barcode_similarity__gt=0.2).order_by('-barcode_similarity')
                 
             if not search_text and not selected_section: 
                 products = Product.objects.all()
@@ -86,7 +106,10 @@ class ProductsListView(View):
 
 
         cart_data = request.cart.to_dict()
-        products_in_cart = {barcode: item['quantity'] for barcode, item in cart_data['products'].items()}
+        products_in_cart = {
+            barcode: item['quantity'] 
+            for barcode, item in cart_data['products'].items()
+        }
 
         for product in products:
             product.quantity_in_cart = request.cart[Cart.KeyNames.PRODUCTS].get(str(product.barcode), {}).get(Cart.KeyNames.QUANTITY, 0)
@@ -109,6 +132,9 @@ class ProductsListView(View):
 class CatalogFiltersView(View): 
     def get(self, request):
         form = SearchAndFilterForm(request.GET)
+
+        print(form.data)
+
         if form.is_valid():
             cd = form.cleaned_data
 
@@ -116,25 +142,40 @@ class CatalogFiltersView(View):
             
             search_text = cd.get('q') 
             selected_section = cd.get('sections') 
+            barcode = cd.get('barcode')
             
             if search_text or (selected_section and selected_section != 'все'):
-                products = ProductDocument.search()
                 if search_text:
-                    products = products.query(
-                        MultiMatch(query=search_text, fields=['title', 'description', 'notes'])
-                    )
-                if selected_section: 
-                    if selected_section == 'новинки': 
-                        products = products.query('match', notes='NEW')
-                    elif selected_section == 'акции': 
-                        products = products.query('match', notes='акция')
-                    elif selected_section == 'скидки': 
-                        products = products.query('match', notes='скидка')
+                    products = products.annotate(
+                        similarity=Greatest(
+                            TrigramSimilarity('title', search_text),
+                            TrigramSimilarity('description', search_text),
+                            TrigramSimilarity('notes', search_text),
+                            Value(0.0) 
+                        )
+                    ).filter(similarity__gt=0.1).order_by('-similarity')  
 
-                products = products.to_queryset()
-                
+                if selected_section:
+                    if selected_section in ('подешевле', 'подороже'): 
+                        match selected_section: 
+                            case 'подешевле': 
+                                products = products.order_by('price_before_200k')
+                            case 'подороже': 
+                                products = products.order_by('-price_before_200k')
+                    else:
+                        section_filters = {
+                            'новинки': Q(notes__icontains='NEW'),
+                            'акции': Q(notes__icontains='акция'),
+                            'скидки': Q(notes__icontains='скидка'),
+                        }
+                        products = products.filter(section_filters.get(selected_section, Q()))
+
             if not search_text and not selected_section: 
                 products = Product.objects.all()
+
+            if barcode:
+                products = products.filter(barcode__icontains=barcode)
+            
 
             selected_categories = cd.get('categories')
             if selected_categories:
@@ -170,37 +211,67 @@ class CatalogFiltersView(View):
             })
         
         products = products.select_related('brand').all()
+
+        cart_data = request.cart.to_dict()
+        products_in_cart = {
+            barcode: item['quantity'] 
+            for barcode, item in cart_data['products'].items()
+        }
+
+        for product in products:
+            product.quantity_in_cart = request.cart[Cart.KeyNames.PRODUCTS].get(str(product.barcode), {}).get(Cart.KeyNames.QUANTITY, 0)
         
         page_number = request.GET.get('page', 1) 
-        paginator = Paginator(products, 16)  
-        page_obj = paginator.get_page(page_number)
+        products = Paginator(products, 16)  
+        products = products.get_page(page_number)
 
-        if not page_obj.object_list:
+        if not products.object_list:
             return JsonResponse({
                 'products': None,
+                'pagination': None,
             })
-
-        products_json = [
-        {
-            'barcode': product.barcode,
-            'title': product.title,
-            'description': product.description,
-            'photo': product.photo.url,
-            'brand': product.brand.title, 
-            'category': product.category.title, 
-            'price_before_200k': product.price_before_200k, 
-            'volume': product.volume, 
-            'weight': product.weight, 
-            'notes': product.notes, 
-            'remains': product.remains,
-        }
-        for product in page_obj.object_list]
+        
+        products_cards = render_to_string('products/includes/products_cards.html', {
+            'products': products,
+            'request': request,
+        }) 
+        pagination = render_to_string('products/includes/pagination.html', {
+            'products': products,
+            'request': request,
+        }) 
 
         return JsonResponse({
-            'products': products_json,
-            'has_next': page_obj.has_next(),  
-            'has_previous': page_obj.has_previous(),  
-            'current_page': page_obj.number,  
-            'total_pages': paginator.num_pages,  
-            'cart': request.cart.to_dict(),
+            'cards': products_cards,
+            'pagination': pagination,
+            'products_in_cart': products_in_cart
         })
+    
+
+class ProductView(View): 
+    template_name = 'products/product.html' 
+
+    def get(self, request, product_slug: str): 
+        product = get_object_or_404(Product, slug=product_slug)
+        similar_products = Product.objects.all().filter(category=product.category).exclude(pk=product.pk)
+        context = {
+            'product': product,
+            'similar_products': similar_products,
+        }
+        return render(request, self.template_name, context)
+    
+
+class ExportCatalogView(View): 
+    def get(self, request): 
+        filename = os.path.join(settings.MEDIA_ROOT, 'catalog', Config.get_instance().export_catalog_filename)
+        try:
+            response = FileResponse(open(filename, 'rb'))
+            return response
+        except FileNotFoundError:
+            self.message_user(request, 'Файл для экспорта не найден', level='error')
+            return redirect('admin:products_product_changelist')
+        except PermissionError:
+            self.message_user(request, 'Файл для экспорта не найден', level='error')
+            return redirect('admin:products_product_changelist')
+        except Exception: 
+            self.message_user(request, 'Файл для экспорта не найден', level='error')
+            return redirect('admin:products_product_changelist')
