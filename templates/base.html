@@ -42,9 +42,9 @@
                     </a>
                 </div>
                 <div class="col-auto header__menu">
-                    <a href="{% url 'products:products_list' %}" class="header__menu-link">Каталог</a>
-                    <a href="#answersBlock"><button class="header__menu-link">Вопрос-ответ</button></a>
-                    <a href="#contactsBlock"><button class="header__menu-link">Контакты</button></a>
+                    <a href="{% url 'products:products_list' %}" class="header__menu-link hover-green">Каталог</a>
+                    <a href="#answersBlock"><button class="header__menu-link hover-green">Вопрос-ответ</button></a>
+                    <a href="#contactsBlock"><button class="header__menu-link hover-green">Контакты</button></a>
                 </div>
                 <div class="col-auto header__service">
                     <div class="row header__service-box">
@@ -52,12 +52,22 @@
                             <button class="header__request-button">Оставить заявку</button>
                         </div>
                         <div class="col header__service-links">
-                            <button class="header__service-link">
-                                <a href="{% if request.user.is_authenticated %}{% url 'users:account' %}{% else %}{% url 'users:login' %}{% endif %}"><img src="{% static 'img/person.svg' %}" alt="" class="header__service-img"></a>
-                            </button>
-                            <button class="header__service-link">
-                                <a href="{% if request.user.is_authenticated %}{% url 'carts:cart_items' %}{% else %}{% url 'users:login' %}{% endif %}"><img src="{% static 'img/store.svg' %}" alt="" class="header__service-img"></a>
-                            </button>
+                            {% if request.path == '/users/account/' %}
+                                <button class="header__service-link">
+                                    <a href="{% if request.user.is_authenticated %}{% url 'users:account' %}{% else %}{% url 'users:login' %}{% endif %}"><img src="{% static 'img/person.svg' %}" alt="" class="header__service-img"></a>
+                                </button>
+                                    <form class="header__service-link" action="{% url 'users:logout' %}" method="post">
+                                        {% csrf_token %}
+                                        <button type="submit" href="{% url 'users:logout' %}"><img src="{% static 'img/logout-icon.svg' %}" alt="" class="header__service-img"></button>
+                                    </form>
+                            {% else %}
+                                <button class="header__service-link">
+                                    <a href="{% if request.user.is_authenticated %}{% url 'users:account' %}{% else %}{% url 'users:login' %}{% endif %}"><img src="{% static 'img/person.svg' %}" alt="" class="header__service-img"></a>
+                                </button>
+                                <button class="header__service-link">
+                                    <a href="{% if request.user.is_authenticated %}{% url 'carts:cart_items' %}{% else %}{% url 'users:login' %}{% endif %}"><img src="{% static 'img/store.svg' %}" alt="" class="header__service-img"></a>
+                                </button>
+                            {% endif %}
                             <input id="searchInput" class="header__service-input" placeholder="Поиск" type="text">
                             <button id="openSearchInput" class="header__service-link">
                                 <img src="{% static 'img/black-search-icon.svg' %}" 

@@ -158,6 +158,9 @@ main {
   gap: 24px;
   justify-content: center;
 }
+.header__service-link form {
+  display: none;
+}
 #openSearchInput {
   display: flex;
   align-items: center;
@@ -195,6 +198,8 @@ main {
   font-weight: 500;
   color: #0D1C12;
   text-wrap: nowrap;
+
+  transition: all 0.3s ease;
 }
 
 .header__request-button {
@@ -1794,6 +1799,14 @@ label {
   padding: 10px;
 }
 
+.account .cart-header,
+.account .cart-row {
+  grid-template-columns: 0.8fr 1.5fr 1fr 1fr 1fr;
+}
+.account .cart-row span {
+  max-width: 90%;
+}
+
 .cart-header {
   background: #E3EEE6;
   font-weight: bold;
@@ -2008,7 +2021,11 @@ label {
   font-weight: 400;
   cursor:auto;
 }
-.continue-button:hover {
+.header__request-button {
+  transition: all 0.3s ease;
+}
+.continue-button:hover, 
+.header__request-button:hover {
    opacity: 0.8;
 }
 .cart__next-comment {
@@ -2031,6 +2048,7 @@ label {
 }
 .account__sidebar {
   width: 350px;
+  min-width: 350px;
   display: flex;
   flex-direction: column;
   gap: 40px;
@@ -2060,6 +2078,25 @@ label {
   display: flex;
   flex-direction: column;
   gap: 20px; 
+}
+.account__user-info hr {
+  margin: 0px;
+}
+.account__manager {
+  display: flex;
+  gap: 20px;
+}
+.account__manager img {
+  border-radius: 20px;
+  width: 118px;
+  height: 118px;
+  object-fit: cover;
+}
+.account__manager-info {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-size: 14px;
 }
 .account__user-info-heading {
   font-size: 20px;
@@ -2113,4 +2150,26 @@ label {
   display: flex;
   flex-direction: column;
   gap: 30px;
+}
+.account__order-status-and-date {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  font-size: 14px;
+}
+.account .cart-row .border-bottom {
+  border-bottom: 1px solid #F4F5F7;
+}
+.order__footer {
+  background: #E3EEE6;
+  border-radius: 0px 0px 15px 15px;
+  height: 50px;
+  padding: 11.5px 10px;
+  
+  font-weight: bold;
+  font-size: 20px;
+  color: #242424;
+}
+.account .cart-table {
+  gap: 0px;
 }
