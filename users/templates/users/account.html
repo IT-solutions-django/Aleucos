@@ -14,9 +14,9 @@
             <div class="account__user-info">
                 <div class="account__user-info-heading">Пользователь</div> 
                 <div class="account__user-info-body">
-                    <p><span class="bold">Имя: </span>Иван</p>
+                    <p><span class="bold">Имя: </span>{{ request.user.get_fullname }}</p>
                     <p><span class="bold">Email: </span>{{ request.user.email }}</p>
-                    <p><span class="bold">Город: </span>{% if request.user.city %}{{ request.user.city }}{% endif %}</p>
+                    <p><span class="bold">Город: </span>{% if request.user.city %}{{ request.user.city }}{% else %}...{% endif %}</p>
                     <p><span class="bold">Скидка: </span>5%</p>
                 </div>
                 <hr>
@@ -51,7 +51,7 @@
                     </div>
                     <div class="account__order-status-and-date">
                         <div>
-                            <span class="bold">Статус:</span> Транспортировка
+                            <span class="bold">Статус:</span> {{ order.status }}
                         </div>
                         <div>
                             <span class="bold">Дата оформления:</span> {{ order.created_at|date:"d.m.y (H:i)" }}
@@ -83,78 +83,4 @@
         </div>
     </div>
 </main>
-
-    <div class="mb-4">
-        <h3 class="my-4">Менеджер</h3>
-        {% if manager %}
-            <div class="card mb-3">
-                <div class="row g-0">
-                    {% if manager.photo %}
-                        <div class="col-md-2">
-                            <img src="{{ manager.photo.url }}" class="img-fluid rounded-start" style="height: 200px; width: 100%; object-fit: contain;" alt="Фотография менеджера">
-                        </div>
-                    {% endif %}
-                    <div class="col-md-4">
-                        <div class="card-body">
-                            <p>Имя: {{ manager.first_name }} {{ manager.last_name }} {% if manager.patronymic %}{{ manager.patronymic }}{% endif %}</p>
-                            <p>Должность: {{ manager.position }}</p>
-                            <p>Email: {{ manager.email }}</p>
-                            <p>Телефон: {% if manager.phone %}{{ manager.phone }}{% else %}не указан{% endif %}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {% else %}
-            <p>Менеджер пока не назначен.</p>
-        {% endif %}
-    </div>
-
-    <div class="mb-4">
-        <h3 class="mb-4">Ваши заказы</h3>
-
-        {% for order in orders %}
-            <div class="card mb-3">
-                <div class="card-header">
-                    <p class="h5">Заказ №{{ order.number }}</p>
-                </div>
-
-                <div class="card-body">
-                    <div>
-                        <p>Дата оформления: {{ order.created_at|date:"d.m.Y H:i" }}</p>
-                        <p>Статус: {{ order.status }}</p>
-                    </div>
-                
-                    <table class="table table-sm table-bordered">
-                        <thead>
-                            <tr>
-                                <th scope="col">Производитель</th>
-                                <th scope="col">Товар</th>
-                                <th scope="col">Количество</th>
-                                <th scope="col">Цена за шт.</th>
-                                <th scope="col">Цена по позиции</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in order.items.all %}
-                                <tr>
-                                    <td>{{ item.brand_name }}</td>
-                                    <td>{{ item.product_name }}</td>
-                                    <td>{{ item.quantity }} шт.</td>
-                                    <td>{{ item.unit_price }} ₽</td>
-                                    <td>{{ item.total_price }} ₽</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-            </div>
-                <div class="card-header">
-                    <p class="h5">Итого: {{ order.total_price }} ₽</p>
-                </div>
-
-            </div>
-        {% empty %}
-            <p>У вас нет заказов.</p>
-        {% endfor %}
-
-    </div>
 {% endblock %}

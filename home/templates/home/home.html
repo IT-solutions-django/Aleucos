@@ -3,6 +3,7 @@
 
 {% block content %}
 
+<main>
     <section class="offer">
         <div class="container">
             <div class="offer__inner">
@@ -17,38 +18,6 @@
             </div>
         </div>
     </section>
-
-    <div class="modal " id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div data-toggle="modal" data-target="#testModal" class="modal-content modal__offer-content">
-                <div class="offer__form">
-                    <button type="button" class="btn-close offer__modal-btn" data-bs-dismiss="modal" aria-label="Close"></button>
-                    <form class="form contactForm" action="">
-                        <div class="contacts__form-box">
-                            <h2 class="contacts__form-title">Имя</h2>
-                            {{ contact_form.name }}
-                        </div>
-                        <div class="contacts__form-items">
-                            <div class="contacts__form-box">
-                                <h2 class="contacts__form-title">Телефон</h2>
-                                {{ contact_form.phone }}
-                            </div>
-                            <div class="contacts__form-box">
-                                <h2 class="contacts__form-title">Email</h2>
-                                {{ contact_form.email }}
-                            </div>
-                        </div>
-                        <div class="contacts__form-box box__marin-top">
-                            <h2 class="contacts__form-title">Сообщение</h2>
-                            <textarea placeholder="Введите текст сообщения" maxlength="150" class="contacts__form-input contacts__form-textarea"></textarea>
-                        </div>
-                        <div class="contacts__form-suptext">Нажимая на кнопку “Отправить заявку”, Вы даете согласие на <a class="contacts__form-suptext--link" href="">обработку персональных данных</a> и соглашаетесь с <a class="contacts__form-suptext--link" href="">политикой конфиденциальности.</a></div>
-                        <button class="contacts__form-btn section__btn">Оставить заявку</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <div class="modal " id="exampleModal2" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -821,6 +790,8 @@
             </div>
         </div>
     </section>
+
+</main>
     {% endif %}
     
 <script>

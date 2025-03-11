@@ -2,52 +2,30 @@
 {% load static %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'css/my_style.css' %}">
-    <div class="login__container">
-        <div>
-            <div class="login__header-wrapper">
-                <h2 class="login__header">Вход</h2>
+<!-- <link rel="stylesheet" href="{% static 'css/my_style.css' %}"> -->
+
+<main class="login">
+    <div class="login__wrapper">
+        <h2 class="login__header">Вход в личный кабинет</h2>
+        <form method="post" class="login__form">
+            {% csrf_token %} 
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger"> 
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div class="login__inputs">
+                {{ form.email }}
+                {{ form.password }}
+                <div class="login__buttons">
+                    <button>Войти</button>
+                    <p class="login__reset-password-label">Нажмите для восстановления пароля</p>
+                </div>
             </div>
-            <form method="post" class="login__form">
-                {% csrf_token %} 
-
-                {% if form.non_field_errors %}
-                    <div class="alert alert-danger"> 
-                        {{ form.non_field_errors }}
-                    </div>
-                {% endif %}
-                
-                <div class="login__form-field">
-                    <div class="login__form-label-wrapper">
-                        <label class="login__form-label" for="id_username">Email</label>
-                    </div>
-                    {{ form.email }}
-
-                    {% if form.username.errors %}
-                        <div class="text-danger"> 
-                            {{ form.email.errors }}
-                        </div>
-                    {% endif %}
-                </div>
-                
-                <div class="login__form-field">
-                    <div class="login__form-label-wrapper">
-                        <label class="login__form-label" for="id_password">Пароль</label>
-                    </div>
-                    {{ form.password }} 
-
-                    {% if form.password.errors %}
-                        <div class="text-danger">
-                            {{ form.password.errors }} 
-                        </div>
-                    {% endif %}
-                </div>
-                
-                <div class="login__submit-button-wrapper">
-                    <button type="submit" class="login__submit-button">Войти</button>
-                </div>
-            </form>
-        </div>
+        </form>
     </div>
+</main>
 
 {% endblock %}

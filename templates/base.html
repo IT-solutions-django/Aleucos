@@ -33,6 +33,38 @@
     <title>Aleucos оптовые поставки корейской косметики</title>
 </head>
 <body>
+    <div class="modal " id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div data-toggle="modal" data-target="#testModal" class="modal-content modal__offer-content">
+                <div class="offer__form">
+                    <button type="button" class="btn-close offer__modal-btn" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <form class="form contactForm" action="">
+                        <div class="contacts__form-box">
+                            <h2 class="contacts__form-title">Имя</h2>
+                            {{ contact_form.name }}
+                        </div>
+                        <div class="contacts__form-items">
+                            <div class="contacts__form-box">
+                                <h2 class="contacts__form-title">Телефон</h2>
+                                {{ contact_form.phone }}
+                            </div>
+                            <div class="contacts__form-box">
+                                <h2 class="contacts__form-title">Email</h2>
+                                {{ contact_form.email }}
+                            </div>
+                        </div>
+                        <div class="contacts__form-box box__marin-top">
+                            <h2 class="contacts__form-title">Сообщение</h2>
+                            <textarea placeholder="Введите текст сообщения" maxlength="150" class="contacts__form-input contacts__form-textarea"></textarea>
+                        </div>
+                        <div class="contacts__form-suptext">Нажимая на кнопку “Отправить заявку”, Вы даете согласие на <a class="contacts__form-suptext--link" href="">обработку персональных данных</a> и соглашаетесь с <a class="contacts__form-suptext--link" href="">политикой конфиденциальности.</a></div>
+                        <button class="contacts__form-btn section__btn">Оставить заявку</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <header class="header">
         <div class="container">
             <div class="row header__inner align-items-center">
@@ -49,7 +81,7 @@
                 <div class="col-auto header__service">
                     <div class="row header__service-box">
                         <div class="col padding-0">
-                            <button class="header__request-button">Оставить заявку</button>
+                            <button class="header__request-button" data-toggle="modal" data-target="#exampleModal" data-bs-toggle="modal" data-bs-target="#exampleModal">Оставить заявку</button>
                         </div>
                         <div class="col header__service-links">
                             {% if request.path == '/users/account/' %}

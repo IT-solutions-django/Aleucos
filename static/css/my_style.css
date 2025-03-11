@@ -498,13 +498,6 @@ p {
     margin-bottom: 40px;
 }
 
-.login__header-wrapper {
-    margin-bottom: 30px;
-}
-
-.login__header {
-    font-size: 40px;
-}
 
 .login__form {
     margin-bottom: 100px;
@@ -518,16 +511,6 @@ p {
     margin-bottom: 6px;
 }
 
-.login__input {
-    width: 300px;
-    outline: none;
-    padding: 11px 11px 11px 48px;
-    height: 40px;
-    border-radius: 27px;
-    border: none;
-    background-color: #EDF5EF;
-    position: relative;
-}
 
 .login__submit-button-wrapper {
     display: flex;

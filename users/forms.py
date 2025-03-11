@@ -125,7 +125,7 @@ class LoginForm(forms.Form):
         label = 'Электронная почта', 
         widget = forms.EmailInput(
             attrs = {
-                'placeholder': 'Введите электронную почту', 
+                'placeholder': 'Email или телефон', 
                 'class': 'login__input'
             }
         )
@@ -135,7 +135,7 @@ class LoginForm(forms.Form):
         label='Пароль', 
         widget=forms.PasswordInput(
             attrs={
-                'placeholder': 'Введите пароль', 
+                'placeholder': 'Пароль', 
                 'class': 'login__input'
             }
         )
