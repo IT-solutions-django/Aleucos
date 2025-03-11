@@ -26,26 +26,30 @@
                         <div class="catalog__card-cart-button add-to-cart">
                             В корзину
                         </div>
-                        <div class="product__get-price">
+                        <a href="{% url 'products:export_catalog' %}" class="product__get-price">
                             Получить прайс
-                        </div>
+                        </a>
                     </div>
                     <div class="product__info-block">
                         <div>
                             Штрихкод: {{ product.barcode }}
                         </div>
-                        <div class="product__info-subheading">
-                            Описание 
-                        </div>
-                        <div class="product__info-text">
-                            Балансирующий тонер для лица предназначен для жирной кожи. Гидролаты растений (розмарина, череды, чистотела, шалфея, подорожника) оказывают тонизирующее, противовоспалительное, успокаивающее и увлажняющее действие. Салициловая кислота способствует отшелушиванию омертвевших клеток, ускоряет выравнивание и обновление кожи. Средство улучшает микроциркуляцию, сокращает выделению себума, нормализует работу сальной железы, подавляет воспалительные процессы, минимизирует следы постакне. Быстро и надолго освежает и матирует кожу.
-                        </div>
-                        <div class="product__info-subheading">
-                            Состав 
-                        </div>
-                        <div class="product__info-text">
-                            В состав тонера входит гиалуроновая кислота, глицерин, пантенол и пептиды. Универсальное средство без спирта подходит для всех типов кожи. Успокаивающий тонер избавляет от шелушения и покраснений, обеззараживает и интенсивно увлажняет лицо.
-                        </div>
+                        {% if product.description %}
+                            <div class="product__info-subheading">
+                                Описание 
+                            </div>
+                            <div class="product__info-text">
+                                {{ product.description }}
+                            </div>
+                        {% endif %}
+                        {% if product.composition %}
+                            <div class="product__info-subheading">
+                                Состав 
+                            </div>
+                            <div class="product__info-text">
+                                {{ product.composition }}
+                            </div>
+                        {% endif %}
                         <div class="product__info-subheading">
                             Характеристики 
                         </div>
@@ -55,9 +59,15 @@
                                 <p>{{ product.brand.title }}</p>
                             </div>
                             <div class="product__specs-row">
-                                <p>Тип продукта</p>
-                                <p>Тонер</p>
+                                <p>Категория</p>
+                                <p>{{ product.category.title }}</p>
                             </div>
+                            {% if product.product_type %}
+                                <div class="product__specs-row">
+                                    <p>Тип продукта</p>
+                                    <p>{{ product.product_type }}</p>
+                                </div>
+                            {% endif %}
                             {% if product.weight %}
                                 <div class="product__specs-row">
                                     <p>Вес</p>
@@ -70,13 +80,37 @@
             </div>
         </div>
     </div>
-    <div class="product__section">
+    {% if similar_products %}
+    <div class="product__section products__similar">
         <div class="product__similar-heading">
             Похожие товары
         </div>
-        <div>
-            ...
+            <div class="swiper mySwiper-2">
+                <div class="swiper-wrapper">
+                    {% for product in similar_products %}
+                        <div class="swiper-slide hits__item">
+                            <a href="{{ product.get_absolute_url }}"class="hits__item-img--box">
+                                <img class="hits__item-img" src="{{ product.photo.url }}" alt="">
+                            </a>
+                            <a href="{{ product.get_absolute_url }}" class="hits__item-title hover-green">{{ product.brand }} - {{ product.title }} {% if product.volume %}({{ product.volume }}){% endif %}</a>
+                            <div class="hits__item-box">
+                                <p class="hits__item-count">1 500 ₽</p>
+                                <a href="{% url 'products:products_list' %}">
+                                    <button class="hits__item-btn">
+                                        <img src="{% static 'img/store.svg' %}" alt="" class="hits__item-btn--img">
+                                        <p class="hits__item-btn--text">В корзину</p>
+                                    </button>
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>     
+            </div>
+            <div class="swiper-pagination"></div>   
+            <div class="swiper-button-prev"></div>
+            <div class="swiper-button-next"></div>
         </div>
     </div>
+    {% endif %}
 </main>
 {% endblock %}

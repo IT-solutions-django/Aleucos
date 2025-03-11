@@ -32,6 +32,17 @@ class Category(models.Model):
 
     def __str__(self) -> str: 
         return self.title
+    
+
+class ProductType(models.Model): 
+    title = models.CharField(_('Название'), max_length=80, null=False, unique=True) 
+
+    class Meta:
+        verbose_name = _('Тип продукта')
+        verbose_name_plural = _('Типы продукта')
+
+    def __str__(self) -> str: 
+        return self.title
 
 
 class Product(models.Model): 
@@ -53,6 +64,8 @@ class Product(models.Model):
     created_at = models.DateTimeField(_('Дата создания'), auto_now_add=True)
     will_arrive_at = models.DateField(_('Дата прибытия (если в пути)'), null=True, blank=True)
     slug = models.SlugField('Слаг', blank=True, max_length=80)
+    composition = models.TextField('Состав', max_length=500, null=True, blank=True)
+    product_type = models.ForeignKey(verbose_name='Тип продукта', to=ProductType, null=True, blank=True, on_delete=models.SET_NULL)
 
     class Meta: 
         verbose_name = _('Товар')

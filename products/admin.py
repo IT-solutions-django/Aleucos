@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.utils.decorators import method_decorator
 import os
 from .forms import XlsxImportProductsForm
-from .models import Brand, Product, Category, ImportProductsStatus, WatermarkConfig
+from .models import Brand, Product, Category, ImportProductsStatus, WatermarkConfig, ProductType
 from .tasks import import_products_from_xlsx_task
 from .filters import (PriceRangeFilter, WeightRangeFilter, 
                       HasNotesFilter,  RemainsRangeFilter, HasPhotoFilter)
@@ -143,3 +143,9 @@ class Admin(admin.ModelAdmin):
 @admin.register(WatermarkConfig)
 class WatermarkConfigAdmin(admin.ModelAdmin): 
     pass
+
+
+@admin.register(ProductType)
+class ProductTypeAdmin(admin.ModelAdmin): 
+    list_display = ['title']
+    search_fields = ['title']

@@ -252,8 +252,10 @@ class ProductView(View):
 
     def get(self, request, product_slug: str): 
         product = get_object_or_404(Product, slug=product_slug)
+        similar_products = Product.objects.all().filter(category=product.category).exclude(pk=product.pk)
         context = {
             'product': product,
+            'similar_products': similar_products,
         }
         return render(request, self.template_name, context)
     

@@ -8,14 +8,17 @@ from users.models import RegistrationRequest, User
 from configs.models import Config 
 from django.contrib.auth.models import Group 
 from Aleucos.crm import crm
+from products.models import Product
 
 
 class HomeView(View): 
     template_name = 'home/home.html' 
 
     def get(self, request): 
+        popular_products = Product.objects.all()[:10]
         context = {
             'contact_form': RequestForm(),
+            'popular_products': popular_products,
         }
         return render(request, self.template_name, context)
 
