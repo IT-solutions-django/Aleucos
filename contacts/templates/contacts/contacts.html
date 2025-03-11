@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Контакты{% endblock %}
+
+{% block content %}
+<main class="contacts">
+    <div class="heading-wrapper">
+        <div class="heading-label">
+            <a href="{% url 'products:products_list' %}" class="color-black">Контакты</a>
+        </div>
+    </div>
+    <div class="contacts-body">
+        <div class="contacts__column left">
+            <div class="contacts__contact-info">
+                <p>+7 (964) 454-17-00</p>
+                <p>aleucos@mail.ru</p>
+            </div>
+            <div class="contacts__managers-block">
+                <p class="contacts__subheading">Менеджеры</p>
+                <div class="contacts__managers">
+                    <div class="contacts__manager">
+                        <img src="{% static 'img/manager-photo.png' %}" alt="">
+                        <div class="contacts__manager-info">
+                            <p>Лепихова Татьяна</p>
+                            <p>+7 964 450-37-99</p>
+                            <p>lepihova@aleucos.ru</p>
+                        </div>
+                    </div>
+                    <div class="contacts__manager">
+                        <img src="{% static 'img/manager-photo.png' %}" alt="">
+                        <div class="contacts__manager-info">
+                            <p>Лепихова Татьяна</p>
+                            <p>+7 964 450-37-99</p>
+                            <p>lepihova@aleucos.ru</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="contacts__requisites-block">
+                <p class="contacts__subheading">Реквизиты</p>
+                <div class="contacts__requisites">
+                    <p><span>ИНН:</span><span>5402068150</span></p>
+                    <p><span>КПП:</span><span>1215400031714</span></p>
+                    <p><span>ОГРН:</span><span>1215400031714</span></p>
+                    <p><span>Дата регистрации:</span><span>26.07.2021</span></p>
+                    <p><span>Уставный капитал:</span><span>10 000 руб.</span></p>
+                    <p><span>Юр. адрес:</span><span>630001, Новосибирская область, г Новосибирск, Владимировская ул, зд. 26/1, этаж 5 офис 504 </span></p>
+                </div>
+            </div>
+        </div>
+        <div class="contacts__column">
+            <div class="contacts__map-block">
+                <p class="contacts__subheading">Мы на картах</p>
+                <p>г.Владивосток, ул. Днепровская, д.25д, стр.4а</p>
+                <div class=map id=map></div>
+            </div>
+        </div>
+    </div>
+</main>
+
+{% block script %}
+<script defer>
+    var myMap;
+    ymaps.ready((function() {
+    myMap = new ymaps.Map("map", {
+        center: [43.157062, 131.926061],
+        zoom: 16,
+        controls: []
+    });
+    var o = new ymaps.control.ZoomControl({
+        options: {
+            position: {
+                right: 10,
+                top: 50
+            },
+            size: "small"
+        }
+    });
+    myMap.controls.add(o), myMap.behaviors.disable("scrollZoom");
+    var a = new ymaps.Placemark([43.157062, 131.926061], {
+        hintContent: "Волгоградская улица, 7А",
+        balloonContent: "Волгоградская улица, 7А"
+    }, {
+        iconLayout: "default#image",
+        iconImageHref: "/static/images/pin.svg",
+        iconImageSize: [50, 50],
+        iconImageOffset: [-15, -42]
+    });
+    myMap.geoObjects.add(a)
+}))
+</script>
+{% endblock %}
+
+{% endblock %}

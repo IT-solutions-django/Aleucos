@@ -2225,3 +2225,75 @@ label {
   align-items: center;
   padding: 20px;
 }
+.contacts-body {
+  display: flex;
+  gap: 50px;
+  justify-content: space-between;
+}
+.contacts__column {
+  width: calc((100% - 50px) / 2);
+}
+.contacts__column.left {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+.contacts__column.left {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.contacts__contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.contacts__managers-block,
+.contacts__requisites-block {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.contacts__managers {
+  display: flex;
+  gap: 30px;
+}
+.contacts__manager {
+  display: flex;
+  gap: 15px;
+  justify-content: space-between;
+}
+.contacts__manager img {
+  width: 90px;
+  height: 90px;
+  border-radius: 20px;
+  object-fit: cover;
+}
+.contacts__manager-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.contacts__subheading {
+  font-size: 20px;
+  font-weight: bold;
+}
+.contacts__requisites {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.contacts__requisites span:first-child {
+  min-width: 190px;
+  display: inline-block;
+  font-weight: bold;
+}
+.contacts__requisites p {
+  display: flex;
+  gap: 60px;
+}
+.contacts__map-block {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}

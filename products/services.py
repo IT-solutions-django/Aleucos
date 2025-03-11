@@ -322,26 +322,6 @@ class CatalogExporter:
             return ""
         
         worksheet = workbook['Актуальное наличие на складе']
-        
-        def new_column(ws):
-            ws.merge_cells('T1:W3')
-            ws['T1'] = "Остаток"
-            ws['T1'].alignment = Alignment(horizontal='center', vertical='center')
-            ws['T1'].font = Font(size=38, bold=True)
-            ws['T1'].fill = PatternFill(start_color='F5F5DC', end_color='F5F5DC', fill_type='solid')
-            
-            border = Border(
-                top=Side(border_style='medium', color='000000'),
-                bottom=Side(border_style='medium', color='000000'),
-                left=Side(border_style='medium', color='000000'),
-                right=Side(border_style='medium', color='000000')
-            )
-            
-            for row in ws['T1:W3']:
-                for cell in row:
-                    cell.border = border
-
-        new_column(worksheet)
 
         products = Product.objects.all()
         curr_row_index = 4
@@ -359,28 +339,21 @@ class CatalogExporter:
             worksheet[f'J{curr_row_index}'] = product.price_before_200k
             worksheet[f'K{curr_row_index}'] = product.price_after_200k
             worksheet[f'L{curr_row_index}'] = product.price_after_500k
-            worksheet[f'T{curr_row_index}'] = product.remains
-            worksheet[f'T{curr_row_index}'].alignment = Alignment(horizontal='center', vertical='center')
-            worksheet[f'T{curr_row_index}'].font = Font(size=25)
+            worksheet[f'Q{curr_row_index}'] = product.remains
+            worksheet[f'R{curr_row_index}'] = product.category.title
+            worksheet[f'S{curr_row_index}'] = product.will_arrive_at
 
             image_path = os.path.join(settings.MEDIA_ROOT, product.photo.name)
             try:
                 img = Image(image_path)
-                img_width = img.width
-                img_height = img.height
 
-                column_width = worksheet.column_dimensions['E'].width * 7
-                row_height = worksheet.row_dimensions[curr_row_index].height
+                img.width = 102
+                img.height = 100
 
-                offset_x = (column_width - img_width) / 2
-                offset_y = (row_height - img_height) / 2
+                worksheet.add_image(img, f"E{curr_row_index}")
 
-                column_index = 4 
-                _from = AnchorMarker(col=column_index, row=curr_row_index - 1, colOff=offset_x, rowOff=offset_y)
-                to = AnchorMarker(col=column_index + 1, row=curr_row_index, colOff=-offset_x, rowOff=-offset_y)
-
-                img.anchor = TwoCellAnchor(editAs="twoCell", _from=_from, to=to)
-                worksheet.add_image(img)
+                worksheet.column_dimensions['E'].width = 15 
+                worksheet.row_dimensions[curr_row_index].height = 80
             except FileNotFoundError:
                 worksheet[f'E{curr_row_index}'] = "Файл не найден"
 

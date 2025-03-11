@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'orders',
     'carts', 
     'amo_webhooks',
+    'contacts'
 ]
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
