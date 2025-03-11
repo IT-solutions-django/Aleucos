@@ -7,6 +7,7 @@ from users.forms import RequestForm
 from users.models import RegistrationRequest, User
 from configs.models import Config 
 from django.contrib.auth.models import Group 
+from Aleucos.crm import crm
 
 
 class HomeView(View): 
@@ -38,13 +39,29 @@ class ContactFormView(View):
             else:
                 next_manager = User.objects.filter(groups__in=(manager_group,)).order_by('id').first()
 
-            new_request = RegistrationRequest(
-                first_name=name, 
+            responsible_user_id = crm.get_user_id(
+                user_email=next_manager.email
+            )
+
+            new_request: RegistrationRequest = RegistrationRequest(
+                first_name=name if name else None, 
                 phone=phone, 
                 email=email, 
                 manager=next_manager,
             )
             new_request.save()
+            contact_id = crm.create_contact(
+                name=new_request.first_name, 
+                responsible_user_id=responsible_user_id, 
+                email=new_request.email, 
+                phone=new_request.phone
+            )
+            crm.create_lead(
+                f'Новый клиент с сайта: {email}', 
+                responsible_user_id=responsible_user_id, 
+                contact_id=contact_id, 
+                from_the_very_first_status=True
+            )
 
             return JsonResponse({'status': 'ok'})
         else:

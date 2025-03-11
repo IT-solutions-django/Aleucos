@@ -78,12 +78,13 @@ class AmoCRM:
             responsible_user_id: int, 
             contact_id: int = None,
             price: float = None, 
+            from_the_very_first_status: bool = False
         ) -> int: 
         url = f'{self.CLIENT_DOMAIN}api/v4/leads'
         data = [{
             'name': name,
             'created_by': 0, 
-            'status_id': 59520526
+            'status_id': 59520526 if not from_the_very_first_status else 59520514
         }]
         (lead_data,) = data
         lead_data['responsible_user_id'] = responsible_user_id
@@ -111,7 +112,7 @@ class AmoCRM:
         ) -> int: 
         url = f'{self.CLIENT_DOMAIN}api/v4/contacts'  
         data = [{
-            'name': name,
+            'name': name if name else 'Клиент',
             'responsible_user_id': responsible_user_id, 
             'custom_fields_values': [
                 {
