@@ -127,12 +127,12 @@ DATABASES = {
 # }
 
 
-# ELASTICSEARCH_DSL = {
-#     'default': {
-#         'hosts': 'http://elasticsearch:9200', 
-#         'timeout': 60,
-#     }
-# }
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': 'http://elasticsearch:9200', 
+        'timeout': 60,
+    }
+}
 
 # Для локальной разработки
 # ELASTICSEARCH_DSL = {
