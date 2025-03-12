@@ -75,7 +75,7 @@
                 </div>
                 <div class="col-auto header__menu">
                     <a href="{% url 'products:products_list' %}" class="header__menu-link hover-green">Каталог</a>
-                    <a href="#answersBlock"><button class="header__menu-link hover-green">Вопрос-ответ</button></a>
+                    <a href="{% url 'home:home' %}#answersBlock"><button class="header__menu-link hover-green">Вопрос-ответ</button></a>
                     <a href="{% url 'contacts:contacts' %}"><button class="header__menu-link hover-green">Контакты</button></a>
                 </div>
                 <div class="col-auto header__service">
@@ -100,9 +100,11 @@
                                     <a href="{% if request.user.is_authenticated %}{% url 'carts:cart_items' %}{% else %}{% url 'users:login' %}{% endif %}"><img src="{% static 'img/store.svg' %}" alt="" class="header__service-img"></a>
                                 </button>
                             {% endif %}
-                            <input id="searchInput" class="header__service-input" placeholder="Поиск" type="text">
+                            <form id="searchForm" action="{% url 'products:products_list' %}" method="get">
+                                <input id="searchInput" name="q" class="header__service-input {% if search_text %}active{% endif %}" placeholder="Поиск" {% if search_text %}value="{{ search_text }}"{% endif %} type="text">
+                            </form>
                             <button id="openSearchInput" class="header__service-link">
-                                <img src="{% static 'img/black-search-icon.svg' %}" 
+                                <img src="{% if search_text %}{% static 'img/close-search-button.svg' %}{% else %}{% static 'img/black-search-icon.svg' %}{% endif %}" 
                                     data-close-img="{% static 'img/close-search-button.svg' %}"
                                     data-open-img="{% static 'img/black-search-icon.svg' %}" 
                                     alt="" 
@@ -113,9 +115,8 @@
                                 <button class="btn btn-secondary dropdown-toggle header__menu-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false"></button>
                                 <ul class="dropdown-menu dropdown__header-menu" style="inset: auto auto auto 0;">
                                     <li><button href="{% url 'products:products_list' %}" class="header__menu-link dropdown-item">Каталог</button></li>
-                                    <li><button href="#certificatsBlock" class="header__menu-link dropdown-item">Сертификаты</button></li>
-                                    <li><button href="#answersBlock" class="header__menu-link dropdown-item">Вопрос</button></li>
-                                    <li><button href="#contactsBlock" class="header__menu-link dropdown-item">Контакты</button></li>
+                                    <li><button href="{% url 'home:home' %}#answersBlock" class="header__menu-link dropdown-item">Вопрос</button></li>
+                                    <li><button href="{% url 'contacts:contacts' %}" class="header__menu-link dropdown-item">Контакты</button></li>
                                 </ul>
                             </div>
                             
@@ -321,8 +322,11 @@
                 searchInput.classList.toggle('active');
                 if (new URL(image.src).pathname == image.dataset.openImg) {
                     image.src = image.dataset.closeImg;
+                    searchInput.focus();
                 } else {
                     image.src = image.dataset.openImg;
+                    searchInput.blur();
+                    searchInput.value = "";
                 }
             });
         })

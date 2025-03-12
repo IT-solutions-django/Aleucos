@@ -140,3 +140,33 @@ class LoginForm(forms.Form):
             }
         )
     )
+
+
+class AccountFilterForm(forms.Form):
+    sections = forms.ChoiceField(
+        choices=(
+            ('Все', 'Все'),
+            ('Сначала старые', 'Сначала старые'),
+            ('Сначала новые', 'Сначала новые'),
+        ),
+        widget=forms.RadioSelect(
+            attrs={
+                'class': 'topic-input filter-input'
+            }, 
+        ), 
+        required=False, 
+    )
+
+    start_date = forms.DateField(
+        widget=forms.DateInput(
+            attrs={'type': 'date', 'class': 'date-picker'}
+        ),
+        required=False
+    )
+    
+    end_date = forms.DateField(
+        widget=forms.DateInput(
+            attrs={'type': 'date', 'class': 'date-picker'}
+        ),
+        required=False
+    )

@@ -9,6 +9,7 @@ from configs.models import Config
 from django.contrib.auth.models import Group 
 from Aleucos.crm import crm
 from products.models import Product
+from carts.services import Cart
 
 
 class HomeView(View): 
@@ -16,9 +17,20 @@ class HomeView(View):
 
     def get(self, request): 
         popular_products = Product.objects.all()[:10]
+
+        cart_data = request.cart.to_dict()
+        products_in_cart = {
+            barcode: item['quantity'] 
+            for barcode, item in cart_data['products'].items()
+        }
+
+        for product in popular_products:
+            product.quantity_in_cart = request.cart[Cart.KeyNames.PRODUCTS].get(str(product.barcode), {}).get(Cart.KeyNames.QUANTITY, 0)
+
         context = {
             'contact_form': RequestForm(),
             'popular_products': popular_products,
+            'products_in_cart': products_in_cart
         }
         return render(request, self.template_name, context)
 
