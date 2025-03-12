@@ -254,9 +254,20 @@ class ProductView(View):
     def get(self, request, product_slug: str): 
         product = get_object_or_404(Product, slug=product_slug)
         similar_products = Product.objects.all().filter(category=product.category).exclude(pk=product.pk)
+
+        cart_data = request.cart.to_dict()
+        products_in_cart = {
+            barcode: item['quantity'] 
+            for barcode, item in cart_data['products'].items()
+        }
+
+        for product in similar_products:
+            product.quantity_in_cart = request.cart[Cart.KeyNames.PRODUCTS].get(str(product.barcode), {}).get(Cart.KeyNames.QUANTITY, 0)
+
         context = {
             'product': product,
             'similar_products': similar_products,
+            'products_in_cart': products_in_cart
         }
         return render(request, self.template_name, context)
     

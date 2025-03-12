@@ -88,19 +88,48 @@
             <div class="swiper mySwiper-2">
                 <div class="swiper-wrapper">
                     {% for product in similar_products %}
-                        <div class="swiper-slide hits__item">
-                            <a href="{{ product.get_absolute_url }}"class="hits__item-img--box">
-                                <img class="hits__item-img" src="{{ product.photo.url }}" alt="">
+                        <div class="swiper-slide catalog__card">
+                            <a href="{{ product.get_absolute_url }}" class="catalog__card-image">
+                                <img src="{{ product.photo.url }}" alt="cart" class="catalog__cart-image">
                             </a>
-                            <a href="{{ product.get_absolute_url }}" class="hits__item-title hover-green">{{ product.brand }} - {{ product.title }} {% if product.volume %}({{ product.volume }}){% endif %}</a>
-                            <div class="hits__item-box">
-                                <p class="hits__item-count">1 500 ₽</p>
-                                <a href="{% url 'products:products_list' %}">
-                                    <button class="hits__item-btn">
-                                        <img src="{% static 'img/store.svg' %}" alt="" class="hits__item-btn--img">
-                                        <p class="hits__item-btn--text">В корзину</p>
-                                    </button>
-                                </a>
+                            <div class="catalog__card-bottom">
+                                <div class="catalog__card-name">
+                                    <a href="{{ product.get_absolute_url }}" class="hover-green">{{ product.title }}</a>
+                                </div>
+                                {% if request.user.is_authenticated %}                                    
+                                    <div class="catalog__card-price-block">
+                                        <div class="catalog__card-price">
+                                            <p>{{ product.price_before_200k|floatformat:2|price_format }} ₽</p>
+                                        </div>
+                                        {% if product.quantity_in_cart != 0 %}
+                                            <div class="catalog__card-cart-controls">
+                                                <button id="{{ product.barcode }}" class="catalog__card-cart-control-minus">
+                                                    <img src="{% static 'img/Vector (1).svg' %}" alt="cart">
+                                                </button>
+                                                <input type="number" id="quantity-input-{{ product.barcode }}" class="catalog__card-quantity-input" value="{{ product.quantity_in_cart }}">
+                                                <button id="{{ product.barcode }}" class="catalog__card-cart-control-plus">
+                                                    <img src="{% static 'img/Vector (2).svg' %}" alt="cart">
+                                                </button>
+                                            </div>
+                                        {% else %}
+                                            {% if product.is_in_stock %}
+                                                <div id="{{ product.barcode }}" class="catalog__card-cart-button add-to-cart">
+                                                    В корзину
+                                                </div>
+                                            {% else %} 
+                                                {% if product.will_arrive_at %}
+                                                    <div class="catalog__card-not-in-stock">
+                                                        В пути до {{ product.will_arrive_at|date:"d.m.y"  }}
+                                                    </div>
+                                                {% else %}
+                                                    <div class="catalog__card-not-in-stock">
+                                                        Нет в наличии
+                                                    </div>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                     {% endfor %}
