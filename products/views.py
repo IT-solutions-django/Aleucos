@@ -122,7 +122,8 @@ class ProductsListView(View):
         context = {
             'form': form,
             'products': page_obj, 
-            'products_in_cart': products_in_cart
+            'products_in_cart': products_in_cart, 
+            'search_text': search_text,
         }
 
         return render(request, self.template_name, context) 

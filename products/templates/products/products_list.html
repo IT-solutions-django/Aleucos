@@ -287,7 +287,7 @@ function debounce(func, delay) {
 
 // Фильтрация
 document.addEventListener('DOMContentLoaded', function () {
-    const searchInput = document.getElementById('searchInput');
+    let searchInput = document.getElementById('searchInput')
     const filters = document.querySelectorAll('.filter-input');
     let pagination = document.getElementById('pagination');
     let paginationContainer = document.querySelector('.pagination');
@@ -334,7 +334,8 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log('навесил обрабоьчтик')
     });
 
-    searchInput.addEventListener('input', sendFiltersData);
+
+    // searchInput.addEventListener('input', sendFiltersData);
 });
 
     // Сохранить фильтры при пагинации
@@ -354,11 +355,41 @@ document.addEventListener('DOMContentLoaded', function () {
                     params.append(key, value);
                 });
 
+                let viewModeButton = document.getElementById('viewModeButton'); 
+                let viewMode = viewModeButton.dataset.status;
+                params.append('view-mode', viewMode)
+
                 const pageUrl = `${event.target.href}&${params.toString()}`;
 
                 window.location.href = pageUrl;
             }
         });
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const viewMode = urlParams.get("view-mode"); 
+
+        if (viewMode != "") {
+            let viewModeButton = document.getElementById('viewModeButton'); 
+            let viewModeImage = viewModeButton.querySelector('img');
+            let cards = document.querySelectorAll('.catalog__card');
+            let catalog = document.getElementById('catalogCards');
+
+            if (viewMode == "quick") {
+                cards.forEach(card => {
+                    card.style.width = 'calc((100% - 24px * 2) / 3)'; 
+                });
+                viewModeButton.dataset.status = 'quick';
+                viewModeImage.src = viewModeButton.dataset.quickModeUrl;
+            } else if (viewMode == "full") {
+                cards.forEach(card => {
+                    card.style.width = 'calc((100% - 24px * 3) / 4)'; 
+                });
+                viewModeButton.dataset.status = 'full';
+                viewModeImage.src = viewModeButton.dataset.fullModeUrl;;
+            }
+        }
     });
 
     // Добавить товар в корзину

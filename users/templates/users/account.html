@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Личный кабинет{% endblock %}
 
@@ -23,10 +24,10 @@
                 {% if manager %}
                     <div class="account__user-info-heading">Ваш менеджер</div> 
                     <div class="account__manager">
-                        <img src="{{ manager.photo.url }}" alt="">
+                        <img src="{% if manager.photo %}{{ manager.photo.url }}{% else %}{% static 'img/manager-default.png' %}{% endif %}" alt="">
                         <div class="account__manager-info">
-                            <p><span class="bold">Имя: </span>{{ manager.get_full_name }}</p>
-                            <p><span class="bold">Должность: </span>{{ manager.position }}</p>
+                            <p><span class="bold">Имя: </span>{% if manager.get_full_name %}{{ manager.get_full_name }}{% else %}-{% endif %}</p>
+                            <p><span class="bold">Должность: </span>{% if manager.position %}{{ manager.position }}{% else %}-{% endif %}</p>
                             <p><span class="bold">Email: </span>{{ manager.email }}</p>
                             <p><span class="bold">Телефон: </span>{{ manager.phone }}</p>
                         </div>
@@ -35,12 +36,22 @@
             </div>
         </div>
         <div class="account__content">
-            <div class="account__sort-block">
-                <p class="account__sort active">Все</p>
-                <p class="account__sort">Сначала новые</p>
-                <p class="account__sort">Сначала старые</p>
-                <p class="account__sort">Выбрать период</p>
-            </div>
+            <form id="accountFilterForm" action="" method="get" class="account__sort-block">
+                    {% for section in filter_form.sections %}
+                        {% if filter_form.cleaned_data.sections %}
+                            <p class="account__sort {% if filter_form.cleaned_data.sections == section.choice_label %}active{% endif %}">{{ section }}</p>
+                        {% else %}
+                            <p class="account__sort {% if section.choice_label == 'Все' %}active{% endif %}">{{ section }}</p>
+                        {% endif %}
+                    {% endfor %}
+                    <!-- <p class="account__sort-button">Выбрать период</p>
+
+                    <div id="date-picker-container" style="display: none;">
+                        <input type="date" name="start_date" class="date-picker">
+                        <input type="date" name="end_date" class="date-picker">
+                        <button type="submit">Применить</button>
+                    </div> -->
+            </form>
             <div class="account_heading">
                 Ваши заказы
             </div>
@@ -83,4 +94,38 @@
         </div>
     </div>
 </main>
+{% endblock %}
+
+{% block script %}
+<script defer>
+    // Выбрать раздел каталога
+    topicsButtons = document.querySelectorAll('.account__sort');
+    topicsButtons.forEach(topicButton => {
+        topicButton.addEventListener('click', function (event) {
+            selectTopic(topicButton);
+            submitForm();
+        });
+    })
+    function selectTopic(topicButton) {
+        const items = document.querySelectorAll('.account__sort');
+
+        items.forEach(item => {
+            item.classList.remove('active');
+        });
+
+        topicButton.classList.add('active');
+    }
+    function submitForm() {
+        const form = document.querySelector('#accountFilterForm'); 
+        if (form) {
+            form.submit();
+        } else {
+            console.error("Форма не найдена!");
+        }
+    }
+    // document.querySelector('.account__sort-button').addEventListener('click', function () {
+    //     let datePicker = document.getElementById('date-picker-container');
+    //     datePicker.style.display = datePicker.style.display === 'none' ? 'block' : 'none';
+    // });
+</script>
 {% endblock %}
