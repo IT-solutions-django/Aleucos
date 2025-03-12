@@ -115,9 +115,8 @@
                                 <button class="btn btn-secondary dropdown-toggle header__menu-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false"></button>
                                 <ul class="dropdown-menu dropdown__header-menu" style="inset: auto auto auto 0;">
                                     <li><button href="{% url 'products:products_list' %}" class="header__menu-link dropdown-item">Каталог</button></li>
-                                    <li><button href="#certificatsBlock" class="header__menu-link dropdown-item">Сертификаты</button></li>
-                                    <li><button href="#answersBlock" class="header__menu-link dropdown-item">Вопрос</button></li>
-                                    <li><button href="#contactsBlock" class="header__menu-link dropdown-item">Контакты</button></li>
+                                    <li><button href="{% url 'home:home' %}#answersBlock" class="header__menu-link dropdown-item">Вопрос</button></li>
+                                    <li><button href="{% url 'contacts:contacts' %}" class="header__menu-link dropdown-item">Контакты</button></li>
                                 </ul>
                             </div>
                             
