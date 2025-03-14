@@ -34,7 +34,8 @@ class RequestForm(forms.Form):
         required=False, 
         widget=forms.Textarea(attrs={
             'class': 'contacts__form-input contacts__form-textarea contacts__form-input-cont', 
-            'placeholder': 'Введите текст сообщения'
+            'placeholder': 'Введите текст сообщения', 
+            'rows': 4,
         })
     )
 
