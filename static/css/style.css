@@ -73,6 +73,9 @@ main {
 .color-green {
   color: var(--color-green) !important;
 }
+.display-none {
+  display: none !important;
+}
 
 .container {
   max-width: 1400px;
@@ -217,6 +220,28 @@ main {
   font-weight: 700;
   border-radius: 20px;
   text-wrap: nowrap;
+}
+.header__cart-icon {
+  position: relative;
+  display: inline-block;
+}
+.cart-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translate(50%, -50%);
+  background-color: var(--color-green);
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 12px;
+  border-radius: 50%;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
 }
 .padding-0 {
   padding: 0 !important;

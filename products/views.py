@@ -118,12 +118,11 @@ class ProductsListView(View):
         paginator = Paginator(products, 16)  
         page_obj = paginator.get_page(page_number)
 
-
         context = {
             'form': form,
             'products': page_obj, 
             'products_in_cart': products_in_cart, 
-            'search_text': search_text,
+            'search_text': search_text
         }
 
         return render(request, self.template_name, context) 
