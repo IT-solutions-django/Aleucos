@@ -19,6 +19,8 @@ class RequestForm(forms.Form):
         required=True, 
         widget=forms.TextInput(attrs={
             'class': 'contacts__form-input contacts__form-input--tel contacts__form-input-cont', 
+            'type': 'tel', 
+            'placeholder': '+7'
         })
     )
     email = forms.EmailField(

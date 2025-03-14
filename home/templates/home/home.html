@@ -260,67 +260,7 @@
     </section>
 
     {% if not request.user.is_authenticated %}
-        <section id="contactsBlock" class="contacts">
-            <div class="container">
-                <div class="contacts__inner">
-                    <div class="contacts__info">
-                        <div class="contacts__info-upper">
-                            <h2 class="contacts__info-title">Оставьте заявку</h2>
-                            <p class="contacts__info-text">Остались вопросы или интересует каталог с оптовыми ценами? <br> Заполните форму и отправьте свою заявку, наш менеджер свяжется с Вами для уточнения деталей.</p>
-                        </div>
-                        <div class="contacts__info-medium">
-                            <div class="contacts__info-box">
-                                <img src="{% static 'img/green-checkmark.svg' %}" alt="" class="contacts__info-img">
-                                <p class="contacts__info-box--text">Персональный менеджер</p>
-                            </div>
-                            <div class="contacts__info-box">
-                                <img src="{% static 'img/green-checkmark.svg' %}" alt="" class="contacts__info-img">
-                                <p class="contacts__info-box--text">Своевременная поддержка</p>
-                            </div>
-                            <div class="contacts__info-box">
-                                <img src="{% static 'img/green-checkmark.svg' %}" alt="" class="contacts__info-img">
-                                <p class="contacts__info-box--text">На всю продукцию имеются сертификаты и декларации соответствия</p>
-                            </div>
-                        </div>
-                        <div class="contacts__info-lower">
-                            <p class="contacts__info-suptext-loc">г.Владивосток, ул. Днепровская, д.25д, стр.4а</p>
-                            <a class="contacts__info-suptext" href="tel:+79644541700">+7 (964) 454-17-00</a>
-                        </div>
-                    </div>
-                    <div class="contacts__form">
-                        <form id="contactForm" class="form home__contact-form" action="">
-
-                            <div class="home__contact-form-item">
-                                <h2 class="contacts__form-title">Имя</h2>
-                                {{ contact_form.name }}
-                            </div>  
-                            <div class="home__contact-form-item">
-                                <h2 class="contacts__form-title">Телефон</h2>
-                                {{ contact_form.name }}
-                            </div>
-
-                            <div class="home__contact-form-item">
-                                <h2 class="contacts__form-title">Сообщение</h2>
-                                {{ contact_form.message }}
-                            </div>
-
-                            <div class="home__contact-form-item buttons">
-                                <div>
-                                    <h2 class="contacts__form-title">Почта</h2>
-                                    {{ contact_form.name }}
-                                </div>
-                                <button class="leave-request-button" id="liveToastBtn">
-                                    Оставить заявку
-                                </button>
-                                <div class="user-agreement">
-                                    Нажимая на кнопку, вы соглашаетесь на <a class="color-green" href="">обработку персональных данных</a> и <a class="color-green" href="">политикой конфиденциальности</a>.
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </section>
+        {% include 'home/includes/questions_block.html' %}
     {% endif %}
 
     <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
@@ -331,7 +271,7 @@
         <div class="toast-body">
           Ваши данные успешно отправлены
         </div>
-      </div>
+    </div>
 
     <section id="answersBlock" class="answer">
         <div class="container px-4">
@@ -670,29 +610,5 @@
 
 </main>
     {% endif %}
-    
-<script>
-
-const forms = document.querySelectorAll(".contactForm");
-console.log(forms);
-
-forms.forEach((form) => {
-    form.addEventListener("submit", async function (event) {
-        event.preventDefault();
-        let formData = new FormData(form);
-        form.reset();
-        try {
-            let response = await fetch(`${window.origin}/api/save_registration_request/`, {
-                method: "POST",
-                body: formData,
-            });
-            console.log("Статус ответа:", response.status);
-        } catch (error) {
-            console.error("Ошибка запроса:", error);
-        }
-    });
-});
-
-</script>
 
 {% endblock %}

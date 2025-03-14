@@ -838,8 +838,11 @@ main {
   position: relative;
 }
 
-.contacts {
+.contacts-block {
   margin: 50px 0px;
+}
+main.contacts {
+  padding-bottom: 0px;
 }
 .contacts__inner {
   padding: 40px 100px 0 100px;
@@ -848,6 +851,12 @@ main {
   gap: 70px;
   border-radius: 40px;
   height: 442px;
+}
+.contacts-block .contacts__inner {
+  padding: 40px 90px 0 90px;
+}
+.contacts-block .container {
+  padding: 0px;
 }
 
 .contacts__info {
@@ -1649,7 +1658,7 @@ label {
   line-height: 24px;
   display: flex;
   align-items: center;
-  gap: 8px; 
+  gap: 12px; 
   cursor: pointer; 
 }
 .sidebar__brand-item-label label {
@@ -2466,6 +2475,7 @@ label {
   display: flex;
   gap: 50px;
   justify-content: space-between;
+  padding-bottom: 30px;
 }
 .contacts__column {
   width: calc((100% - 50px) / 2);

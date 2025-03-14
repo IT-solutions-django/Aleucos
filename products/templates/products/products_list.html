@@ -130,6 +130,12 @@
                             {{ form.is_in_stock.label }}
                         </label>
                     </div>
+                    <div class="sidebar__section-item-div">
+                        <label class="sidebar__brand-item-label">
+                            {{ form.is_not_in_stock }}
+                            {{ form.is_not_in_stock.label }}
+                        </label>
+                    </div>
                 </div>
             </div>
 
@@ -560,21 +566,6 @@ document.addEventListener('DOMContentLoaded', function () {
      * Обновляет отображение количества позиций в корзине
      * @param {boolean} increase - Увеличить ли количество позиций
      */
-    function renderCartPositionsCount(increase) {
-        let cartPositionElement = document.getElementById('cartPositionsCount'); 
-        let cartPositionCount = cartPositionElement.innerHTML;
-        if (increase) {
-            cartPositionElement.classList.remove('display-none');
-            cartPositionCount++;
-        } else {
-            cartPositionCount--; 
-            if (cartPositionCount < 1) {
-                cartPositionCount = 0;
-                cartPositionElement.classList.add('display-none');
-            }
-        }
-        cartPositionElement.innerHTML = cartPositionCount;
-    }
 
     // Изменить количество товара в корзине через инпут
     document.addEventListener('DOMContentLoaded', function () {

@@ -167,6 +167,7 @@ class CatalogFiltersView(View):
                             'новинки': Q(notes__icontains='NEW'),
                             'акции': Q(notes__icontains='акция'),
                             'скидки': Q(notes__icontains='скидка'),
+                            'в наличии': Q(is_in_stock=True),
                         }
                         products = products.filter(section_filters.get(selected_section, Q()))
 
@@ -203,7 +204,11 @@ class CatalogFiltersView(View):
 
             is_in_stock = cd.get('is_in_stock')
             if is_in_stock: 
-                products = products.filter(is_in_stock=is_in_stock)
+                products = products.filter(is_in_stock=True)
+
+            is_not_in_stock = cd.get('is_not_in_stock')
+            if is_not_in_stock: 
+                products = products.filter(is_in_stock=False)
 
         if not products.exists(): 
             return JsonResponse({
