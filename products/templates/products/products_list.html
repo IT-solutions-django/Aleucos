@@ -130,6 +130,12 @@
                             {{ form.is_in_stock.label }}
                         </label>
                     </div>
+                    <div class="sidebar__section-item-div">
+                        <label class="sidebar__brand-item-label">
+                            {{ form.is_not_in_stock }}
+                            {{ form.is_not_in_stock.label }}
+                        </label>
+                    </div>
                 </div>
             </div>
 
@@ -397,9 +403,12 @@ document.addEventListener('DOMContentLoaded', function () {
         const button = event.target.closest(".catalog__card-cart-button");
         if (button) {
             event.preventDefault();
+            
             const card = button.closest(".catalog__card");
             const barcode = button.id;
             const addToCartButtonBackup = button.cloneNode(true); 
+
+            renderCartPositionsCount(increase = true)
 
             const cartControls = document.createElement('div');
             cartControls.classList.add('catalog__card-cart-controls');
@@ -461,8 +470,9 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     function increaseQuantity(plusButton) {
         plusButton.disabled = true;
-
+        
         const barcode = plusButton.id;
+
         const quantityInput = plusButton.previousElementSibling;
         let oldQuantity = parseInt(quantityInput.value);
         quantity = oldQuantity + 1;
@@ -485,11 +495,11 @@ document.addEventListener('DOMContentLoaded', function () {
         })
             .then(response => response.json())
             .then(data => {
-                console.log(data)
                 plusButton.disabled = false;
                 if (data.error) {
                     alert(data.error);
                     quantityInput.value = oldQuantity;
+                    renderCartPositionsCount(increase = false);
                 }
             })
             .catch(error => {
@@ -524,6 +534,8 @@ document.addEventListener('DOMContentLoaded', function () {
         `;
             minusButton.parentElement.insertAdjacentElement('afterend', addToCartButton);
             minusButton.parentElement.remove();
+            
+            renderCartPositionsCount(increase = false);
         }
         quantityInput.value = quantity;
 
@@ -549,6 +561,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 minusButton.disabled = false;
             });
     }
+
+    /**
+     * Обновляет отображение количества позиций в корзине
+     * @param {boolean} increase - Увеличить ли количество позиций
+     */
 
     // Изменить количество товара в корзине через инпут
     document.addEventListener('DOMContentLoaded', function () {
@@ -585,7 +602,6 @@ document.addEventListener('DOMContentLoaded', function () {
         })
             .then(response => response.json())
             .then(data => {
-                console.log(data)
                 if (data.error) {
                     inputElement.value = 1;
                     alert("Товара недостаточно на складе")

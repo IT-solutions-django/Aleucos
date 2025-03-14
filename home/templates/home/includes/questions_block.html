@@ -1,0 +1,63 @@
+{% load static %}
+
+<section id="contactsBlock" class="contacts-block">
+    <div class="container">
+        <div class="contacts__inner">
+            <div class="contacts__info">
+                <div class="contacts__info-upper">
+                    <h2 class="contacts__info-title">Оставьте заявку</h2>
+                    <p class="contacts__info-text">Остались вопросы или интересует каталог с оптовыми ценами? <br> Заполните форму и отправьте свою заявку, наш менеджер свяжется с Вами для уточнения деталей.</p>
+                </div>
+                <div class="contacts__info-medium">
+                    <div class="contacts__info-box">
+                        <img src="{% static 'img/green-checkmark.svg' %}" alt="" class="contacts__info-img">
+                        <p class="contacts__info-box--text">Персональный менеджер</p>
+                    </div>
+                    <div class="contacts__info-box">
+                        <img src="{% static 'img/green-checkmark.svg' %}" alt="" class="contacts__info-img">
+                        <p class="contacts__info-box--text">Своевременная поддержка</p>
+                    </div>
+                    <div class="contacts__info-box">
+                        <img src="{% static 'img/green-checkmark.svg' %}" alt="" class="contacts__info-img">
+                        <p class="contacts__info-box--text">На всю продукцию имеются сертификаты и декларации соответствия</p>
+                    </div>
+                </div>
+                <div class="contacts__info-lower">
+                    <p class="contacts__info-suptext-loc">г.Владивосток, ул. Днепровская, д.25д, стр.4а</p>
+                    <a class="contacts__info-suptext" href="tel:+79644541700">+7 (964) 454-17-00</a>
+                </div>
+            </div>
+            <div class="contacts__form">
+                <form id="contactForm" class="form home__contact-form" action="">
+
+                    <div class="home__contact-form-item">
+                        <h2 class="contacts__form-title">Имя</h2>
+                        {{ contact_form.name }}
+                    </div>  
+                    <div class="home__contact-form-item">
+                        <h2 class="contacts__form-title">Телефон</h2>
+                        {{ contact_form.phone }}
+                    </div>
+
+                    <div class="home__contact-form-item">
+                        <h2 class="contacts__form-title">Сообщение</h2>
+                        {{ contact_form.message }}
+                    </div>
+
+                    <div class="home__contact-form-item buttons">
+                        <div>
+                            <h2 class="contacts__form-title">Почта</h2>
+                            {{ contact_form.email }}
+                        </div>
+                        <button class="leave-request-button" id="liveToastBtn">
+                            Оставить заявку
+                        </button>
+                        <div class="user-agreement">
+                            Нажимая на кнопку, вы соглашаетесь на <a class="color-green" href="">обработку персональных данных</a> и <a class="color-green" href="">политикой конфиденциальности</a>.
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>

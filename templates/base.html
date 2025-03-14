@@ -27,6 +27,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <script src="{% static 'js/header.js' %}" defer=""></script>
+    <script src="{% static 'js/imask/Imask.min.js' %}"></script>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
 
@@ -96,8 +97,13 @@
                                 <button class="header__service-link">
                                     <a href="{% if request.user.is_authenticated %}{% url 'users:account' %}{% else %}{% url 'users:login' %}{% endif %}"><img src="{% static 'img/person.svg' %}" alt="" class="header__service-img"></a>
                                 </button>
-                                <button class="header__service-link">
-                                    <a href="{% if request.user.is_authenticated %}{% url 'carts:cart_items' %}{% else %}{% url 'users:login' %}{% endif %}"><img src="{% static 'img/store.svg' %}" alt="" class="header__service-img"></a>
+                                <button class="header__service-link header__cart-icon">
+                                    <a href="{% if request.user.is_authenticated %}{% url 'carts:cart_items' %}{% else %}{% url 'users:login' %}{% endif %}"><img src="{% static 'img/store.svg' %}" alt="" class="header__service-img header__cart-icon"></a>
+                                    {% if request.user.is_authenticated %}
+                                        <span id="cartPositionsCount" class="cart-badge {% if not cart_positions_count %}display-none{% endif %}">
+                                            {% if cart_positions_count %}{{ cart_positions_count }}{% else %}0{% endif %}
+                                        </span>
+                                    {% endif %}
                                 </button>
                             {% endif %}
                             <form id="searchForm" action="{% url 'products:products_list' %}" method="get">
@@ -197,34 +203,6 @@
     <!-- <script src="./node_modules/cleave.js/dist/addons/cleave-phone.ru.js"></script> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.6.0/addons/cleave-phone.ru.js" integrity="sha512-dSXSpCsgx+mWGZjelEzcJtb+fMB8NBepOd7oy2hy5DU4Fj4wX5SclVjdOR3lztHDN8AGUn2zwNq/XLF7T64DwA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
-        const phoneInputs = document.querySelectorAll('.contacts__form-input--tel');
-        phoneInputs.forEach((input) => {
-            new Cleave(input, {
-                phone: true,
-                phoneRegionCode: 'RU',
-                prefix: "+7",
-            });
-        });
-
-        var cleave = new Cleave('.contacts__form-input--tel', {
-            phone:true,
-            phoneRegionCode: 'RU',
-            prefix: "+7"
-        });
-
-        var cleave = new Cleave('.help__form-input--tel', {
-            phone:true,
-            phoneRegionCode: 'RU',
-            prefix: "+7"
-        });
-
-        var cleave = new Cleave('.offer__input-tel', {
-            phone:true,
-            phoneRegionCode: 'RU',
-            prefix: "+7"
-        });
-    </script>
-    <script>
         var swiper = new Swiper(".mySwiper-1", {
             // slidesPerView: 'auto',
             // loop: true,
@@ -313,6 +291,24 @@
         })
     </script>
 
+<!-- Маски -->
+<script defer>
+    document.addEventListener('DOMContentLoaded', () => {
+        
+        document.querySelectorAll('input[type="tel"]').forEach(input => {
+            let phoneMask = IMask(input, { mask: "+{7} (900) 000-00-00" });
+    
+            function validatePhoneNumber() {
+                let t = input.value.replace(/\D/g, "");
+                return t.length < 11 ? (input.setCustomValidity("Необходимо минимум 11 цифр"), !1) : (input.setCustomValidity(""), !0);
+            }
+    
+            input.addEventListener("input", validatePhoneNumber);
+        });
+    });
+</script>
+
+<!-- Поиск -->
     <script defer>
         document.addEventListener('DOMContentLoaded', function () {
             let openSearchButton = document.getElementById('openSearchInput'); 
@@ -330,7 +326,73 @@
                 }
             });
         })
+        // Увеличивает или уменьшает количество позиций в корзине в хедере около иконки
+        function renderCartPositionsCount(increase) {
+            let cartPositionElement = document.getElementById('cartPositionsCount'); 
+            let cartPositionCount = cartPositionElement.innerHTML;
+            if (increase) {
+                cartPositionElement.classList.remove('display-none');
+                cartPositionCount++;
+            } else {
+                cartPositionCount--; 
+                if (cartPositionCount < 1) {
+                    cartPositionCount = 0;
+                    cartPositionElement.classList.add('display-none');
+                }
+            }
+            cartPositionElement.innerHTML = cartPositionCount;
+        }
     </script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("contactForm");
+        const toast = new bootstrap.Toast(document.querySelector(".toast"));
+
+        form.addEventListener("submit", function (event) {
+            event.preventDefault(); 
+
+            fetch(form.action, {
+                method: "POST",
+                body: new FormData(form),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    toast.show(); 
+                    form.reset(); 
+                }
+            })
+            .catch(error => console.error("Ошибка:", error));
+        });
+    });
+</script>
+
+
+<script>
+
+    const forms = document.querySelectorAll(".contactForm");
+    console.log(forms);
+    
+    forms.forEach((form) => {
+        form.addEventListener("submit", async function (event) {
+            event.preventDefault();
+            let formData = new FormData(form);
+            form.reset();
+            try {
+                let response = await fetch(`${window.origin}/api/save_registration_request/`, {
+                    method: "POST",
+                    body: formData,
+                });
+                console.log("Статус ответа:", response.status);
+            } catch (error) {
+                console.error("Ошибка запроса:", error);
+            }
+        });
+    });
+    
+    </script>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <!-- <script src="./node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script> -->
     <script src="{% static 'js/script.js' %}"></script>

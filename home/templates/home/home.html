@@ -16,6 +16,20 @@
                         <button class="offer__btn-сatalog" data-bs-toggle="modal" data-bs-target="#exampleModal2">Получить каталог</button>
                     {% endif %}
                 </div>
+                <div class="offer__info">
+                    <div class="offer__info-column">
+                        <div class="offer__info-column-heading">До 2-х недель</div>
+                        <div class="offer__info-label">средний срок доставки</div>
+                    </div>
+                    <div class="offer__info-column">
+                        <div class="offer__info-column-heading">15 000 ₽</div>
+                        <div class="offer__info-label">минимальная <br> сумма заказа</div>
+                    </div>
+                    <div class="offer__info-column">
+                        <div class="offer__info-column-heading">+ 75 брендов</div>
+                        <div class="offer__info-label">от эконом до <br> премиального</div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -54,7 +68,7 @@
 
     <section class="company">
         <div class="swiper mySwiper-1">
-            <div class="swiper-wrapper">
+            <div class="swiper-wrapper home__logos">
                 <img class="swiper-slide swiper-slide--img" src="{% static 'img/slider img.png' %}" alt="" srcset="">
                 <img class="swiper-slide swiper-slide--img" src="{% static 'img/slider img2.svg' %}" alt="" srcset="">
                 <img class="swiper-slide swiper-slide--img" src="{% static 'img/slider img3.svg' %}" alt="" srcset="">
@@ -86,65 +100,33 @@
           </div>
     </section>
 
-    <section class="advantage">
-        <div class="container ">
-            <h2 class="advantage-title">Наши преимущества</h2>
-            <div class="row row-cols-1  row-cols-md-2 row-cols-xxl-4 advantage__items">
-                <div class=" col advantage__item">
-                    <img src="{% static 'img/Background1.svg' %}" alt="" class="advantage__item-bck">
-                    <h2 class="advantage__item-title">Наименований товара</h2>
-                    <p class="advantage__item-text">6 000+</p>
-                    <img src="{% static 'img/green.svg' %}" class="advantage__item-img--1" alt="" srcset="">
-                </div>
-                <div class="col advantage__item">
-                    <img src="{% static 'img/Background2.svg' %}" alt="" class="advantage__item-bck">
-                    <h2 class="advantage__item-title">Азиатских брендов</h2>
-                    <p class="advantage__item-text">3 000+</p>
-                    <img src="{% static 'img/Star 1.svg' %}" class="advantage__item-img--2" alt="" srcset="">
-
-                </div>
-                <div class="col advantage__item">
-                    <img src="{% static 'img/Background1.svg' %}" alt="" class="advantage__item-bck">
-                    <h2 class="advantage__item-title">10 лет на рынке</h2>
-                    <p class="advantage__item-text">10</p>
-                    <img src="{% static 'img/green.svg' %}" class="advantage__item-img--1" alt="" srcset="">
-
-                </div>
-                <div class="col advantage__item">
-                    <img src="{% static 'img/Background2.svg' %}" alt="" class="advantage__item-bck">
-                    <h2 class="advantage__item-title">Складов по РФ</h2>
-                    <p class="advantage__item-text">200+</p>
-                    <img src="{% static 'img/Star 1.svg' %}" class="advantage__item-img--2" alt="" srcset="">
-                </div>
-            </div>
-        </div>
-    </section>
-
     <section class="catalog">
-        <div class="container ">
+        <div class="container">
             <div class="catalog__inner">
-                <h2 class="catalog__title">Каталог</h2>
-                <div class="catolog__items">
-                    <div class="catalog__item catalog__item--1">
-                        <h2 class="catalog__item-title">Для ухода <br> за волосам</h2>
-                        <a href="{% url 'products:products_list' %}"><button class="catalog__item-btn">328 товаров</button></a>
-                    </div>
-                    <div class="catalog__item catalog__item--2">
-                        <h2 class="catalog__item-title">Для ухода <br> за кожей</h2>
-                        <a href="{% url 'products:products_list' %}"><button class="catalog__item-btn">328 товаров</button></a>
-                    </div>
-                    <div class="catalog__item catalog__item--3">
-                        <h2 class="catalog__item-title">Макияж</h2>
-                        <a href="{% url 'products:products_list' %}"><button class="catalog__item-btn">328 товаров</button></a>
-                    </div>
-                    <div class="catalog__item catalog__item--4">
-                        <h2 class="catalog__item-title">Для детей</h2>
-                        <a href="{% url 'products:products_list' %}"><button class="catalog__item-btn">328 товаров</button></a>
-                    </div>
-                    <img class="catolog__items-img" src="{% static 'img/BigStar.svg' %}" alt="" srcset="">
-                </div>
+                <h2 class="catalog__title home__subheading">Каталог</h2>
                 <div>
-                    <button class="catalog__btn section__btn"><a style="color: white;" href="{% url 'products:products_list' %}">Смотреть всё</a></button>
+                    <div class="catolog__items">
+                        <div class="catalog__item catalog__item--1">
+                            <h2 class="catalog__item-title">Для ухода <br> за волосам</h2>
+                            <a href="{% url 'products:products_list' %}"><button class="catalog__item-btn">328 товаров</button></a>
+                        </div>
+                        <div class="catalog__item catalog__item--2">
+                            <h2 class="catalog__item-title">Для ухода <br> за кожей</h2>
+                            <a href="{% url 'products:products_list' %}"><button class="catalog__item-btn">328 товаров</button></a>
+                        </div>
+                        <div class="catalog__item catalog__item--3">
+                            <h2 class="catalog__item-title">Макияж</h2>
+                            <a href="{% url 'products:products_list' %}"><button class="catalog__item-btn">328 товаров</button></a>
+                        </div>
+                        <div class="catalog__item catalog__item--4">
+                            <h2 class="catalog__item-title">Для детей</h2>
+                            <a href="{% url 'products:products_list' %}"><button class="catalog__item-btn">328 товаров</button></a>
+                        </div>
+                        <img class="catolog__items-img" src="{% static 'img/BigStar.svg' %}" alt="" srcset="">
+                    </div>
+                    <div>
+                        <button class="catalog__btn section__btn"><a style="color: white;" href="{% url 'products:products_list' %}">Смотреть всё</a></button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -153,11 +135,13 @@
     <section class="hits">
         <div class="container">
             <div class="hits__inner">
-                <h2 class="hist__title">Хиты продаж</h2>
+                <div class="hist__title">
+                    <h2 class="home__subheading">Хиты продаж</h2>
+                </div>
                 <div class="swiper mySwiper-2">
                     <div class="swiper-wrapper">
                         {% for product in popular_products %}
-                            <div class="swiper-slide catalog__card">
+                            <div class="swiper-slide catalog__card {% if not request.user.is_authenticated %}not-registered{% endif %}">
                                 <a href="{{ product.get_absolute_url }}" class="catalog__card-image">
                                     <img src="{{ product.photo.url }}" alt="cart" class="catalog__cart-image">
                                 </a>
@@ -211,66 +195,72 @@
             </div>
         </div>
         <button class="hits__btn section__btn"><a style="color: white;" href="{% url 'products:products_list' %}">Смотреть всё</a></button>
-        
     </section>
 
-    {% if not request.user.is_authenticated %}
-        <section id="contactsBlock" class="contacts">
-            <div class="container">
-                <div class="contacts__inner">
-                    <div class="contacts__info">
-                        <h2 class="contacts__info-title">Контакты</h2>
-                        <p class="contacts__info-text">Остались вопросы или интересует каталог с оптовыми ценами? <br> Заполните форму и отправьте свою заявку, наш менеджер свяжется с Вами <br> для уточнения деталей.</p>
-                        <div class="contacts__info-box">
-                            <img src="{% static 'img/Vector.svg' %}" alt="" class="contacts__info-img">
-                            <p class="contacts__info-box--text">Персональный менеджер</p>
-                        </div>
-                        <div class="contacts__info-box">
-                            <img src="{% static 'img/Vector.svg' %}" alt="" class="contacts__info-img">
-                            <p class="contacts__info-box--text">Своевременная поддержка</p>
-                        </div>
-                        <div class="contacts__info-box">
-                            <img src="{% static 'img/Vector.svg' %}" alt="" class="contacts__info-img">
-                            <p class="contacts__info-box--text">На всю продукцию имеются сертификаты и декларации соответствия</p>
-                        </div>
-                        <div class="contacts__info-links">
-                            <a href="tel:+79644541700" alt="" class="contacts__info-link--img">
-                                <img src="{% static 'img/1.svg' %}" alt="" class="contacts__info-link--img">
-                            </a>
-                            <a href="https://www.instagram.com/@aleucos.vl" class="contacts__info-link">
-                                <img src="{% static 'img/2.svg' %}" alt="" class="contacts__info-link--img">
-                            </a>
-                        </div>
-                        <p class="contacts__info-suptext-loc">г.Владивосток, ул. Днепровская, д.25д, стр.4а</p>
-                        <a class="contacts__info-suptext" href="tel:+79644541700">+7 (964) 454-17-00</a>
+    <section class="clients">
+        <div class="container">
+            <div class="clients-inner">
+                <div class="">
+                    <h2 class="home__subheading">Работаем с разными категориями клиентов</h2>
+                </div>
+                <div class="clients__tiles">
+                    <div class="clients__tile">
+                        <img src="{% static 'img/clients-network-shops.png' %}" alt="">
+                        <p>Сетевые магазины</p>
                     </div>
-                    <div class="contacts__form">
-                        <form id="contactForm" class="form contactForm" action="">
-                            <div class="contacts__form-box">
-                                <h2 class="contacts__form-title">Имя</h2>
-                                {{ contact_form.name }}
-                            </div>
-                            <div class="contacts__form-items">
-                                <div class="contacts__form-box">
-                                    <h2 class="contacts__form-title">Телефон</h2>
-                                    {{ contact_form.phone }}
-                                </div>
-                                <div class="contacts__form-box">
-                                    <h2 class="contacts__form-title">Email</h2>
-                                    {{ contact_form.email }}
-                                </div>
-                            </div>
-                            <div class="contacts__form-box box__marin-top">
-                                <h2 class="contacts__form-title">Сообщение</h2>
-                                <textarea placeholder="Введите текст сообщения" name="massage" maxlength="150" class="contacts__form-input contacts__form-textarea contacts__form-input-cont"></textarea>
-                            </div>
-                            <div class="contacts__form-suptext">Нажимая на кнопку “Отправить заявку”, Вы даете согласие на <a class="contacts__form-suptext--link" href="">обработку персональных данных</a> и соглашаетесь с <a class="contacts__form-suptext--link" href="">политикой конфиденциальности.</a></div>
-                            <button class="contacts__form-btn section__btn" id="liveToastBtn">Оставить заявку</button>
-                        </form>
+                    <div class="clients__tile">
+                        <img src="{% static 'img/clients-retail-shops.png' %}" alt="">
+                        <p>Розничные магазины</p>
+                    </div>
+                    <div class="clients__tile">
+                        <img src="{% static 'img/clients-marketplaces.png' %}" alt="">
+                        <p>Маркетплейсы</p>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
+
+    <section class="advantage">
+        <div class="container">
+            <div class="advantage__inner">     
+                <h2 class="advantage-title home__subheading">Наши преимущества</h2>
+                <div class="row row-cols-1  row-cols-md-2 row-cols-xxl-4 advantage__items">
+                    <div class="advantage__item advantage__item--1">
+                        <p class="advantage__item__small-label">Наименований товара</p>
+                        <p class="advantage__item__big-label">6 000+</p>
+                        <div class="advantage__icon">
+                            <img src="{% static 'img/white-leaf.svg' %}" alt="">
+                        </div>
+                    </div>
+                    <div class="advantage__item advantage__item--2">
+                        <p class="advantage__item__small-label">Азиатских брендов</p>
+                        <p class="advantage__item__big-label">3 000+</p>
+                        <div class="advantage__icon">
+                            <img src="{% static 'img/white-star.svg' %}" alt="">
+                        </div>
+                    </div>
+                    <div class="advantage__item advantage__item--3">
+                        <p class="advantage__item__small-label">10 лет на рынке</p>
+                        <p class="advantage__item__big-label">10</p>
+                        <div class="advantage__icon">
+                            <img src="{% static 'img/white-leaf.svg' %}" alt="">
+                        </div>
+                    </div>
+                    <div class="advantage__item advantage__item--4">
+                        <p class="advantage__item__small-label">Складов по РФ</p>
+                        <p class="advantage__item__big-label">200+</p>
+                        <div class="advantage__icon">
+                            <img src="{% static 'img/white-star.svg' %}" alt="">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {% if not request.user.is_authenticated %}
+        {% include 'home/includes/questions_block.html' %}
     {% endif %}
 
     <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
@@ -281,12 +271,14 @@
         <div class="toast-body">
           Ваши данные успешно отправлены
         </div>
-      </div>
+    </div>
 
     <section id="answersBlock" class="answer">
         <div class="container px-4">
             <div class="answer__inner">
-                <h2 class="answer__title">Ответы на вопросы и документы</h2>
+                <div class="answer__title">
+                    <h2 class="home__subheading">Ответы на вопросы</h2>
+                </div>
                 <div class="row answer__items-box">
                     <div class="col-auto answer__items-answer">
                         <div class="accordion answer__item-answer" id="accordionExample1">
@@ -388,74 +380,28 @@
                             </div>
                         </div>
                     </div>
-                    <div id="certificatsBlock" class="col answer__items-surfiticat">
-                        <h2 class="answer__item-text">Сертификаты и декларации соответствия:</h2>
-                        <a class="row answer__item-surfiticat" href="./Чарльз-Петцольд-К.О.Д..pdf" download>
-                            <div class="col-auto ">
-                                <img src="{% static 'img/Vector2.svg' %}" alt="">
+                    <div class="col work-stages">
+                        <div class="work-stages__label">
+                            4 простых шага к бесперебойным поставкам косметики в ваш бизнес
+                        </div>
+                        <div class="work-stages__items">
+                            <div class="work-stage work-stage--1">
+                                <p>Запрос прайса</p>
+                                <p>01</p>
                             </div>
-                            <div class="col">
-                                <p class="answer__item-text">LIZDA румяна</p>
+                            <div class="work-stage work-stage--2">
+                                <p>Оформление заказа</p>
+                                <p>02</p>
                             </div>
-                            <div class="col-auto">
-                                <img src="{% static 'img/Vector3.svg' %}" alt="">
+                            <div class="work-stage work-stage--3">
+                                <p>Оплата</p>
+                                <p>03</p>
                             </div>
-                        </a>
-                        <a class="row answer__item-surfiticat" href="./Чарльз-Петцольд-К.О.Д..pdf" download>
-                            <div class="col-auto ">
-                                <img src="{% static 'img/Vector2.svg' %}" alt="">
+                            <div class="work-stage work-stage--4">
+                                <p>Получить заказ</p>
+                                <p>04</p>
                             </div>
-                            <div class="col">
-                                <p class="answer__item-text">LIZDA румяна</p>
-                            </div>
-                            <div class="col-auto">
-                                <img src="{% static 'img/Vector3.svg' %}" alt="">
-                            </div>
-                        </a>
-                        <a class="row answer__item-surfiticat" href="./Чарльз-Петцольд-К.О.Д..pdf" download>
-                            <div class="col-auto ">
-                                <img src="{% static 'img/Vector2.svg' %}" alt="">
-                            </div>
-                            <div class="col">
-                                <p class="answer__item-text">LIZDA румяна</p>
-                            </div>
-                            <div class="col-auto">
-                                <img src="{% static 'img/Vector3.svg' %}" alt="">
-                            </div>
-                        </a>
-                        <a class="row answer__item-surfiticat" href="./Чарльз-Петцольд-К.О.Д..pdf" download>
-                            <div class="col-auto ">
-                                <img src="{% static 'img/Vector2.svg' %}" alt="">
-                            </div>
-                            <div class="col">
-                                <p class="answer__item-text">LIZDA румяна</p>
-                            </div>
-                            <div class="col-auto">
-                                <img src="{% static 'img/Vector3.svg' %}" alt="">
-                            </div>
-                        </a>
-                        <a class="row answer__item-surfiticat" href="./Чарльз-Петцольд-К.О.Д..pdf" download>
-                            <div class="col-auto ">
-                                <img src="{% static 'img/Vector2.svg' %}" alt="">
-                            </div>
-                            <div class="col">
-                                <p class="answer__item-text">LIZDA румяна</p>
-                            </div>
-                            <div class="col-auto">
-                                <img src="{% static 'img/Vector3.svg' %}" alt="">
-                            </div>
-                        </a>
-                        <a class="row answer__item-surfiticat" href="./Чарльз-Петцольд-К.О.Д..pdf" download>
-                            <div class="col-auto ">
-                                <img src="{% static 'img/Vector2.svg' %}" alt="">
-                            </div>
-                            <div class="col">
-                                <p class="answer__item-text">LIZDA румяна</p>
-                            </div>
-                            <div class="col-auto">
-                                <img src="{% static 'img/Vector3.svg' %}" alt="">
-                            </div>
-                        </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -466,9 +412,8 @@
     <section class="help">
         <div class="container container__help">
             <div class="help__inner">
-                <div class="row row-cols-1 row-cols-lg-2">
                     <div class="col-auto help__left">
-                        <img class="help__left-img" src="{% static 'img/BackHelp.png' %}" alt="" srcset="">
+                        <img class="help__left-img" src="{% static 'img/quiz-photo.png' %}" alt="" srcset="">
                     </div>
                     <form class="col help__right">
                         <h2 class="help__title">Помощь с выбором</h2>
@@ -649,7 +594,7 @@
                             </div>
                             <p class="error-text item--hidden">Введите ваш ответ</p>
                         </div>
-                        <div class="row row-cols-2 help__form-btns">
+                        <div class="help__form-buttons">
                             <div class="col-auto col-btn">
                                 <button type="button" class="help__form-btn help__form-btn--prev">Назад</button>
                             </div>
@@ -660,35 +605,10 @@
                         </div>
                     </form>
                 </div>
-            </div>
         </div>
     </section>
 
 </main>
     {% endif %}
-    
-<script>
-
-const forms = document.querySelectorAll(".contactForm");
-console.log(forms);
-
-forms.forEach((form) => {
-    form.addEventListener("submit", async function (event) {
-        event.preventDefault();
-        let formData = new FormData(form);
-        form.reset();
-        try {
-            let response = await fetch(`${window.origin}/api/save_registration_request/`, {
-                method: "POST",
-                body: formData,
-            });
-            console.log("Статус ответа:", response.status);
-        } catch (error) {
-            console.error("Ошибка запроса:", error);
-        }
-    });
-});
-
-</script>
 
 {% endblock %}

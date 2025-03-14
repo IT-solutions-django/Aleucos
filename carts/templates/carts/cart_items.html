@@ -287,13 +287,20 @@ const deleteFromCart = (barcode) => {
                 totalPriceElement.textContent = `Итого: ${cart.total_price} ₽`;
             }
 
-            const cartTableBlock = document.getElementById("cartTableBlock");
-            if (!cartTableBlock || !document.querySelector('tbody').children.length) {
-                const emptyMessage = document.createElement('p');
-                emptyMessage.textContent = 'Ваша корзина пуста';
-                cartTableBlock.insertAdjacentElement('afterend', emptyMessage);
-                cartTableBlock.remove();
+            if (document.querySelectorAll('.cart-row').length == 0) {
+                document.querySelector('.cart-table').innerHTML = `
+                    <div class="empty-cart-block">
+                    <div class="empty-cart-label">
+                        Ваша корзина пуста
+                    </div>
+                    <div>
+                        <a class="hover-green continue-button" href="{% url 'products:products_list' %}">Перейти к каталогу →</a>
+                    </div>
+                </div>`;
+                document.querySelector('.continue__buttons').remove();
             }
+            
+            renderCartPositionsCount(increase = false)
         }
     })
     .catch(error => console.error("Ошибка при отправке запроса:", error));

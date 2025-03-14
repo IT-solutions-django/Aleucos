@@ -19,6 +19,8 @@ class RequestForm(forms.Form):
         required=True, 
         widget=forms.TextInput(attrs={
             'class': 'contacts__form-input contacts__form-input--tel contacts__form-input-cont', 
+            'type': 'tel', 
+            'placeholder': '+7'
         })
     )
     email = forms.EmailField(
@@ -34,7 +36,8 @@ class RequestForm(forms.Form):
         required=False, 
         widget=forms.Textarea(attrs={
             'class': 'contacts__form-input contacts__form-textarea contacts__form-input-cont', 
-            'placeholder': 'Введите текст сообщения'
+            'placeholder': 'Введите текст сообщения', 
+            'rows': 4,
         })
     )
 

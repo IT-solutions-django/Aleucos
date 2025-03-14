@@ -122,6 +122,16 @@ class SearchAndFilterForm(forms.Form):
             }
         )
     )
+    is_not_in_stock = forms.BooleanField(
+        required=False,
+        label_suffix='',
+        label='Под заказ',
+        widget=forms.CheckboxInput(
+            attrs={
+                'class': 'sidebar__section-checkbox filter-input'
+            }
+        )
+    )
 
     sections = forms.ChoiceField(
         choices=(
@@ -131,6 +141,7 @@ class SearchAndFilterForm(forms.Form):
             ('скидки', 'скидки'),
             ('подешевле', 'подешевле'),
             ('подороже', 'подороже'),
+            ('в наличии', 'в наличии')
         ),
         widget=forms.RadioSelect(
             attrs={
