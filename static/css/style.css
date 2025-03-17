@@ -799,12 +799,12 @@ main {
   font-weight: 200;
 }
 
-.swiper-button-next.swiper-button-disabled, 
+/* .swiper-button-next.swiper-button-disabled, 
 .swiper-button-prev.swiper-button-disabled {
   opacity: .35;
   cursor: auto;
   pointer-events: none;
-}
+} */
 
 .swiper-button-next {
   position: absolute;
@@ -2603,17 +2603,17 @@ label {
 }
 .advantage__item::before {
   content: "";
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 100%;
-    height: 100%;
-  background-image: url(/static/img/CatalogBck.png);
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-size: cover;
-    opacity: 0.02;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+background-image: url(/static/img/CatalogBck.png);
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  opacity: 0.02;
 }
 .home__contact-form {
   display: flex;
@@ -2749,4 +2749,158 @@ label {
 }
 .help__progress-bar {
   background-color: var(--color-green) !important;
+}
+.about .about-us {
+  display: flex;
+  justify-content: space-between;
+  gap: 90px; 
+  padding: 40px 0px 60px 0px;
+}
+.about .about-us-text {
+  display: flex;
+  flex-direction: column;
+  gap: 50px;
+}
+.about .cooperation {
+  padding: 60px 0px;
+  display: flex;
+  flex-direction: column;
+  gap: 50px;
+}
+.cooperation-main {
+  display: flex;
+  flex-direction: column;
+  gap: 50px;
+}
+.cooperation .cooperation-cards {
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+.cooperation .home__subheading {
+  text-align: center;
+}
+.cooperation-cards .card {
+  width: calc((100% - 40px * 2) / 3);
+
+  padding: 24px;
+  position: relative;
+  min-height: 116px;
+  font-size: 14px;
+  border-radius: 20px;
+  border: none;
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.cooperation-cards .card .heading {
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: bold;
+}
+
+.cooperation-cards .card::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  background-image: url(/static/img/CatalogBck.png);
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  opacity: 0.02;
+
+  border-radius: 20px;
+}
+.cooperation-cards .advantage__icon {
+  position: absolute;
+  right: -7px;
+  top: 12px;
+  width: 47px;
+  height: 47px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  border: 4px solid white;
+  background-color: inherit;
+}
+.cooperation-cards .card.card--1 {
+  background-color: #EDF5EF;
+}
+.cooperation-cards .card.card--2 {
+  background-color: #FEF4E8;
+}
+.cooperation-cards .card.card--3 {
+  background-color: #EDF4FC;
+}
+.cooperation-cards .card.card--4 {
+  background-color: #EDF4FC;
+}
+.cooperation-cards .card.card--5 {
+  background-color: #F4F5F7;
+}
+.cooperation-cards .card.card--6 {
+  background-color: #EDF5EF;
+}
+.cooperation-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+.cooperation-buttons .leave-request {
+  padding: 13px 32px; 
+  font-size: 18px;
+  font-weight: bold;
+  color: white; 
+  background-color: var(--color-green);
+  border-radius: 20px;
+}
+.cooperation-buttons .get-price {
+  display: block;
+  padding: 13px 32px; 
+  font-size: 18px;
+  line-height: 21px;
+  font-weight: bold;
+  color: black; 
+  background-color: #F4F5F7;
+  border-radius: 20px;
+}
+.history {
+  padding: 60px 0px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+.history-body {
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+}
+.history-text {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  font-size: 14px;
+}
+.documents {
+  min-width: 590px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  font-size: 18px;
+  font-weight: 700;
+}
+.documents-container {
+  display: flex;
+  gap: 20px; 
+  width: calc((100% / 20px * 2) / 3);
+  max-height: 260px;
 }
