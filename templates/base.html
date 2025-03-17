@@ -66,6 +66,54 @@
         </div>
     </div>
 
+    <div class="toast after-order" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-inner">
+            <div class="content">
+                <p class="heading">Спасибо за ваш заказ в нашем магазине!</p>
+                <p class="text">Мы рады, что вы выбрали именно нас! Ваши товары уже в обработке, и мы сделаем все возможное, чтобы они как можно скорее оказались у вас.</p>
+                <div class="points">
+                    <div class="point">
+                        <img src="{% static 'img/green-star.svg' %}" alt="">
+                        <a href="">Уход за телом</a>
+                    </div>
+                    <div class="point">
+                        <img src="{% static 'img/green-star.svg' %}" alt="">
+                        <a href="">Уход за кожей лица</a>
+                    </div>
+                    <div class="point">
+                        <img src="{% static 'img/green-star.svg' %}" alt="">
+                        <a href="">Уход за волосами</a>
+                    </div>
+                </div>
+            </div>
+            <img src="{% static 'img/toast-girl.png' %}" alt="">
+        </div>
+    </div>
+
+    <div class="toast after-request" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-inner">
+            <div class="content">
+                <p class="heading">Спасибо за Доверие!</p>
+                <p class="text">Мы рады, что вы выбрали именно нас! В ближайшее время с вами свяжуться наши спецалисты и проконсультируют вас по всем вопросам.</p>
+                <div class="points">
+                    <div class="point">
+                        <img src="{% static 'img/green-star.svg' %}" alt="">
+                        <a href="">Уход за телом</a>
+                    </div>
+                    <div class="point">
+                        <img src="{% static 'img/green-star.svg' %}" alt="">
+                        <a href="">Уход за кожей лица</a>
+                    </div>
+                    <div class="point">
+                        <img src="{% static 'img/green-star.svg' %}" alt="">
+                        <a href="">Уход за волосами</a>
+                    </div>
+                </div>
+            </div>
+            <img src="{% static 'img/toast-girl.png' %}" alt="">
+        </div>
+    </div>
+
     <header class="header">
         <div class="container">
             <div class="row header__inner align-items-center">
@@ -347,7 +395,7 @@
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const form = document.getElementById("contactForm");
-        const toast = new bootstrap.Toast(document.querySelector(".toast"));
+        const toast = new bootstrap.Toast(document.querySelector(".toast.after-request"));
 
         form.addEventListener("submit", function (event) {
             event.preventDefault(); 

@@ -1527,12 +1527,73 @@ label {
 }
 
 .toast {
+  width: 826px;
+  padding-left: 30px;
+  padding-bottom: 20px;
+  position: relative;
+  border-radius: 40px;
+  border: none;
+
+  /* display: block !important; */
+}
+.toast-inner {
+  display: flex;
+  justify-content: space-around;
+  gap: 106px;
+}
+.toast-inner::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  background-image: url(/static/img/CatalogBck.png);
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  opacity: 0.02;
+}
+.toast {
   position: fixed;
   z-index: 70;
-  right: 10px;
-  bottom: 10px;
+  right: 20px;
+  bottom: 20px;
+  background-color: #EDF5EF;
 }
 
+.toast .content {
+  display: flex;
+  flex-direction: column;
+  gap: 19px;
+  padding-top: 30px;
+}
+.toast .heading {
+  font-size: 24px;
+  font-weight: bold;
+}
+.toast .content .text {
+  font-size: 14px; 
+}
+.toast .points {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.toast .point {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.toast .point a {
+  font-size: 16px;
+  text-decoration: underline;
+}
+.toast .point img {
+  height: 16px;
+
+}
 .toast-img {
   background-color: #14A751;
   width: 20px;
