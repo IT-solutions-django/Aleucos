@@ -73,7 +73,9 @@
             <p class="cart__next-subheading">Выберете условия доставки и способ оплаты</p>
             <div class="cart__next-input labeled">
                 <label for="city-input"><strong>Ваш город</strong></label>
-                <input type="text" id="city-input" name="city">
+                <input type="text" id="city-input" name="city" list="address_list">
+                <datalist id="address_list"></datalist>
+
             </div>
             <div class="cart__next-terms">
                 <input type="hidden" id="delivery-input" name="delivery_terms">
@@ -130,60 +132,34 @@
 {% block script %}
 <script defer>
     $(document).ready(function () {
-        $("#city-input").autocomplete({
-            source: function (request, response) {
-                $.getJSON(`https://nominatim.openstreetmap.org/search?format=json&q=${request.term}`, function (data) {
-                    response($.map(data, function (item) {
-                        return {
-                            label: item.display_name,
-                            value: item.display_name
-                        };
-                    }));
+        $("#city-input").on("input", function () {
+            console.log('кауиоршл')
+            let query = $(this).val();
+            if (query.length > 2) {
+                $.ajax({
+                    url: "https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address",
+                    method: "POST",
+                    contentType: "application/json",
+                    headers: {
+                        "Authorization": "Token aa594033d2dd8b0a72dcaa25487b293486127477"
+                    },
+                    data: JSON.stringify({ 
+                        query: query,
+                        count: 10,
+                        from_bound: { value: "city" },
+                        to_bound: { value: "city" }
+                    }),
+                    success: function (data) {
+                        let suggestions = data.suggestions.map(item => item.data.city);
+                        $("#address_list").empty();
+                        suggestions.forEach(addr => {
+                            $("#address_list").append(`<option value="${addr}">`);
+                        });
+                    }
                 });
-            },
-            minLength: 2
-        });
-    });
-
-</script>
-
-<script defer>
-    document.addEventListener("DOMContentLoaded", function () {
-        function validateForm() {
-            const cityInput = document.querySelector('#city-input');
-            const deliveryInput = document.querySelector('#delivery-input');
-            const paymentInput = document.querySelector('#payment-input');
-            const submitButton = document.querySelector('#submit-button');
-    
-            if (cityInput.value.trim() && deliveryInput.value && paymentInput.value) {
-                submitButton.disabled = false;
-                console.log('Валидация успешна');
-            } else {
-                console.log('Валидация не пройдена');
-                submitButton.disabled = true;
             }
-        }
-    
-        function handleTileSelection(containerClass, inputId) {
-            const container = document.querySelector(containerClass);
-            const input = document.querySelector(inputId);
-    
-            container.addEventListener('click', (event) => {
-                const target = event.target.closest('.cart__next-delivery-term');
-                if (target) {
-                    container.querySelectorAll('.selected').forEach((el) => el.classList.remove('selected'));
-                    target.classList.add('selected');
-                    input.value = target.getAttribute('data-value');
-                    validateForm();
-                }
-            });
-        }
-    
-        document.querySelector('#submit-button').disabled = true;
-        handleTileSelection('.cart__next-delivery-terms-tiles', '#delivery-input');
-        handleTileSelection('.cart__next-payment-terms .cart__next-delivery-terms-tiles', '#payment-input');
-        document.querySelector('#city-input').addEventListener('input', validateForm);
-    });
+        });
+});
 </script>
 
 
