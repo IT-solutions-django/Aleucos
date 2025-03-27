@@ -114,23 +114,24 @@
         </div>
     </div>
 
-    <header class="header">
-        <div class="container">
+    <header class="header nav-down">
+        <div class="container general">
             <div class="row header__inner align-items-center">
                 <div class="col header__logo">
                     <a href="/" class="header__logo-link">
                         <img src="{% static 'img/Logo.svg' %}" alt="" class="header__logo-img">
                     </a>
                 </div>
-                <div class="col-auto header__menu">
+                <div class="col-auto header__menu header-desktop">
                     <a href="{% url 'products:products_list' %}" class="header__menu-link hover-green">Каталог</a>
+                    <a href="{% url 'contacts:about' %}" class="header__menu-link hover-green">О компании</a>
                     <a href="{% url 'home:home' %}#answersBlock"><button class="header__menu-link hover-green">Вопрос-ответ</button></a>
                     <a href="{% url 'contacts:contacts' %}"><button class="header__menu-link hover-green">Контакты</button></a>
                 </div>
                 <div class="col-auto header__service">
                     <div class="row header__service-box">
                         <div class="col padding-0">
-                            <button class="header__request-button" data-toggle="modal" data-target="#exampleModal" data-bs-toggle="modal" data-bs-target="#exampleModal">Оставить заявку</button>
+                            <button class="header__request-button header-desktop" data-toggle="modal" data-target="#exampleModal" data-bs-toggle="modal" data-bs-target="#exampleModal">Оставить заявку</button>
                         </div>
                         <div class="col header__service-links">
                             {% if request.path == '/users/account/' %}
@@ -173,7 +174,17 @@
                                     <li><button href="{% url 'contacts:contacts' %}" class="header__menu-link dropdown-item">Контакты</button></li>
                                 </ul>
                             </div>
-                            
+                            <div class="header-mobile-menu">
+                                <div class="close-mobile-menu">
+                                    <img src="{% static 'img/close.svg' %}" alt="">
+                                </div>
+                                <div class="mobile-menu-points">
+                                    <a href="{% url 'products:products_list' %}" class="mobile-menu-point hover-green">Каталог</a>
+                                    <a href="{% url 'contacts:about' %}" class="mobile-menu-point hover-green">О компании</a>
+                                    <a href="{% url 'home:home' %}#answersBlock"><button class="mobile-menu-point hover-green">Вопрос-ответ</button></a>
+                                    <a href="{% url 'contacts:contacts' %}"><button class="mobile-menu-point hover-green">Контакты</button></a>
+                                </div>
+                            </div>  
                         </div>
                     </div>
                 </div>
@@ -296,10 +307,6 @@
                     slidesPerView: 1,
                     spaceBetween: 24,
                     freeMode: false,
-                    pagination: {
-                        el: ".swiper-pagination",
-                        dynamicBullets: true,
-                    }
                 });
             }
         })
@@ -322,7 +329,11 @@
                     slidesPerView: 2,
                     spaceBetween: 24,
                     freeMode: true,
-                    loop:true
+                    loop:true, 
+                    navigation: {
+                        nextEl: ".swiper-button-next",
+                        prevEl: ".swiper-button-prev",
+                    },
                 });
             } else if (viewport_width < 768) {
                 console.log('d');
@@ -331,9 +342,10 @@
                     spaceBetween: 24,
                     freeMode: false,
                     loop:true,
-                    pagination: {
-                        el: ".swiper-pagination",
-                    }
+                    navigation: {
+                        nextEl: ".swiper-button-next",
+                        prevEl: ".swiper-button-prev",
+                    },
                 });
             }
         })
@@ -439,6 +451,23 @@
         });
     });
     
+    </script>
+
+    <script defer>
+        document.addEventListener('DOMContentLoaded', () => {
+            const menuButton = document.querySelector('.header__menu-btn'); 
+            const mobileMenu = document.querySelector('.header-mobile-menu');
+            const closeButton = document.querySelector('.close-mobile-menu');
+
+            menuButton.addEventListener('click', (button) => {
+                console.log('нажал');
+                
+                mobileMenu.classList.add('active');
+            });
+            closeButton.addEventListener('click', (button) => {
+                mobileMenu.classList.remove('active');
+            });
+        });
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>

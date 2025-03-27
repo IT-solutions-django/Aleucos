@@ -27,11 +27,14 @@ class AccountView(View):
                         orders = orders.order_by('-created_at') 
                     case 'Сначала старые': 
                         orders = orders.order_by('created_at')
-        
+
+            dates = request.GET.get('dates')
+            
         context =  {
             'orders': orders, 
             'manager': user.manager,
             'filter_form': filter_form,
+            'saved_dates': dates,
         }
 
         return render(request, 'users/account.html', context)

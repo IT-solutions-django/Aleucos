@@ -159,17 +159,3 @@ class AccountFilterForm(forms.Form):
         ), 
         required=False, 
     )
-
-    start_date = forms.DateField(
-        widget=forms.DateInput(
-            attrs={'type': 'date', 'class': 'date-picker'}
-        ),
-        required=False
-    )
-    
-    end_date = forms.DateField(
-        widget=forms.DateInput(
-            attrs={'type': 'date', 'class': 'date-picker'}
-        ),
-        required=False
-    )

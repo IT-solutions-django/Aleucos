@@ -4,6 +4,9 @@
 {% block title %}Личный кабинет{% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
 <main class="account">
     <div class="heading-wrapper">
         <div class="heading-label">
@@ -44,13 +47,7 @@
                             <p class="account__sort {% if section.choice_label == 'Все' %}active{% endif %}">{{ section }}</p>
                         {% endif %}
                     {% endfor %}
-                    <!-- <p class="account__sort-button">Выбрать период</p>
-
-                    <div id="date-picker-container" style="display: none;">
-                        <input type="date" name="start_date" class="date-picker">
-                        <input type="date" name="end_date" class="date-picker">
-                        <button type="submit">Применить</button>
-                    </div> -->
+                    <input name="dates" class="account__sort-block" type="text" id="date-range" placeholder="Выберите даты" />
             </form>
             <div class="account_heading">
                 Ваши заказы
@@ -123,9 +120,23 @@
             console.error("Форма не найдена!");
         }
     }
-    // document.querySelector('.account__sort-button').addEventListener('click', function () {
-    //     let datePicker = document.getElementById('date-picker-container');
-    //     datePicker.style.display = datePicker.style.display === 'none' ? 'block' : 'none';
-    // });
+</script>
+
+<script>
+    let savedDates = "{{ date_range }}".trim();
+
+    console.log("{{ date_range }}");
+
+    flatpickr("#date-range", {
+        mode: "range",  
+        dateFormat: "Y-m-d", 
+        locale: "ru", 
+        defaultDate: savedDates ? savedDates.split(" to ") : [],
+        onClose: function (selectedDates, dateStr, instance) {
+            if (selectedDates.length === 2) { 
+                document.getElementById("accountFilterForm").submit(); 
+            }
+        }
+    });
 </script>
 {% endblock %}
