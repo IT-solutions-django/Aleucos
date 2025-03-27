@@ -133,7 +133,7 @@ class CatalogFiltersView(View):
     def get(self, request):
         form = SearchAndFilterForm(request.GET)
 
-        print(form.data)
+        print(f'Данные с формы: {form.data}')
 
         if form.is_valid():
             cd = form.cleaned_data
