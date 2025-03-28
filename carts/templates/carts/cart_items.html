@@ -15,14 +15,14 @@
         <div class="heading-label">
             <a href="{% url 'products:products_list' %}" class="color-black">Ваша корзина</a>
         </div>
-        <div class="breadcrumb">
+        <div class="breadcrumb only-desktop">
             <a href="{% url 'home:home' %}" class="hover-green">Главная</a>
             <p>/</p>
             <a href="" class="hover-green">Корзина</a>
         </div>
     </div>
 
-    <div class="cart-table">
+    <div class="cart-table only-desktop">
         {% if cart.products %}
             <div class="cart-header">
                 <span>Фото</span>
@@ -63,8 +63,66 @@
         </div>
         {% endif %}
     </div>
-    {% if cart.products %}
+
+    <div class="cart-mobile">
+        {% if cart.products %}
+            {% for barcode, item in cart.products.items %}
+                <div class="mobile-product-card">
+                    <div class="upper">
+                        <div class="product-data">
+                            <div class="product-photo">
+                                <div class="product-photo-wrapper">
+                                    <img src="{{ barcode|product_image_url }}" alt="">
+                                </div>
+                                <p>{{ barcode }}</p>
+                            </div>
+                            <div class="product-name-and-price">
+                                <p class="product-name">{{ barcode|product_title }}</p>
+                                <p class="product-price">{{ item.unit_price }} ₽</p>
+                            </div>
+                        </div>
+                        <button class="delete">
+                            <img src="{% static 'img/delete-item.svg' %}" alt="">
+                        </button>
+                    </div>
+                    <div class="medium">
+                        <div>
+                            <div class="cart-quantity">
+                                <input id="quantity-{{ barcode }}" value="{{ item.quantity }}" oninput="checkQuantity('{{ barcode }}')">
+                                <button data-barcode="{{ barcode }}" class="minus-button">-</button>
+                                <button data-barcode="{{ barcode }}" class="plus-button">+</button>
+                            </div>
+                        </div>
+                        <div class="product-remains">
+                            <p>На складе: <span>123</span></p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="position-price">
+                        <p>Цена по позиции:</p>
+                        <p class="product-total-price"></p>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-cart-label">
+                Ваша корзина пуста
+            </div>
+            <div>
+                <a class="hover-green continue-button" href="{% url 'products:products_list' %}">Перейти к каталогу →</a>
+            </div>
+        {% endif %}
+    </div>
+    <div class="cart-bottom-buttons">
+        <p class="result">Итог: <span>1000 р</span></p>
         <div class="continue__buttons">
+            <button onclick="checkCart()" class="continue-button">Продолжить</button>
+            <a href="{% url 'products:export_catalog' %}" class="get-price-button">Получить прайс</a>
+        </div>
+    </div>
+
+    {% if cart.products %}
+        <div class="continue__buttons only-desktop">
             <button onclick="checkCart()" class="continue-button">Продолжить</button>
             <a href="{% url 'products:export_catalog' %}" class="get-price-button">Получить прайс</a>
         </div>
@@ -296,6 +354,10 @@ function checkCart() {
     .then(data => {
         if (data.success) {
             document.getElementById('cart__next').style.display = 'flex';
+            if (window.innerWidth < 600) {
+                document.querySelector('.cart-bottom-buttons').classList.add('display-none');
+                document.querySelector('#cart__next').scrollIntoView({ behavior: 'smooth' });
+            }
         } else {
             let errorsContainer = document.getElementById('errors-container');
             errorsContainer.innerHTML = '';  

@@ -4,7 +4,7 @@
 
 {% block content %}
 <main class="product">
-    <div class="breadcrumb">
+    <div class="breadcrumb  only-desktop">
         <a href="" class="hover-green">Главная</a>
         <p>/</p>
         <a href="" class="hover-green">Каталог</a>
@@ -19,7 +19,7 @@
                     <img src="{{ product.photo.url }}" alt="">
                 </div>
                 <div class="product__data">
-                    <div class="product__price-block">
+                    <div class="product__price-block only-desktop">
                         <div class="product__price">
                             {{ product.price_before_200k|floatformat:2|price_format }} ₽
                         </div>
@@ -30,8 +30,26 @@
                             Получить прайс
                         </a>
                     </div>
+                    <div class="mobile-product-data">
+                        <div class="mobile-product-price">
+                            <div class="product__price">
+                                {{ product.price_before_200k|floatformat:2|price_format }} ₽
+                            </div>
+                            <div>
+                                Штрихкод: {{ product.barcode }}
+                            </div>
+                        </div>
+                        <div class="mobile-product-buttons">
+                            <div class="catalog__card-cart-button add-to-cart">
+                                В корзину
+                            </div>
+                            <a href="{% url 'products:export_catalog' %}" class="product__get-price">
+                                Получить прайс
+                            </a>
+                        </div>
+                    </div>
                     <div class="product__info-block">
-                        <div>
+                        <div class="only-desktop">
                             Штрихкод: {{ product.barcode }}
                         </div>
                         {% if product.description %}
