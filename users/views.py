@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from .forms import LoginForm
 from django.contrib.auth import authenticate, login
 from .forms import AccountFilterForm
+from datetime import datetime
 
 
 @method_decorator(login_required, name='dispatch')
@@ -28,13 +29,31 @@ class AccountView(View):
                     case 'Сначала старые': 
                         orders = orders.order_by('created_at')
 
-            dates = request.GET.get('dates')
+
+            dates_string = request.GET.get('dates')
+            start_date_original = None 
+            end_date_original = None
+
+            if dates_string:
+                if '—' in dates_string: 
+                    date_parts = dates_string.split(' — ')
+                    start_date_original, end_date_original = date_parts
+                    start_date = '-'.join(list(reversed(start_date_original.split('.'))))
+                    end_date = '-'.join(list(reversed(end_date_original.split('.'))))
+
+                    orders = orders.filter(
+                        created_at__date__gte=start_date,
+                        created_at__date__lte=end_date
+                    )
+                else: 
+                    start_date = end_date = dates_string
             
         context =  {
             'orders': orders, 
             'manager': user.manager,
             'filter_form': filter_form,
-            'saved_dates': dates,
+            'start_date': start_date_original,
+            'end_date': end_date_original,
         }
 
         return render(request, 'users/account.html', context)

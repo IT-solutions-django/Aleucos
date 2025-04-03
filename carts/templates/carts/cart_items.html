@@ -67,7 +67,7 @@
     <div class="cart-mobile">
         {% if cart.products %}
             {% for barcode, item in cart.products.items %}
-                <div class="mobile-product-card">
+                <div class="mobile-product-card" data-barcode="{{ barcode }}">
                     <div class="upper">
                         <div class="product-data">
                             <div class="product-photo">
@@ -81,26 +81,26 @@
                                 <p class="product-price">{{ item.unit_price }} ₽</p>
                             </div>
                         </div>
-                        <button class="delete">
+                        <button class="delete-btn delete" data-barcode="{{ barcode }}" onclick="deleteFromCart('{{ barcode }}')">
                             <img src="{% static 'img/delete-item.svg' %}" alt="">
                         </button>
                     </div>
                     <div class="medium">
                         <div>
                             <div class="cart-quantity">
-                                <input id="quantity-{{ barcode }}" value="{{ item.quantity }}" oninput="checkQuantity('{{ barcode }}')">
+                                <input id="mobile-quantity-{{ barcode }}" value="{{ item.quantity }}" oninput="checkQuantity('{{ barcode }}')">
                                 <button data-barcode="{{ barcode }}" class="minus-button">-</button>
                                 <button data-barcode="{{ barcode }}" class="plus-button">+</button>
                             </div>
                         </div>
                         <div class="product-remains">
-                            <p>На складе: <span>123</span></p>
+                            <p>На складе: <span>{{ barcode|product_remains }}</span></p>
                         </div>
                     </div>
                     <hr>
                     <div class="position-price">
                         <p>Цена по позиции:</p>
-                        <p class="product-total-price"></p>
+                        <p class="product-total-price">{{ item.total_product_price }} ₽</p>
                     </div>
                 </div>
             {% endfor %}
@@ -308,30 +308,36 @@ const deleteFromCart = (barcode) => {
             alert("Ошибка при очистке корзины:", data.error);
         } else {
             cart = data.cart 
+            
+            if (isMobile()) {
+                let cardToDelete = document.querySelector(`.mobile-product-card[data-barcode="${barcode}"]`);
+                cardToDelete.remove();
 
-            const row = document.querySelector(`div[data-barcode="${barcode}"]`);
-            console.log(row);
-            if (row) {
-                row.remove();
-            }
+            } else {
+                const row = document.querySelector(`div[data-barcode="${barcode}"]`);
+                console.log(row);
+                if (row) {
+                    row.remove();
+                }
 
-            const totalPriceElement = document.getElementById("totalOrderPrice");
-            if (totalPriceElement) {
-                console.log(cart)
-                totalPriceElement.textContent = `Итого: ${cart.total_price} ₽`;
-            }
+                const totalPriceElement = document.getElementById("totalOrderPrice");
+                if (totalPriceElement) {
+                    console.log(cart)
+                    totalPriceElement.textContent = `Итого: ${cart.total_price} ₽`;
+                }
 
-            if (document.querySelectorAll('.cart-row').length == 0) {
-                document.querySelector('.cart-table').innerHTML = `
-                    <div class="empty-cart-block">
-                    <div class="empty-cart-label">
-                        Ваша корзина пуста
-                    </div>
-                    <div>
-                        <a class="hover-green continue-button" href="{% url 'products:products_list' %}">Перейти к каталогу →</a>
-                    </div>
-                </div>`;
-                document.querySelector('.continue__buttons').remove();
+                if (document.querySelectorAll('.cart-row').length == 0) {
+                    document.querySelector('.cart-table').innerHTML = `
+                        <div class="empty-cart-block">
+                        <div class="empty-cart-label">
+                            Ваша корзина пуста
+                        </div>
+                        <div>
+                            <a class="hover-green continue-button" href="{% url 'products:products_list' %}">Перейти к каталогу →</a>
+                        </div>
+                    </div>`;
+                    document.querySelector('.continue__buttons').remove();
+                }
             }
             
             renderCartPositionsCount(increase = false)
@@ -373,19 +379,33 @@ function checkCart() {
 }
 
 const updateCartDisplay = (cart) => {
-    for (const barcode in cart.products) {
-        const row = document.querySelector(`div[data-barcode="${barcode}"]`);
-        if (row) {
+    if (isMobile()) {
+        for (const barcode in cart.products) {
+            let productCard = document.querySelector(`.mobile-product-card[data-barcode="${barcode}"]`); 
+
             const product = cart.products[barcode];
-            
-            const productUnitPrice = row.querySelector('.product-unit-price');
-            productUnitPrice.textContent = `${product.unit_price} ₽`;
 
-            const quantityInput = row.querySelector(`input[id="quantity-${barcode}"]`);
-            quantityInput.value = product.quantity;
+            let productUnitPrice = productCard.querySelector('.product-price'); 
+            productUnitPrice.textContent = `${formatNumber(product.unit_price)} ₽`; 
 
-            const productTotalPrice = row.querySelector('.product-total-price');
+            let productTotalPrice = productCard.querySelector('.product-total-price'); 
             productTotalPrice.textContent = `${product.total_product_price} ₽`;
+        }
+    } else {
+        for (const barcode in cart.products) {
+            const row = document.querySelector(`div[data-barcode="${barcode}"]`);
+            if (row) {
+                const product = cart.products[barcode];
+                
+                const productUnitPrice = row.querySelector('.product-unit-price');
+                productUnitPrice.textContent = `${product.unit_price} ₽`;
+    
+                const quantityInput = row.querySelector(`input[id="quantity-${barcode}"]`);
+                quantityInput.value = product.quantity;
+    
+                const productTotalPrice = row.querySelector('.product-total-price');
+                productTotalPrice.textContent = `${product.total_product_price} ₽`;
+            }
         }
     }
 };
@@ -405,12 +425,36 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
+function isMobile() {
+    if (window.innerWidth < 600) {
+        return true;
+    }
+    return false;
+}
+
+function formatNumber(number) {
+    let numStr = typeof number === 'number' ? number.toString() : number;
+    
+    let parts = numStr.split('.');
+    let integerPart = parts[0];
+    let decimalPart = parts.length > 1 ? '.' + parts[1] : '';
+    
+    integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    
+    return integerPart + decimalPart;
+}
+
 
 function increaseQuantity(plusButton) {
     plusButton.disabled = true;
 
     const barcode = plusButton.dataset.barcode;
-    const quantityInput = document.getElementById(`quantity-${barcode}`);
+    let quantityInput;
+    if (isMobile()) {
+        quantityInput = document.getElementById(`mobile-quantity-${barcode}`);
+    } else {
+        quantityInput = document.getElementById(`quantity-${barcode}`);
+    }
     let oldQuantity = parseInt(quantityInput.value);
     quantity = oldQuantity + 1;
     if (quantity < 1) {
@@ -453,7 +497,12 @@ function increaseQuantity(plusButton) {
         console.log('Уменьшаем колво')
 
         const barcode = minusButton.dataset.barcode;
-        const quantityInput = document.getElementById(`quantity-${barcode}`);
+        let quantityInput;
+        if (isMobile()) {
+            quantityInput = document.getElementById(`mobile-quantity-${barcode}`);
+        } else {
+            quantityInput = document.getElementById(`quantity-${barcode}`);
+        }
         let quantity = parseInt(quantityInput.value);
         quantity -= 1;
         quantityInput.value = quantity;
@@ -481,6 +530,45 @@ function increaseQuantity(plusButton) {
             minusButton.disabled = false;
         });
     }
+</script>
+
+<script defer>
+    document.addEventListener("DOMContentLoaded", function () {
+        function validateForm() {
+            const cityInput = document.querySelector('#city-input');
+            const deliveryInput = document.querySelector('#delivery-input');
+            const paymentInput = document.querySelector('#payment-input');
+            const submitButton = document.querySelector('#submit-button');
+    
+            if (cityInput.value.trim() && deliveryInput.value && paymentInput.value) {
+                submitButton.disabled = false;
+                console.log('Валидация успешна');
+            } else {
+                console.log('Валидация не пройдена');
+                submitButton.disabled = true;
+            }
+        }
+    
+        function handleTileSelection(containerClass, inputId) {
+            const container = document.querySelector(containerClass);
+            const input = document.querySelector(inputId);
+    
+            container.addEventListener('click', (event) => {
+                const target = event.target.closest('.cart__next-delivery-term');
+                if (target) {
+                    container.querySelectorAll('.selected').forEach((el) => el.classList.remove('selected'));
+                    target.classList.add('selected');
+                    input.value = target.getAttribute('data-value');
+                    validateForm();
+                }
+            });
+        }
+    
+        document.querySelector('#submit-button').disabled = true;
+        handleTileSelection('.cart__next-delivery-terms-tiles', '#delivery-input');
+        handleTileSelection('.cart__next-payment-terms .cart__next-delivery-terms-tiles', '#payment-input');
+        document.querySelector('#city-input').addEventListener('input', validateForm);
+    });
 </script>
 {% endblock %}
  

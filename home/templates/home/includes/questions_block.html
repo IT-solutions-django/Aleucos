@@ -28,8 +28,8 @@
                 </div>
             </div>
             <div class="contacts__form">
-                <form id="contactForm" class="form home__contact-form" action="">
-
+                <form id="contactForm" class="form home__contact-form" action="{% url 'home:home' %}">
+                    {% csrf_token %}
                     <div class="mobile">
                         <div class="home__contact-form-item">
                             <h2 class="contacts__form-title">Имя</h2>

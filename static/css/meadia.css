@@ -448,6 +448,13 @@
     .help__form-btn {
         padding: 4px;
         font-size: 16px;
+        padding-left: 20px;
+    }
+    .help__form-btn.help__form-btn--prev {
+        padding-left: 50px;
+    }
+    .row.help__form-item {
+        flex-wrap: nowrap;
     }
 
     .contacts__form-bts {
@@ -515,7 +522,7 @@
 
     .header {
         position: fixed;
-        z-index: 10000;
+        z-index: 100;
         width: 100vw;
         background-color: #FFFFFF;
         top: -100%;

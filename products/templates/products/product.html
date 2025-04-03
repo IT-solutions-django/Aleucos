@@ -15,21 +15,51 @@
         <div class="product__card">
             <div class="product__name">{{ product.brand.title }} - {{ product.title }} {% if product.volume %}({{ product.volume }}){% endif %}</div>
             <div class="product__body">
-                <div class="product__image">
-                    <img src="{{ product.photo.url }}" alt="">
-                </div>
+                <a class="product__image" href="{{ product.photo.url }}">
+                        <img src="{{ product.photo.url }}" alt="">
+                </a>
                 <div class="product__data">
-                    <div class="product__price-block only-desktop">
-                        <div class="product__price">
-                            {{ product.price_before_200k|floatformat:2|price_format }} ₽
+                    {% if request.user.is_authenticated %}   
+                        <div class="product__price-block only-desktop">
+                            <div class="product__price">
+                                {{ product.price_before_200k|floatformat:2|price_format }} ₽
+                            </div>                                
+                            <div class="catalog__card-price-block">
+                                {% if product.quantity_in_cart != 0 %}
+                                    <div class="catalog__card-cart-controls">
+                                        <button id="{{ product.barcode }}" class="catalog__card-cart-control-minus">
+                                            <img src="{% static 'img/Vector (1).svg' %}" alt="cart">
+                                        </button>
+                                        <input type="number" id="quantity-input-{{ product.barcode }}" class="catalog__card-quantity-input" value="{{ product.quantity_in_cart }}">
+                                        <button id="{{ product.barcode }}" class="catalog__card-cart-control-plus">
+                                            <img src="{% static 'img/Vector (2).svg' %}" alt="cart">
+                                        </button>
+                                    </div>
+                                {% else %}
+                                    {% if product.is_in_stock %}
+                                        <div id="{{ product.barcode }}" class="catalog__card-cart-button add-to-cart">
+                                            В корзину
+                                        </div>
+                                    {% else %} 
+                                        {% if product.will_arrive_at %}
+                                            <div class="catalog__card-not-in-stock">
+                                                В пути до {{ product.will_arrive_at|date:"d.m.y"  }}
+                                            </div>
+                                        {% else %}
+                                            <div class="catalog__card-not-in-stock">
+                                                Нет в наличии
+                                            </div>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                 
+                            <a href="{% url 'products:export_catalog' %}" class="product__get-price">
+                                Получить прайс
+                            </a>
+                       
                         </div>
-                        <div class="catalog__card-cart-button add-to-cart">
-                            В корзину
-                        </div>
-                        <a href="{% url 'products:export_catalog' %}" class="product__get-price">
-                            Получить прайс
-                        </a>
-                    </div>
+                        {% endif %}
                     <div class="mobile-product-data">
                         <div class="mobile-product-price">
                             <div class="product__price">
@@ -114,10 +144,10 @@
                                 <div class="catalog__card-name">
                                     <a href="{{ product.get_absolute_url }}" class="hover-green">{{ product.title }}</a>
                                 </div>
-                                {% if request.user.is_authenticated %}                                    
+                                {% if request.user.is_authenticated %}                                   
                                     <div class="catalog__card-price-block">
                                         <div class="catalog__card-price">
-                                            <p>{{ product.price_before_200k|floatformat:2|price_format }} ₽</p>
+                                            <p>{{ product.price_before_200k|floatformat:2|price_format }} ₽ </p>
                                         </div>
                                         {% if product.quantity_in_cart != 0 %}
                                             <div class="catalog__card-cart-controls">
@@ -160,4 +190,284 @@
     </div>
     {% endif %}
 </main>
+
+
+<style class=lum-base-styles>
+    .lum-img {
+        max-height: 80vh !important;
+        max-width: 1200px !important;
+    }
+    @media (max-width: 1200px) {
+        .lum-img {
+            max-width: 100% !important;
+        }
+    }
+    @media (max-width: 990px) {
+        .lum-gallery-button {
+            display: none !important;
+        }
+    }
+    @keyframes lum-noop {
+        0% {
+            zoom: 1
+        }
+    }
+
+    .lum-lightbox {
+        position: fixed;
+        display: none;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0
+    }
+
+    .lum-lightbox.lum-open {
+        display: block;
+        z-index: 1000000
+    }
+
+    .lum-lightbox.lum-closing,
+    .lum-lightbox.lum-opening {
+        animation: lum-noop 1ms
+    }
+
+    .lum-lightbox-inner {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        overflow: hidden
+    }
+
+    .lum-lightbox-loader {
+        display: none
+    }
+
+    .lum-lightbox-inner img {
+        max-width: 100%;
+        max-height: 100%
+    }
+
+    .lum-lightbox-image-wrapper {
+        vertical-align: middle;
+        display: table-cell;
+        text-align: center;
+        background-color: rgba(0, 0, 0, .5)
+    }
+
+    .lum-img {
+        background-color: white;
+        border-radius: 44px;
+
+        object-fit: contain !important;
+        width: 85vw;
+    }
+
+    .lum-close-button {
+        position: absolute;
+        top: 40px;
+        right: 40px;
+        width: 24px;
+        height: 20px;
+        background-image: url('/static/img/close.svg');
+        background-size: cover;
+        cursor: pointer;
+    }
+
+    @media (max-width:990px) {
+        .lum-img {
+            width: 100vw
+        }
+    }
+</style>
+<script type=module>
+    import { L as LuminousGallery } from "/static/js/luminous-lightbox/luminous-lightbox.js";
+
+    function initGallery() {
+        const e = {
+            showCloseButton: !0
+        };
+
+        var images = document.querySelectorAll(".product__image");
+        console.log(images)
+
+        if (images.length > 0) {
+            console.log('ага')
+            new LuminousGallery(images, e);
+        }
+    }
+
+    initGallery();
+</script>
+
+<script defer>
+    function throttle(func, delay) {
+            let lastCall = 0;
+            return function (...args) {
+                const now = (new Date()).getTime();
+                if (now - lastCall < delay) {
+                    return;
+                }
+                lastCall = now;
+                return func(...args);
+            };
+        }
+
+    // Добавить товар в корзину
+    document.addEventListener("click", function (event) {
+        const button = event.target.closest(".catalog__card-cart-button");
+        if (button) {
+            event.preventDefault();
+            
+            const card = button.closest(".catalog__card");
+            const barcode = button.id;
+            const addToCartButtonBackup = button.cloneNode(true); 
+
+            renderCartPositionsCount(increase = true)
+
+            const cartControls = document.createElement('div');
+            cartControls.classList.add('catalog__card-cart-controls');
+            cartControls.innerHTML = `
+                <button id="${barcode}" class="catalog__card-cart-control-minus">
+                    <img src="{% static 'img/Vector (1).svg' %}" alt="cart">
+                </button>
+                <input type="number" id="quantity-input-${barcode}" class="catalog__card-quantity-input" min="1" value="1">
+                <button id="${barcode}" class="catalog__card-cart-control-plus">
+                    <img src="{% static 'img/Vector (2).svg' %}" alt="cart">
+                </button>
+            `;
+
+            button.replaceWith(cartControls);
+
+            fetch("{% url 'carts:change' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: new URLSearchParams({
+                    'barcode': barcode,
+                    'quantity': 1,
+                    'append': true
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert("Ошибка: " + data.error);
+                    cartControls.replaceWith(addToCartButtonBackup);
+                }
+                updateCartIcon(Object.keys(data.cart.products).length); 
+            })
+            .catch(error => console.error("Ошибка при добавлении/удалении из корзины:", error));
+        }
+    });
+
+    // Увеличить количество товара в корзине 
+    document.addEventListener("click", function (event) {
+        const plusButton = event.target.closest(".catalog__card-cart-control-plus");
+        if (plusButton) {
+            event.preventDefault();
+            throttle(increaseQuantity(plusButton), 500);
+        }
+    });
+    function increaseQuantity(plusButton) {
+        plusButton.disabled = true;
+        
+        const barcode = plusButton.id;
+
+        const quantityInput = plusButton.previousElementSibling;
+        let oldQuantity = parseInt(quantityInput.value);
+        console.log(oldQuantity)
+        quantity = oldQuantity + 1;
+        if (quantity < 1) {
+            quantity = 1;
+        }
+        console.log(quantity)
+        quantityInput.value = quantity;
+
+        fetch("{% url 'carts:change' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: new URLSearchParams({
+                'barcode': barcode,
+                'quantity': 1,
+                'append': true
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            plusButton.disabled = false;
+            if (data.error) {
+                alert(data.error);
+                quantityInput.value = oldQuantity;
+                renderCartPositionsCount(increase = false);
+            }
+        })
+        .catch(error => {
+            console.error("Ошибка при добавлении/удалении из корзины:", error)
+            plusButton.disabled = false;
+        });
+    }
+
+    // Уменьшить количество товара в корзине 
+    document.addEventListener("click", function (event) {
+        const minusButton = event.target.closest(".catalog__card-cart-control-minus");
+        if (minusButton) {
+            event.preventDefault();
+            throttle(decreaseQuantity(minusButton), 500);
+        }
+    });
+    function decreaseQuantity(minusButton) {
+        minusButton.disabled = true;
+        console.log('Уменьшаем колво')
+
+        const barcode = minusButton.id;
+        const quantityInput = minusButton.nextElementSibling;
+        let quantity = parseInt(quantityInput.value);
+        quantity -= 1;
+        if (quantity < 1) {
+            const addToCartButton = document.createElement('div');
+            addToCartButton.classList.add('catalog__card-add-to-cart-div');
+            addToCartButton.innerHTML = `
+            <div id="${barcode}" class="catalog__card-cart-button add-to-cart">
+                                                    В корзину
+                                                </div>
+        `;
+            minusButton.parentElement.insertAdjacentElement('afterend', addToCartButton);
+            minusButton.parentElement.remove();
+            
+            renderCartPositionsCount(increase = false);
+        }
+        quantityInput.value = quantity;
+
+        fetch("{% url 'carts:change' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: new URLSearchParams({
+                'barcode': barcode,
+                'quantity': -1,
+                'append': true
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                minusButton.disabled = false;
+                updateCartIcon(Object.keys(data.cart.products).length);
+            })
+            .catch(error => {
+                console.error("Ошибка при добавлении/удалении из корзины:", error)
+                minusButton.disabled = false;
+            });
+    }
+</script>
+
 {% endblock %}
