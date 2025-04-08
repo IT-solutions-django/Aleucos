@@ -497,6 +497,9 @@ main {
   justify-content: space-between;
 }
 
+.footer__menu .col-auto {
+  padding: 0px 20px;
+}
 .advantage__item {
   margin-bottom: 16px;
 }

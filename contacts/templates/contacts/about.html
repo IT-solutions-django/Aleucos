@@ -73,9 +73,13 @@
             </div>
         </div>
         <div class="cooperation-buttons">
-            <button class="leave-request openModal" data-toggle="modal" data-target="#exampleModal" data-bs-toggle="modal" data-bs-target="#exampleModal">Оставить заявку</button>
             {% if request.user.is_authenticated %}
-                <a class="get-price" href="">Получить прайс</a>
+                <a href="{% url 'products:products_list' %}" class="leave-request">Перейти в каталог</a>
+            {% else %}
+                <button class="leave-request" data-toggle="modal" data-target="#exampleModal" data-bs-toggle="modal" data-bs-target="#exampleModal">Оставить заявку</button>
+            {% endif %}
+            {% if request.user.is_authenticated %}
+                <a class="get-price" href="{% url 'products:export_catalog' %}">Получить прайс</a>
             {% else %}
                 <a data-toggle="modal" data-target="#exampleModal" data-bs-toggle="modal" data-bs-target="#exampleModal" class="get-price">Получить прайс</a>
             {% endif %}

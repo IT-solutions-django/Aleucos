@@ -130,9 +130,11 @@
                 </div>
                 <div class="col-auto header__service">
                     <div class="row header__service-box">
-                        <div class="col padding-0">
-                            <button class="header__request-button header-desktop" data-toggle="modal" data-target="#exampleModal" data-bs-toggle="modal" data-bs-target="#exampleModal">Оставить заявку</button>
-                        </div>
+                        {% if not request.user.is_authenticated %}
+                            <div class="col padding-0">
+                                <button class="header__request-button header-desktop" data-toggle="modal" data-target="#exampleModal" data-bs-toggle="modal" data-bs-target="#exampleModal">Оставить заявку</button>
+                            </div>
+                        {% endif %}
                         <div class="col header__service-links">
                             {% if request.path == '/users/account/' %}
                                 <button class="header__service-link">
@@ -239,21 +241,25 @@
                     <div class="col">
                         <div class="row footer__menu justify-content-md-center">
                             <div class="col-auto">
-                                <a href="{% url 'products:products_list' %}"><p class="footer__text">Каталог</p></a>
+                                <a href="{% url 'products:products_list' %}"><p class="footer__text hover-green">Каталог</p></a>
                             </div>
                             <div class="col-auto">
-                                <a href="#answersBlock"><p class="footer__text">Вопрос-ответ</p></a>
+                                <a href="{% url 'contacts:about' %}"><p class="footer__text hover-green">О компании</p></a>
                             </div>
                             <div class="col-auto">
-                                <a href="#contactsBlock"><p class="footer__text">Контакты</p></a>
+                                <a href="{% url 'home:home' %}#answersBlock"><p class="footer__text hover-green">Вопрос-ответ</p></a>
                             </div>
                             <div class="col-auto">
-                                <a href=""><p class="footer__text">Политика конфиденциальности</p></a>
+                                <a href="#contactsBlock"><p class="footer__text hover-green">Контакты</p></a>
+                            </div>
+                            <div class="col-auto">
+                                <a href=""><p class="footer__text hover-green">Политика конфиденциальности</p></a>
                             </div>
                         </div>
                     </div>
                     <div class="col-auto">
                         <div class="footer__messagers">
+                            <a href="tel:{{ company_info.phone }}">{{ company_info.phone }}</a>
                             <div class="col-auto">
                                 <a href="{{ company_info.whatsapp_link }}" class="footer__link">
                                     <img src="{% static 'img/Whatsapp.svg' %}" alt="" class="footer__link-img">
