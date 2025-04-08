@@ -3145,7 +3145,7 @@ background-image: url(/static/img/CatalogBck.png);
   overflow-y: scroll;
   scrollbar-width: thin;
 
-  padding: 80px 16px 30px 16px;
+  padding: 16px 16px 30px 16px;
 }
 .mobile-filters-main {
   display: flex;
@@ -3310,11 +3310,11 @@ background-image: url(/static/img/CatalogBck.png);
     gap: 12px;
   }
   .header__service-link a img {
-    width: 60px !important;
+    /* width: 60px !important; */
   }
   #openSearchInput, 
   #openSearchInput img {
-    width: 50px !important;
+    /* width: 50px !important; */
     height: 50px;
     z-index: 10000;
   }
@@ -3866,7 +3866,7 @@ background-image: url(/static/img/CatalogBck.png);
     margin-top: 20px;
   }
   .header__service-img {
-    width: 60px !important;
+    /* width: 60px !important; */
     height: 20px;
   }
   .header__logo {
@@ -3910,5 +3910,8 @@ background-image: url(/static/img/CatalogBck.png);
   .contacts__form-suptext {
     font-size: 12px;
     margin-top: 12px;
+  }
+  main {
+    padding-top: 74px !important;
   }
 }
