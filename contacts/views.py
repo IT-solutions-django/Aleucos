@@ -1,13 +1,15 @@
 from django.shortcuts import render
 from django.views import View 
+from .models import ContactsManager
 
 
 class ContactsView(View): 
     template_name = 'contacts/contacts.html' 
 
     def get(self, request): 
+        managers = ContactsManager.objects.all()
         context = {
-            '1': '1',
+            'managers': managers,
         }
         return render(request, self.template_name, context)
     

@@ -46,6 +46,10 @@ body,
   overflow-x: hidden;
 }
 
+body {
+  padding-right: 0 !important;
+}
+
 @media (max-width: 600px) {
   .green-body {
     background-color: #ECF4EE;
@@ -112,6 +116,30 @@ main {
 .contacts__form .mobile {
   display: contents;
 }
+
+
+.offer__btn-application, 
+.catalog__btn, 
+.section__btn, 
+.leave-request-button, 
+.help__form-buttons .button, 
+.header__request-button,
+.cooperation-buttons .leave-request,
+.login__buttons button {
+  transition: all 0.3s ease;
+}
+
+.offer__btn-application:hover, 
+.catalog__btn:hover, 
+.section__btn:hover, 
+.leave-request-button:hover, 
+.help__form-buttons .button:hover, 
+.header__request-button:hover,
+.cooperation-buttons .leave-request:hover,
+.login__buttons button:hover {
+  opacity: 0.8;
+}
+
 
 .container {
   max-width: 1400px;
@@ -3576,6 +3604,7 @@ background-image: url(/static/img/CatalogBck.png);
     display: flex;
     justify-content: space-between;
     gap: 16px;
+    flex: 1;
   }
   .mobile-product-card .product-photo {
     display: flex;
@@ -3588,6 +3617,7 @@ background-image: url(/static/img/CatalogBck.png);
     flex-direction: column;
     gap: 25px;
     font-size: 14px;
+    width: 100%;
   }
   .mobile-product-card .product-price {
     text-align: right;

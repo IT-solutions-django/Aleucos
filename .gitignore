@@ -170,6 +170,7 @@ es_data/
 media/catalog/catalog_for_export.xlsx
 media/catalog/catalog.xlsx
 media/users/
+media/contacts/managers/
 
 logs/
 Aleucos/amocrm_tokens/

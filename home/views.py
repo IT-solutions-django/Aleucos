@@ -16,7 +16,7 @@ class HomeView(View):
     template_name = 'home/home.html' 
 
     def get(self, request): 
-        popular_products = Product.objects.all()[:10]
+        popular_products = Product.objects.all().filter(is_hit=True)
 
         cart_data = request.cart.to_dict()
         products_in_cart = {
@@ -45,10 +45,12 @@ class ContactFormView(View):
                 cd = form.cleaned_data 
                 name, phone, email, message = cd['name'], cd['phone'], cd['email'], cd['message']
 
+                print(name, phone, email, message)
+
                 last_request = RegistrationRequest.objects.order_by('-id').first()
                 manager_group = Group.objects.get(name=Config.get_instance().managers_group_name)
                 if last_request and last_request.manager:
-                    last_manager = last_request.manager  # TODO: Обязательно отрефакторить логику фильтрации по группам пользователей
+                    last_manager = last_request.manager  
                     next_manager = User.objects.filter(groups__in=(manager_group,)).filter(id__gt=last_manager.id).filter(is_active=True).order_by('id').first()
                     if not next_manager:
                         next_manager = User.objects.filter(groups__in=(manager_group,)).order_by('id').first()
@@ -81,7 +83,8 @@ class ContactFormView(View):
 
                 return JsonResponse({'status': 'ok'})
             else:
+                print(form.errors)
                 return JsonResponse({"error": form.errors}, status=400)
         except Exception as e: 
             print(f'Ошибка при сохранении заявки: {str(e)}')
-            return JsonResponse({'status': 'не ok'})
+            return JsonResponse({'status': 'not ok'})

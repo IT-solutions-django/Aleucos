@@ -20,9 +20,6 @@ class ChangeCartView(View):
         raw_quantity = request.POST.get('quantity')
         append = bool(request.POST.get('append', False))
 
-        print(append)
-        print(f'Добавляем {raw_quantity}')
-
         try:
             quantity = int(raw_quantity)
         except ValueError: 
@@ -55,10 +52,7 @@ class ChangeCartView(View):
             else:
                 new_quantity_in_cart = quantity
             
-        print(product.remains)
-        print(new_quantity_in_cart)
         if product.remains - new_quantity_in_cart < 0:
-            print('Товара маловато')
             return JsonResponse({
                 'error': f'количество товара ограничено: осталось {product.remains} единиц', 
                 'cart': cart.to_dict(), 
@@ -137,6 +131,8 @@ class CheckCartView(View):
 class CreateOrderView(View): 
     def post(self, request): 
         cart = request.cart 
+        user_discount = request.user.discount if request.user.discount else 0
+        final_price_coefficient = (1 - user_discount)
 
         if not cart.get(Cart.KeyNames.PRODUCTS): 
             return
@@ -156,7 +152,7 @@ class CreateOrderView(View):
             logger.error(f'Способа оплаты с ID={payment_method_id} не существует')
             return redirect('carts:cart_items')
             
-        total_order_price = cart[Cart.KeyNames.TOTAL_CART_PRICE]
+        total_order_price = cart[Cart.KeyNames.TOTAL_CART_PRICE] * final_price_coefficient
         new_order = Order.objects.create(
             user=request.user, 
             total_price=total_order_price, 
@@ -171,9 +167,9 @@ class CreateOrderView(View):
 
             product = Product.objects.get(barcode=barcode)
 
-            unit_price = product_data[Cart.KeyNames.UNIT_PRICE] 
+            unit_price = product_data[Cart.KeyNames.UNIT_PRICE] * final_price_coefficient
             quantity = product_data[Cart.KeyNames.QUANTITY]
-            total_product_price = product_data[Cart.KeyNames.TOTAL_PRODUCT_PRICE] 
+            total_product_price = product_data[Cart.KeyNames.TOTAL_PRODUCT_PRICE] * final_price_coefficient
 
             OrderItem.objects.create(
                 product_name=product.title,

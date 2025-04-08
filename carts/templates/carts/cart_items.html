@@ -221,6 +221,8 @@
 </script>
 
 
+{{ request.cart.to_dict|json_script:"cart-data" }}
+
 <script>
 const checkQuantity = (barcode) => {
     const quantityInput = document.getElementById(`quantity-${barcode}`);
@@ -379,6 +381,12 @@ function checkCart() {
 }
 
 const updateCartDisplay = (cart) => {
+    let userDiscount = '{{ request.user.discount }}';
+    if (userDiscount == 'None') {
+        userDiscount = 0;
+    }
+    userDiscount /= 100;
+
     if (isMobile()) {
         for (const barcode in cart.products) {
             let productCard = document.querySelector(`.mobile-product-card[data-barcode="${barcode}"]`); 
@@ -386,10 +394,14 @@ const updateCartDisplay = (cart) => {
             const product = cart.products[barcode];
 
             let productUnitPrice = productCard.querySelector('.product-price'); 
-            productUnitPrice.textContent = `${formatNumber(product.unit_price)} ₽`; 
+            productUnitPrice.textContent = `${formatNumber(product.unit_price * (1 - userDiscount))} ₽`; 
 
             let productTotalPrice = productCard.querySelector('.product-total-price'); 
-            productTotalPrice.textContent = `${product.total_product_price} ₽`;
+            productTotalPrice.textContent = `${formatNumber(product.total_product_price * (1 - userDiscount))} ₽`;
+
+            const totalPrice = cart.total_price;
+            const totalPriceElement = document.querySelector('.cart-bottom-buttons .result span');
+            totalPriceElement.textContent = `${formatNumber(totalPrice * (1 - userDiscount))} ₽`; ;
         }
     } else {
         for (const barcode in cart.products) {
@@ -398,17 +410,18 @@ const updateCartDisplay = (cart) => {
                 const product = cart.products[barcode];
                 
                 const productUnitPrice = row.querySelector('.product-unit-price');
-                productUnitPrice.textContent = `${product.unit_price} ₽`;
+                productUnitPrice.textContent = `${formatNumber(product.unit_price * (1 - userDiscount))} ₽`;
     
                 const quantityInput = row.querySelector(`input[id="quantity-${barcode}"]`);
                 quantityInput.value = product.quantity;
     
                 const productTotalPrice = row.querySelector('.product-total-price');
-                productTotalPrice.textContent = `${product.total_product_price} ₽`;
+                productTotalPrice.textContent = `${formatNumber(product.total_product_price * (1 - userDiscount))} ₽`;
             }
         }
     }
 };
+
 
 document.addEventListener("DOMContentLoaded", () => {
     let plusButtons = document.querySelectorAll('.plus-button'); 
@@ -423,6 +436,9 @@ document.addEventListener("DOMContentLoaded", () => {
             decreaseQuantity(button);
         });
     });
+
+    const cart = JSON.parse(document.getElementById('cart-data').textContent);
+    updateCartDisplay(cart);
 });
 
 function isMobile() {
@@ -433,15 +449,23 @@ function isMobile() {
 }
 
 function formatNumber(number) {
-    let numStr = typeof number === 'number' ? number.toString() : number;
+    let numStr = typeof number === 'number' ? number.toString() : String(number);
     
     let parts = numStr.split('.');
     let integerPart = parts[0];
-    let decimalPart = parts.length > 1 ? '.' + parts[1] : '';
+    let decimalPart = parts.length > 1 ? parts[1] : '';
+    
+    if (decimalPart.length > 6) {
+        const num = parseFloat(numStr);
+        numStr = num.toFixed(2);
+        parts = numStr.split('.');
+        integerPart = parts[0];
+        decimalPart = parts.length > 1 ? parts[1] : '';
+    }
     
     integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-    
-    return integerPart + decimalPart;
+
+    return decimalPart ? `${integerPart}.${decimalPart}` : integerPart;
 }
 
 
