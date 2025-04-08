@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}О компании{% endblock %}
+
+{% block content %}
+<main class="about">
+    <div class="heading-wrapper">
+        <div class="heading-label">
+            <a href=" " class="color-black">О компании</a>
+        </div>
+        <div class="breadcrumb only-desktop">
+            <a href="{% url 'home:home' %}" class="hover-green">Главная</a>
+            <p>/</p>
+            <a href="" class="hover-green">О компании</a>
+        </div>
+    </div>
+
+    <section class="about-us">
+        <div class="about-us-text">
+            <p class="home__subheading only-desktop">О нас</p>
+            <p>Компания "Aleucos" стремится предоставлять своим клиентам только высококачественную корейскую косметику, соответствующую самым строгим стандартам. Мы также акцентируем внимание на образовании и информировании, делясь знаниями о преимуществах корейского ухода за кожей и ингредиентах. Наша приверженность экологической ответственности проявляется в выборе брендов, которые заботятся о природе и используют безопасные для окружающей среды компоненты. Мы стремимся создать сообщество, где любители косметики могут обмениваться опытом и находить вдохновение для ухода за собой.</p>
+        </div>
+        <img src="{% static 'img/about-us-img.png' %}" alt="">
+    </section>
+
+    <section class="cooperation">
+        <div class="cooperation-main">
+            <p class="home__subheading">Сотрудничество с нами</p>
+            <div class="cooperation-cards">
+                <div class="card card--1">
+                    <p class="heading">Качественная продукция</p>
+                    <p>Мы работаем только с проверенными производителями косметики, что гарантирует высокое качество и безопасность наших товаров</p>
+                    <div class="advantage__icon">
+                        <img src="/static/img/white-star.svg" alt="">
+                    </div>
+                </div>
+                <div class="card card--2">
+                    <p class="heading">Конкурентные цены </p>
+                    <p>Наша компания предлагает выгодные условия закупки, что позволяет вам устанавливать разумные и конкурентоспособные цены на рынке</p>
+                    <div class="advantage__icon">
+                        <img src="/static/img/white-star.svg" alt="">
+                    </div>
+                </div>
+                <div class="card card--3">
+                    <p class="heading">Маркетинговая поддержка</p>
+                    <p>Мы предоставляем партнерам готовые маркетинговые материалы, рекламные акции и поддержку в продвижении продукции</p>
+                    <div class="advantage__icon">
+                        <img src="/static/img/white-star.svg" alt="">
+                    </div>
+                </div>
+                <div class="card card--4">
+                    <p class="heading">Индивидуальный подход </p>
+                    <p>Мы ценим каждого партнера и предлагаем индивидуальные условия сотрудничества, учитывающие ваши потребности и цели</p>
+                    <div class="advantage__icon">
+                        <img src="/static/img/white-star.svg" alt="">
+                    </div>
+                </div>
+                <div class="card card--5">
+                    <p class="heading">Обширный ассортимент </p>
+                    <p>Мы предлагаем широкий выбор продукции, включая новинки и бестселлеры, что позволяет вам удовлетворить  запросы клиентов</p>
+                    <div class="advantage__icon">
+                        <img src="/static/img/white-star.svg" alt="">
+                    </div>
+                </div>
+                <div class="card card--6">
+                    <p class="heading">Гибкие условия заказа</p>
+                    <p>Мы предлагаем гибкие условия по минимальным объемам заказа и возможность возврата товаров, что делает сотрудничество более удобным.</p>
+                    <div class="advantage__icon">
+                        <img src="/static/img/white-star.svg" alt="">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="cooperation-buttons">
+            {% if request.user.is_authenticated %}
+                <a href="{% url 'products:products_list' %}" class="leave-request">Перейти в каталог</a>
+            {% else %}
+                <button class="leave-request" data-toggle="modal" data-target="#exampleModal" data-bs-toggle="modal" data-bs-target="#exampleModal">Оставить заявку</button>
+            {% endif %}
+            {% if request.user.is_authenticated %}
+                <a class="get-price" href="{% url 'products:export_catalog' %}">Получить прайс</a>
+            {% else %}
+                <a data-toggle="modal" data-target="#exampleModal" data-bs-toggle="modal" data-bs-target="#exampleModal" class="get-price">Получить прайс</a>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="history">
+        <div>
+            <p class="home__subheading">История компании</p>
+        </div>
+        <div class="history-body">
+            <div class="about-us-text">
+                <div class="history-text">
+                    <p>Компания "Aleucos" была основана в 2018 году группой энтузиастов, увлеченных корейской косметикой и ее уникальными свойствами. Основатели компании заметили растущий интерес к корейским косметическим продуктам на международном рынке и решили создать платформу, которая бы предлагала только качественные и проверенные товары.</p>
+                    <p>С самого начала "Aleucos" ставила перед собой цель не только продавать косметику, но и образовывать своих клиентов. Они начали проводить мастер-классы и вебинары, где делились знаниями о корейских ритуалах ухода за кожей, ингредиентах и последних трендах в индустрии красоты. Это помогло создать лояльное сообщество, где клиенты могли обмениваться опытом и советами. </p>
+                    <p>Компания активно сотрудничала с корейскими производителями, что позволяло им предлагать эксклюзивные продукты, недоступные в других странах. "Aleucos" также уделяла внимание экологичности и этичности своей продукции, выбирая бренды, которые придерживались принципов устойчивого развития и использовали безопасные и натуральные ингредиенты. Это помогло создать доверие среди клиентов, которые ценят не только качество, но и ответственность производителей перед окружающей средой.</p>
+                </div>
+            </div>
+            <div class="documents">
+                <p>Лицензии и документы</p>
+                <div class="documents-container">
+                    <img src="{% static 'img/certificate-example.svg' %}" alt="">
+                    <img src="{% static 'img/certificate-example.svg' %}" alt="">
+                    <img src="{% static 'img/certificate-example.svg' %}" alt="">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {% include 'home/includes/questions_block.html' %}
+</main>
+
+<script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
+
+
+{% endblock %}

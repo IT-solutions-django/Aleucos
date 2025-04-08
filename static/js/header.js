@@ -5,9 +5,12 @@ var navbarHeight = document.querySelector('.header').offsetHeight;
 console.log(navbarHeight)
 
 
-window.addEventListener('scroll', function() {        
+function onScroll() {        
     didScroll = true;    
-});    
+}
+
+
+window.addEventListener('scroll', onScroll);    
 
 setInterval(function() {        
     if (didScroll) {            

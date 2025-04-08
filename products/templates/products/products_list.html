@@ -4,7 +4,7 @@
 
 {% block content %}
 <main class="catalog">
-    <div class="heading-wrapper">
+    <div class="heading-wrapper only-desktop">
         <div class="heading-label">
             <a href="{% url 'products:products_list' %}" class="color-black">Каталог</a>
         </div>
@@ -17,7 +17,7 @@
 
 
     <div class="catalog-body">
-        <div class="sidebar">
+        <div class="sidebar only-desktop">
             <form id="filter-form" action="/products/filters/" method="get"> 
             <div id="sidebar__categories-div" class="sidebar__section">
                 <div class="sidebar__section-heading">
@@ -148,7 +148,7 @@
 
         <div class="catalog__content">
             <div>
-                <div class="catalog__topics">
+                <div class="catalog__topics only-desktop">
                     {% for section in form.sections %}
                         <div class="catalog__topic {% if section.choice_label == 'все' %}active{% endif %}">
                             <p class="hover-green">
@@ -171,7 +171,202 @@
                 </div>
             </div>
             <div class="catalog__cards-container">
-                <div class="catalog__content-heading">
+                <div class="mobile-filters">
+                    <div class="upper-panel">
+                        <div class="back-button">
+                            <img src="{% static 'img/arrow-back.svg' %}" alt="">
+                            <p>Фильтры</p>
+                        </div>
+                    </div>
+                    <div class="mobile-filters-main">
+                        <form method="get" action="" class="mobile-filters-section" id="mobileFilterForm">
+                            <div class="heading">Категория</div>
+                            <div class="mobile-filters-points">
+                                <div class="sidebar__section-points">
+                                    {% for category in form.categories %}
+                                        {% if forloop.counter <= 8 %} 
+                                            <div class="sidebar__section-item-div">
+                                                <label class="sidebar__checkbox-item hover-green">
+                                                    <label for="mobile_{{ category.id_for_label }}">
+                                                        <input type="checkbox" 
+                                                            name="{{ form.categories.html_name }}" 
+                                                            value="{{ category.data.value }}" 
+                                                            class="sidebar__section-checkbox filter-input" 
+                                                            id="mobile_{{ category.id_for_label }}"
+                                                        >
+                                                        {{ category.choice_label }}
+                                                    </label>
+                                                </label>
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <div id="hiddenCategories" style="display: none;">
+                                    {% for category in form.categories %}
+                                        {% if forloop.counter <= 8 %} 
+                                            <div class="sidebar__section-item-div">
+                                                <label class="sidebar__checkbox-item hover-green">
+                                                    <label for="mobile_{{ category.id_for_label }}">
+                                                        <input type="checkbox" 
+                                                            name="{{ form.categories.html_name }}" 
+                                                            value="{{ category.data.value }}" 
+                                                            class="sidebar__section-checkbox filter-input" 
+                                                            id="mobile_{{ category.id_for_label }}"
+                                                        >
+                                                        {{ category.choice_label }}
+                                                    </label>
+                                                </label>
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <div class="sidebar__section-item-div">
+                                    <p><a id="showMoreCategoriesButton" class="sidebar__section-item-label color-blue"
+                                            onclick="">Посмотреть все</a></p>
+                                </div>
+                            </div>
+                        <div class="mobile-filters-section">
+                            <div class="heading">Поиск по штрихкоду</div>
+                            <div class="mobile-filters-points">
+                                <div class="sidebar__price-inputs-div">
+                                    <input 
+                                        type="number" 
+                                        name="{{ form.barcode.html_name }}" 
+                                        class="sidebar__price-input width-100 filter-input" 
+                                        placeholder="Введите штрихкод..." 
+                                        min="0" 
+                                        step="1" 
+                                        maxlength="12" 
+                                        id="mobile_{{ form.barcode.id_for_label }}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mobile-filters-section">
+                            <div class="heading">Цена</div>
+                            <div class="mobile-filters-points">
+                                <div class="sidebar__price-inputs-div">
+                                    <input 
+                                        type="number" 
+                                        name="{{ form.price_min.html_name }}" 
+                                        class="sidebar__price-input filter-input" 
+                                        placeholder="От 0 ₽" 
+                                        min="0" 
+                                        step="100" 
+                                        id="mobile_{{ form.price_min.id_for_label }}"
+                                    >
+                                    <input 
+                                        type="number" 
+                                        name="{{ form.price_max.html_name }}" 
+                                        class="sidebar__price-input filter-input" 
+                                        min="0" step="100" 
+                                        placeholder="До 5 128.0 ₽" 
+                                        id="mobile_{{ form.price_max.id_for_label }}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mobile-filters-section">
+                            <div class="heading">Производитель</div>
+                            {{ form.brand_search }}
+                            <div class="mobile-filters-points">
+                                <div class="sidebar__section-points">
+                                    {% for brand in form.brands %}
+                                        {% if forloop.counter <= 8 %} 
+                                            <div class="sidebar__section-item-div">
+                                                <div class="sidebar__checkbox-item hover-green">
+                                                    <label for="mobile_{{ brand.id_for_label }}">
+                                                        <input 
+                                                            type="checkbox" 
+                                                            name="{{ form.brands.html_name }}" 
+                                                            value="{{ brand.data.value }}" 
+                                                            class="sidebar__section-checkbox filter-input" 
+                                                            id="mobile_{{ brand.id_for_label }}"
+                                                        >
+                                                        {{ brand.choice_label }}
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <div id="hiddenCategories" style="display: none;">
+                                    {% for brand in form.brands %}
+                                        {% if forloop.counter <= 8 %} 
+                                            <div class="sidebar__section-item-div">
+                                                <label class="sidebar__checkbox-item hover-green">
+                                                    <label for="mobile_{{ brand.id_for_label }}">
+                                                        <input 
+                                                            type="checkbox" 
+                                                            name="{{ form.brands.html_name }}" 
+                                                            value="{{ brand.data.value }}" 
+                                                            class="sidebar__section-checkbox filter-input" 
+                                                            id="mobile_{{ brand.id_for_label }}"
+                                                        >
+                                                        {{ brand.choice_label }}
+                                                    </label>
+                                                </label>
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <div class="sidebar__section-item-div">
+                                    <p><a id="showMoreCategoriesButton" class="sidebar__section-item-label color-blue"
+                                            onclick="">Посмотреть все</a></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mobile-filters-section">
+                            <div class="heading">Наличие</div>
+                            <div class="mobile-filters-points">
+                                <div class="sidebar__section-item-div">
+                                    <label class="sidebar__brand-item-label">
+                                        <input 
+                                            type="checkbox" 
+                                            name="{{ form.is_in_stock.html_name }}" 
+                                            class="sidebar__section-checkbox filter-input" 
+                                            id="{{ form.is_in_stock.id_for_label }}">
+                                        {{ form.is_in_stock.label }}
+                                    </label>
+                                </div>
+                                <div class="sidebar__section-item-div">
+                                    <label class="sidebar__brand-item-label">
+                                        <input 
+                                            type="checkbox" 
+                                            name="{{ form.is_not_in_stock.html_name }}" 
+                                            class="sidebar__section-checkbox filter-input" 
+                                            id="{{ form.is_not_in_stock.id_for_label }}">
+                                        {{ form.is_not_in_stock.label }}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bottom-buttons">
+                        <div class="mobile-filters-submit section__btn">
+                            Применить
+                        </div>
+                        <div class="clean-all">
+                            <img src="{% static 'img/close-mobile-filters.svg' %}" alt="">
+                            <a href="{% url 'products:products_list' %}">Очистить всё</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="mobile-filters-panel">
+                    <div>
+                        <div class="mobile-sort-dropdown">
+                            <select class="sort-select" onchange="handleMobileSortChange(this)">
+                                {% for section in form.sections %}
+                                    <option value="{{ section.choice_label }}">{{ section.choice_label }}</option>
+                                {% endfor %}
+                            </select>
+                        </form>
+                        </div>
+                    </div>
+                    <div class="open-mobile-filters">
+                        <img src="{% static 'img/filter-icon.svg' %}" alt="">
+                        <p>Фильтры</p>
+                    </div>
+                </div>
+                <div class="catalog__content-heading only-desktop">
                     <p>Популярное</p>
                 </div>
                 <div id="catalogCards" class="catalog__cards">
@@ -187,7 +382,12 @@
                                 {% if request.user.is_authenticated %}                                    
                                     <div class="catalog__card-price-block">
                                         <div class="catalog__card-price">
-                                            <p>{{ product.price_before_200k|floatformat:2|price_format }} ₽</p>
+                                            {% if request.user.discount %}
+                                                <p class="with-discount">{{ product.price_before_200k|apply_discount:request.user.discount }} ₽</p>
+                                                <p class="without-discount">{{ product.price_before_200k|floatformat:2|price_format }} ₽</p>
+                                            {% else %}
+                                                <p>{{ product.price_before_200k|floatformat:2|price_format }} ₽</p>
+                                            {% endif %}
                                         </div>
                                         {% if product.quantity_in_cart != 0 %}
                                             <div class="catalog__card-cart-controls">
@@ -298,9 +498,25 @@ document.addEventListener('DOMContentLoaded', function () {
     let pagination = document.getElementById('pagination');
     let paginationContainer = document.querySelector('.pagination');
 
+
+    const applyMobileFilters = document.querySelector('.mobile-filters-submit');
+
     // Функция для отправки данных на сервер
     const sendFiltersData = debounce(function () {
-        const formData = new FormData(document.getElementById('filter-form'));
+        let formData = undefined;
+        if (isMobile()) {
+            formData = new FormData(document.getElementById('mobileFilterForm'));
+
+            const sortSelect = document.querySelector('.mobile-filters-panel .mobile-sort-dropdown .sort-select'); 
+            console.log(sortSelect)
+            const selectedSection = sortSelect.value; 
+            console.log(selectedSection)
+
+            formData.append('sections', selectedSection);
+        } 
+        else {
+            formData = new FormData(document.getElementById('filter-form'));
+        }
         console.log(formData)
 
         const params = new URLSearchParams();
@@ -314,6 +530,7 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(response => response.json())
         .then(data => {
             const catalogCards = document.getElementById('catalogCards');
+            console.log(data.cards)
             if (data.cards) {
                 catalogCards.innerHTML = data.cards;
                 pagination.innerHTML = data.pagination;
@@ -335,13 +552,23 @@ document.addEventListener('DOMContentLoaded', function () {
     }, 150); 
 
     // Навешиваем обработчики событий
-    filters.forEach(function (filter) {
-        filter.addEventListener('change', sendFiltersData);
-        console.log('навесил обрабоьчтик')
-    });
+    if (!isMobile()) {
+        filters.forEach(function (filter) {
+            filter.addEventListener('change', sendFiltersData);
+        });
+    } else {
+        applyMobileFilters.addEventListener('click', () => {
+            sendFiltersData(); 
+            document.querySelector('.mobile-filters').classList.remove('active');
+        });
 
+        const sortSelect = document.querySelector('.mobile-filters-panel .mobile-sort-dropdown .sort-select'); 
+        sortSelect.addEventListener('change', () => {
+            sendFiltersData();
+        });
 
-    // searchInput.addEventListener('input', sendFiltersData);
+    }
+
 });
 
     // Сохранить фильтры при пагинации
@@ -661,12 +888,16 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Выбрать раздел каталога
-    topicsButtons = document.querySelectorAll('.catalog__topic');
-    topicsButtons.forEach(topicButton => {
-        topicButton.querySelector('p').addEventListener('click', function (event) {
-            selectTopic(topicButton);
-        });
-    })
+    if (isMobile()) {
+
+    } else {
+        topicsButtons = document.querySelectorAll('.catalog__topic');
+        topicsButtons.forEach(topicButton => {
+            topicButton.querySelector('p').addEventListener('click', function (event) {
+                selectTopic(topicButton);
+            });
+        })
+    }
     function selectTopic(topicButton) {
         const items = document.querySelectorAll('.catalog__topic');
 
@@ -678,6 +909,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function renderCurrViewMode() {
+        if (isMobile()) {
+            console.log('неа')
+            return;
+        }
+        console.log('всё-таки выполнилось')
         let viewModeButton = document.getElementById('viewModeButton'); 
         let viewModeImage = viewModeButton.querySelector('img');
 
@@ -698,6 +934,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function updateViewMode() {
+        if (isMobile()) {
+            console.log('неа');
+            return;
+        }
+        console.log('всё-таки выполнилось')
         let viewModeButton = document.getElementById('viewModeButton'); 
         let viewModeImage = viewModeButton.querySelector('img');
 
@@ -724,7 +965,31 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        updateViewMode();
+        if (!isMobile()) {
+            updateViewMode();
+        }
+    });
+
+    function isMobile() {
+        console.log('зашли')
+        if (window.innerWidth < 600) {
+            return true;
+        }
+        return false;
+    }
+</script>
+
+<script defer>
+    document.addEventListener('DOMContentLoaded', () => {
+        const openMobileFitlersButton = document.querySelector('.open-mobile-filters');
+        const closeMobileFiltersButton = document.querySelector('.back-button');
+        const mobileFilters = document.querySelector('.mobile-filters') ;
+        openMobileFitlersButton.addEventListener('click', (button) => {
+            mobileFilters.classList.add('active');
+        });
+        closeMobileFiltersButton.addEventListener('click', (button) => {
+            mobileFilters.classList.remove('active');
+        });
     });
 </script>
 

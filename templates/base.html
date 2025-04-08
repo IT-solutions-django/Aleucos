@@ -33,7 +33,7 @@
 
     <title>Aleucos оптовые поставки корейской косметики</title>
 </head>
-<body>
+<body class="{% if is_cart_page %}green-body{% endif %}">
     <div class="modal " id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div data-toggle="modal" data-target="#testModal" class="modal-content modal__offer-content">
@@ -66,24 +66,75 @@
         </div>
     </div>
 
-    <header class="header">
-        <div class="container">
+    <div class="toast after-order" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-inner">
+            <div class="content">
+                <p class="heading">Спасибо за ваш заказ в нашем магазине!</p>
+                <p class="text">Мы рады, что вы выбрали именно нас! Ваши товары уже в обработке, и мы сделаем все возможное, чтобы они как можно скорее оказались у вас.</p>
+                <div class="points">
+                    <div class="point">
+                        <img src="{% static 'img/green-star.svg' %}" alt="">
+                        <a href="">Уход за телом</a>
+                    </div>
+                    <div class="point">
+                        <img src="{% static 'img/green-star.svg' %}" alt="">
+                        <a href="">Уход за кожей лица</a>
+                    </div>
+                    <div class="point">
+                        <img src="{% static 'img/green-star.svg' %}" alt="">
+                        <a href="">Уход за волосами</a>
+                    </div>
+                </div>
+            </div>
+            <img class="only-desktop" src="{% static 'img/toast-girl.png' %}" alt="">
+        </div>
+    </div>
+
+    <div class="toast after-request" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-inner">
+            <div class="content">
+                <p class="heading">Спасибо за Доверие!</p>
+                <p class="text">Мы рады, что вы выбрали именно нас! В ближайшее время с вами свяжуться наши спецалисты и проконсультируют вас по всем вопросам.</p>
+                <div class="points">
+                    <div class="point">
+                        <img src="{% static 'img/green-star.svg' %}" alt="">
+                        <a href="{% url 'products:products_list' %}">Уход за телом</a>
+                    </div>
+                    <div class="point">
+                        <img src="{% static 'img/green-star.svg' %}" alt="">
+                        <a href="">Уход за кожей лица</a>
+                    </div>
+                    <div class="point">
+                        <img src="{% static 'img/green-star.svg' %}" alt="">
+                        <a href="">Уход за волосами</a>
+                    </div>
+                </div>
+            </div>
+            <img class="only-desktop" src="{% static 'img/toast-girl.png' %}" alt="">
+        </div>
+    </div>
+
+    <header class="header nav-down">
+        <div class="container general">
             <div class="row header__inner align-items-center">
                 <div class="col header__logo">
                     <a href="/" class="header__logo-link">
                         <img src="{% static 'img/Logo.svg' %}" alt="" class="header__logo-img">
                     </a>
                 </div>
-                <div class="col-auto header__menu">
+                <div class="col-auto header__menu header-desktop">
                     <a href="{% url 'products:products_list' %}" class="header__menu-link hover-green">Каталог</a>
+                    <a href="{% url 'contacts:about' %}" class="header__menu-link hover-green">О компании</a>
                     <a href="{% url 'home:home' %}#answersBlock"><button class="header__menu-link hover-green">Вопрос-ответ</button></a>
                     <a href="{% url 'contacts:contacts' %}"><button class="header__menu-link hover-green">Контакты</button></a>
                 </div>
                 <div class="col-auto header__service">
                     <div class="row header__service-box">
-                        <div class="col padding-0">
-                            <button class="header__request-button" data-toggle="modal" data-target="#exampleModal" data-bs-toggle="modal" data-bs-target="#exampleModal">Оставить заявку</button>
-                        </div>
+                        {% if not request.user.is_authenticated %}
+                            <div class="col padding-0">
+                                <button class="header__request-button header-desktop" data-toggle="modal" data-target="#exampleModal" data-bs-toggle="modal" data-bs-target="#exampleModal">Оставить заявку</button>
+                            </div>
+                        {% endif %}
                         <div class="col header__service-links">
                             {% if request.path == '/users/account/' %}
                                 <button class="header__service-link">
@@ -109,7 +160,7 @@
                             <form id="searchForm" action="{% url 'products:products_list' %}" method="get">
                                 <input id="searchInput" name="q" class="header__service-input {% if search_text %}active{% endif %}" placeholder="Поиск" {% if search_text %}value="{{ search_text }}"{% endif %} type="text">
                             </form>
-                            <button id="openSearchInput" class="header__service-link">
+                            <button id="openSearchInput" class="header__service-link {% if search_text %}active{% endif %}">
                                 <img src="{% if search_text %}{% static 'img/close-search-button.svg' %}{% else %}{% static 'img/black-search-icon.svg' %}{% endif %}" 
                                     data-close-img="{% static 'img/close-search-button.svg' %}"
                                     data-open-img="{% static 'img/black-search-icon.svg' %}" 
@@ -118,14 +169,40 @@
                                 >
                             </button>
                             <div class="dropdown dropdown__header">
-                                <button class="btn btn-secondary dropdown-toggle header__menu-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false"></button>
+                                <button class="btn btn-secondary dropdown-toggle header__menu-btn" onclick="openMobileMenu()" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <img src="{% static 'img/open-menu.svg' %}" alt="">
+                                </button>
                                 <ul class="dropdown-menu dropdown__header-menu" style="inset: auto auto auto 0;">
                                     <li><button href="{% url 'products:products_list' %}" class="header__menu-link dropdown-item">Каталог</button></li>
                                     <li><button href="{% url 'home:home' %}#answersBlock" class="header__menu-link dropdown-item">Вопрос</button></li>
                                     <li><button href="{% url 'contacts:contacts' %}" class="header__menu-link dropdown-item">Контакты</button></li>
                                 </ul>
                             </div>
-                            
+                            <div class="header-mobile-menu">
+                                <div class="mobile-menu-points">
+                                    <a href="{% url 'products:products_list' %}" class="mobile-menu-point hover-green">Каталог</a>
+                                    <a href="{% url 'contacts:about' %}" class="mobile-menu-point hover-green">О компании</a>
+                                    <a href="{% url 'home:home' %}#answersBlock"><button class="mobile-menu-point hover-green">Вопрос-ответ</button></a>
+                                    <a href="{% url 'contacts:contacts' %}"><button class="mobile-menu-point hover-green">Контакты</button></a>
+                                    <a href="{% url 'users:account' %}"><button class="mobile-menu-point hover-green">Личный кабинет</button></a>
+                                    <div class="leave-request-header-mobile" data-toggle="modal" data-target="#exampleModal" data-bs-toggle="modal" data-bs-target="#exampleModal">Оставить заявку</div>
+                                    <div class="contacts__contact-info-phone">
+                                        <a href="tel:{{ company_info.phone }}">{{ company_info.phone }}</a>
+                                        <div class="footer__messagers">
+                                            <div class="col-auto">
+                                                <a href="{{ company_info.whatsapp_link }}" class="footer__link">
+                                                    <img src="/static/img/Whatsapp.svg" alt="" class="footer__link-img">
+                                                </a>
+                                            </div>
+                                            <div class="col-auto">
+                                                <a href="{{ company_info.telergam_link }}" class="footer__link">
+                                                    <img src="/static/img/telegram.svg" alt="" class="footer__link-img">
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>  
                         </div>
                     </div>
                 </div>
@@ -164,28 +241,32 @@
                     <div class="col">
                         <div class="row footer__menu justify-content-md-center">
                             <div class="col-auto">
-                                <a href="{% url 'products:products_list' %}"><p class="footer__text">Каталог</p></a>
+                                <a href="{% url 'products:products_list' %}"><p class="footer__text hover-green">Каталог</p></a>
                             </div>
                             <div class="col-auto">
-                                <a href="#answersBlock"><p class="footer__text">Вопрос-ответ</p></a>
+                                <a href="{% url 'contacts:about' %}"><p class="footer__text hover-green">О компании</p></a>
                             </div>
                             <div class="col-auto">
-                                <a href="#contactsBlock"><p class="footer__text">Контакты</p></a>
+                                <a href="{% url 'home:home' %}#answersBlock"><p class="footer__text hover-green">Вопрос-ответ</p></a>
                             </div>
                             <div class="col-auto">
-                                <a href=""><p class="footer__text">Политика конфиденциальности</p></a>
+                                <a href="#contactsBlock"><p class="footer__text hover-green">Контакты</p></a>
+                            </div>
+                            <div class="col-auto">
+                                <a href=""><p class="footer__text hover-green">Политика конфиденциальности</p></a>
                             </div>
                         </div>
                     </div>
                     <div class="col-auto">
                         <div class="footer__messagers">
+                            <a href="tel:{{ company_info.phone }}">{{ company_info.phone }}</a>
                             <div class="col-auto">
-                                <a href="tel:+79644541700" class="footer__link">
+                                <a href="{{ company_info.whatsapp_link }}" class="footer__link">
                                     <img src="{% static 'img/Whatsapp.svg' %}" alt="" class="footer__link-img">
                                 </a>
                             </div>
                             <div class="col-auto">
-                                <a href="https://www.instagram.com/@aleucos.vl" class="footer__link">
+                                <a href="{{ company_info.telegram_link }}" class="footer__link">
                                     <img src="{% static 'img/telegram.svg' %}" alt="" class="footer__link-img">
                                 </a>
                             </div>
@@ -248,10 +329,6 @@
                     slidesPerView: 1,
                     spaceBetween: 24,
                     freeMode: false,
-                    pagination: {
-                        el: ".swiper-pagination",
-                        dynamicBullets: true,
-                    }
                 });
             }
         })
@@ -274,7 +351,11 @@
                     slidesPerView: 2,
                     spaceBetween: 24,
                     freeMode: true,
-                    loop:true
+                    loop:true, 
+                    navigation: {
+                        nextEl: ".swiper-button-next",
+                        prevEl: ".swiper-button-prev",
+                    },
                 });
             } else if (viewport_width < 768) {
                 console.log('d');
@@ -283,9 +364,10 @@
                     spaceBetween: 24,
                     freeMode: false,
                     loop:true,
-                    pagination: {
-                        el: ".swiper-pagination",
-                    }
+                    navigation: {
+                        nextEl: ".swiper-button-next",
+                        prevEl: ".swiper-button-prev",
+                    },
                 });
             }
         })
@@ -312,17 +394,22 @@
     <script defer>
         document.addEventListener('DOMContentLoaded', function () {
             let openSearchButton = document.getElementById('openSearchInput'); 
-            let searchInput = document.getElementById('searchInput')
+            let searchInput = document.getElementById('searchInput');
             openSearchButton.addEventListener('click', () => {
                 let image = openSearchButton.querySelector('img');
                 searchInput.classList.toggle('active');
                 if (new URL(image.src).pathname == image.dataset.openImg) {
                     image.src = image.dataset.closeImg;
                     searchInput.focus();
+
+                    openSearchButton.classList.add('active');
+
                 } else {
                     image.src = image.dataset.openImg;
                     searchInput.blur();
                     searchInput.value = "";
+
+                    openSearchButton.classList.remove('active');
                 }
             });
         })
@@ -344,43 +431,34 @@
         }
     </script>
 
+<!-- Форма ОС в блоке "Оставьте заявку" -->
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const form = document.getElementById("contactForm");
-        const toast = new bootstrap.Toast(document.querySelector(".toast"));
-
-        form.addEventListener("submit", function (event) {
-            event.preventDefault(); 
-
-            fetch(form.action, {
-                method: "POST",
-                body: new FormData(form),
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    toast.show(); 
-                    form.reset(); 
-                }
-            })
-            .catch(error => console.error("Ошибка:", error));
-        });
-    });
-</script>
-
-
-<script>
-
     const forms = document.querySelectorAll(".contactForm");
     console.log(forms);
+    const toast = new bootstrap.Toast(document.querySelector(".toast.after-request"));
     
     forms.forEach((form) => {
         form.addEventListener("submit", async function (event) {
             event.preventDefault();
             let formData = new FormData(form);
+
+            if (isRootUrl()) {
+            } else {
+                toast.show();
+            }
+            if (isMobile()) {
+                const closeMobileMenuButton = document.querySelector('.close-mobile-menu');
+                closeMobileMenuButton?.click();
+
+                toast.show();
+            }
+
             form.reset();
+            const closeButton = document.querySelector(".btn-close.offer__modal-btn");
+
+            closeButton.click();
             try {
-                let response = await fetch(`${window.origin}/api/save_registration_request/`, {
+                let response = await fetch(`/api/save_registration_request/`, {
                     method: "POST",
                     body: formData,
                 });
@@ -391,6 +469,78 @@
         });
     });
     
+    function isMobile() {
+        console.log('зашли')
+        if (window.innerWidth < 600) {
+            return true;
+        }
+        return false;
+    }
+    </script>
+
+<script>
+    function isRootUrl() {
+        return window.location.pathname === "/";
+    }
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("contactForm");
+        const toast = new bootstrap.Toast(document.querySelector(".toast.after-request"));
+        const closeButton = document.querySelector('.btn-close.offer__modal-btn');
+
+        form.addEventListener("submit", function (event) {
+            event.preventDefault(); 
+
+            if (isRootUrl()) {
+                console.log('Это домашняя страница'); 
+            } else {
+                toast.show(); 
+            }
+            const formData = new FormData(form);
+            form.reset(); 
+
+            fetch('/api/save_registration_request/', {
+                method: "POST",
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+            })
+            .catch(error => console.error("Ошибка:", error));
+        });
+    });
+</script>
+
+    <script defer>
+        const openMenuButtonUrl = '/static/img/open-menu.svg';
+        const closeMenuButtonUrl = '/static/img/close.svg';
+
+        function openMobileMenu() {
+            const menuButton = document.querySelector('.header__menu-btn'); 
+            const mobileMenu = document.querySelector('.header-mobile-menu');
+            const closeButton = document.querySelector('.close-mobile-menu');
+            menuButton.classList.add('close-mobile-menu');
+
+            menuButton.removeEventListener('click', openMobileMenu);
+            menuButton.addEventListener('click', closeMobileMenu);
+            menuButton.querySelector('img').src = closeMenuButtonUrl;
+
+            mobileMenu.classList.add('active');
+
+            window.removeEventListener('scroll', onScroll);  
+        }
+        function closeMobileMenu() {
+            const menuButton = document.querySelector('.header__menu-btn'); 
+            const mobileMenu = document.querySelector('.header-mobile-menu');
+            const closeButton = document.querySelector('.close-mobile-menu');
+
+            menuButton.removeEventListener('click', closeMobileMenu);
+            menuButton.addEventListener('click', openMobileMenu);
+            menuButton.querySelector('img').src = openMenuButtonUrl;
+
+            mobileMenu.classList.remove('active');
+
+            window.addEventListener('scroll', onScroll);  
+        }
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>

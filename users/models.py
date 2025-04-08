@@ -33,6 +33,12 @@ class City(models.Model):
 
 
 class User(AbstractUser):
+    DISCOUNT_CHOICES = [
+        (5, '5%'),
+        (10, '10%'),
+        (15, '15%'),
+    ]
+    
     phone = models.CharField(_('Телефон'), max_length=20)
     last_name = models.CharField(_('Фамилия'), max_length=50)
     first_name = models.CharField(_('Имя'), max_length=50)
@@ -43,6 +49,8 @@ class User(AbstractUser):
     password = models.CharField(_('Пароль'), max_length=128, blank=True)
     photo = models.ImageField(_('Фотография'), upload_to='users', null=True, blank=True)
     city = models.ForeignKey(verbose_name='Город', to=City, null=True, blank=True, on_delete=models.SET_NULL)
+
+    discount = models.IntegerField('Скидка', null=True, blank=True, choices=DISCOUNT_CHOICES)
 
     instagram = models.URLField(_('Instagram'), null=True, blank=True)
     vk = models.URLField(_('VK'), null=True, blank=True)

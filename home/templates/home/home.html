@@ -18,7 +18,7 @@
                 </div>
                 <div class="offer__info">
                     <div class="offer__info-column">
-                        <div class="offer__info-column-heading">До 2-х недель</div>
+                        <div class="offer__info-column-heading first">До 2-х недель</div>
                         <div class="offer__info-label">средний срок доставки</div>
                     </div>
                     <div class="offer__info-column">
@@ -152,7 +152,12 @@
                                     {% if request.user.is_authenticated %}                                    
                                         <div class="catalog__card-price-block">
                                             <div class="catalog__card-price">
-                                                <p>{{ product.price_before_200k|floatformat:2|price_format }} ₽</p>
+                                                {% if request.user.discount %}
+                                                    <p class="with-discount">{{ product.price_before_200k|apply_discount:request.user.discount }} ₽</p>
+                                                    <p class="without-discount">{{ product.price_before_200k|floatformat:2|price_format }} ₽</p>
+                                                {% else %}
+                                                    <p>{{ product.price_before_200k|floatformat:2|price_format }} ₽</p>
+                                                {% endif %}
                                             </div>
                                             {% if product.quantity_in_cart != 0 %}
                                                 <div class="catalog__card-cart-controls">
@@ -262,16 +267,6 @@
     {% if not request.user.is_authenticated %}
         {% include 'home/includes/questions_block.html' %}
     {% endif %}
-
-    <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header">
-          <div class="me-2 toast-img"></div>
-          <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-        <div class="toast-body">
-          Ваши данные успешно отправлены
-        </div>
-    </div>
 
     <section id="answersBlock" class="answer">
         <div class="container px-4">
@@ -571,22 +566,23 @@
                                 </div>
                             </div>
                             <div class="help__form-box help__form-box--5 item--hidden">
-                                <div class="row">
-                                    <div class="col help__form-box-item-1">
-                                        <h2 class="help__form-title">Имя</h2>
-                                        <input placeholder="Введите имя" maxlength="35" class="help__form-input" type="text" required>
+                                <form action="" class="contactForm">
+                                    <div class="row">
+                                        <div class="col help__form-box-item-1">
+                                            <h2 class="help__form-title">Имя</h2>
+                                            {{ contact_form.name }}
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col help__form-box-item">
-                                        <h2 class="help__form-title">Телефон</h2>
-                                        <input placeholder="+7" class="help__form-input help__form-input--tel" type="text" required>
+                                    <div class="row">
+                                        <div class="col help__form-box-item">
+                                            <h2 class="help__form-title">Телефон</h2>
+                                            {{ contact_form.phone }}
+                                        </div>
+                                        <div class="col help__form-box-item">
+                                            <h2 class="help__form-title">Email</h2>
+                                            {{ contact_form.email }}
+                                        </div>
                                     </div>
-                                    <div class="col help__form-box-item">
-                                        <h2 class="help__form-title">Email</h2>
-                                        <input placeholder="Введите email" maxlength="35" class="help__form-input" type="email" required>
-                                    </div>
-                                </div>
                             </div>
                             <div class="help__form-box help__form-box--end item--hidden">
                                 <h2 class="help__form-title">Данные успешнно отправлены!</h2>
@@ -601,6 +597,7 @@
                             <div class="col-auto col-btn">
                                 <button type="button" class="help__form-btn help__form-btn--next">Далее</button>
                                 <button type="submit" class="help__form-btn help__form-btn--submit item--hidden">Отправить</button>
+                            </form>
                             </div>
                         </div>
                     </form>
@@ -610,5 +607,172 @@
 
 </main>
     {% endif %}
+
+
+<script defer>
+    // Добавить товар в корзину
+    document.addEventListener("click", function (event) {
+        const button = event.target.closest(".catalog__card-cart-button");
+        if (button) {
+            event.preventDefault();
+            
+            const card = button.closest(".catalog__card");
+            const barcode = button.id;
+            const addToCartButtonBackup = button.cloneNode(true); 
+
+            renderCartPositionsCount(increase = true)
+
+            const cartControls = document.createElement('div');
+            cartControls.classList.add('catalog__card-cart-controls');
+            cartControls.innerHTML = `
+                <button id="${barcode}" class="catalog__card-cart-control-minus">
+                    <img src="{% static 'img/Vector (1).svg' %}" alt="cart">
+                </button>
+                <input type="number" id="quantity-input-${barcode}" class="catalog__card-quantity-input" min="1" value="1">
+                <button id="${barcode}" class="catalog__card-cart-control-plus">
+                    <img src="{% static 'img/Vector (2).svg' %}" alt="cart">
+                </button>
+            `;
+
+            button.replaceWith(cartControls);
+
+            fetch("{% url 'carts:change' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: new URLSearchParams({
+                    'barcode': barcode,
+                    'quantity': 1,
+                    'append': true
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert("Ошибка: " + data.error);
+                        cartControls.replaceWith(addToCartButtonBackup);
+                    }
+                    updateCartIcon(Object.keys(data.cart.products).length); 
+                })
+                .catch(error => console.error("Ошибка при добавлении/удалении из корзины:", error));
+        }
+    });
+
+    function throttle(func, delay) {
+        let lastCall = 0;
+        return function (...args) {
+            const now = (new Date()).getTime();
+            if (now - lastCall < delay) {
+                return;
+            }
+            lastCall = now;
+            return func(...args);
+        };
+    }
+
+    // Увеличить количество товара в корзине 
+    document.addEventListener("click", function (event) {
+        const plusButton = event.target.closest(".catalog__card-cart-control-plus");
+        if (plusButton) {
+            event.preventDefault();
+            throttle(increaseQuantity(plusButton), 500);
+        }
+    });
+    function increaseQuantity(plusButton) {
+        plusButton.disabled = true;
+        
+        const barcode = plusButton.id;
+
+        const quantityInput = plusButton.previousElementSibling;
+        let oldQuantity = parseInt(quantityInput.value);
+        quantity = oldQuantity + 1;
+        if (quantity < 1) {
+            quantity = 1;
+        }
+        quantityInput.value = quantity;
+
+        fetch("{% url 'carts:change' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: new URLSearchParams({
+                'barcode': barcode,
+                'quantity': 1,
+                'append': true
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                plusButton.disabled = false;
+                if (data.error) {
+                    alert(data.error);
+                    quantityInput.value = oldQuantity;
+                    renderCartPositionsCount(increase = false);
+                }
+            })
+            .catch(error => {
+                console.error("Ошибка при добавлении/удалении из корзины:", error)
+                plusButton.disabled = false;
+            });
+    }
+
+    // Уменьшить количество товара в корзине 
+    document.addEventListener("click", function (event) {
+        const minusButton = event.target.closest(".catalog__card-cart-control-minus");
+        if (minusButton) {
+            event.preventDefault();
+            throttle(decreaseQuantity(minusButton), 500);
+        }
+    });
+    function decreaseQuantity(minusButton) {
+        minusButton.disabled = true;
+        console.log('Уменьшаем колво')
+
+        const barcode = minusButton.id;
+        const quantityInput = minusButton.nextElementSibling;
+        let quantity = parseInt(quantityInput.value);
+        quantity -= 1;
+        if (quantity < 1) {
+            const addToCartButton = document.createElement('div');
+            addToCartButton.classList.add('catalog__card-add-to-cart-div');
+            addToCartButton.innerHTML = `
+            <div id="${barcode}" class="catalog__card-cart-button add-to-cart">
+                                                    В корзину
+                                                </div>
+        `;
+            minusButton.parentElement.insertAdjacentElement('afterend', addToCartButton);
+            minusButton.parentElement.remove();
+            
+            renderCartPositionsCount(increase = false);
+        }
+        quantityInput.value = quantity;
+
+        fetch("{% url 'carts:change' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: new URLSearchParams({
+                'barcode': barcode,
+                'quantity': -1,
+                'append': true
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                minusButton.disabled = false;
+                updateCartIcon(Object.keys(data.cart.products).length);
+            })
+            .catch(error => {
+                console.error("Ошибка при добавлении/удалении из корзины:", error)
+                minusButton.disabled = false;
+            });
+    }
+</script>
 
 {% endblock %}

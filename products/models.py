@@ -62,10 +62,11 @@ class Product(models.Model):
     is_in_stock = models.BooleanField(_('В наличии'), default=False)
     remains = models.PositiveIntegerField(_('Остаток на складе'), default=0)
     created_at = models.DateTimeField(_('Дата создания'), auto_now_add=True)
-    will_arrive_at = models.DateField(_('Дата прибытия (если в пути)'), null=True, blank=True)
+    will_arrive_at = models.DateField(_('Дата поступления (если в пути)'), null=True, blank=True)
     slug = models.SlugField('Слаг', blank=True, max_length=80)
     composition = models.TextField('Состав', max_length=500, null=True, blank=True)
     product_type = models.ForeignKey(verbose_name='Тип продукта', to=ProductType, null=True, blank=True, on_delete=models.SET_NULL)
+    is_hit = models.BooleanField('Хит продаж', default=False)
 
     class Meta: 
         verbose_name = _('Товар')

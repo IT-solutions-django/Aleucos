@@ -1,9 +1,16 @@
 {% extends "base.html" %}
 {% load static %}
+{% load cart_tags %}
 
 {% block title %}Личный кабинет{% endblock %}
 
 {% block content %}
+<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script> -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ru.js"></script>
+
 <main class="account">
     <div class="heading-wrapper">
         <div class="heading-label">
@@ -17,8 +24,12 @@
                 <div class="account__user-info-body">
                     <p><span class="bold">Имя: </span>{{ request.user.get_fullname }}</p>
                     <p><span class="bold">Email: </span>{{ request.user.email }}</p>
-                    <p><span class="bold">Город: </span>{% if request.user.city %}{{ request.user.city }}{% else %}...{% endif %}</p>
-                    <p><span class="bold">Скидка: </span>5%</p>
+                    {% if request.user.city %}
+                        <p><span class="bold">Город: </span>{% if request.user.city %}{{ request.user.city }}{% else %}...{% endif %}</p>
+                    {% endif %}
+                    {% if request.user.discount %}
+                      <p><span class="bold">Скидка: </span>{{ request.user.discount }}%</p>
+                    {% endif %}
                 </div>
                 <hr>
                 {% if manager %}
@@ -29,14 +40,16 @@
                             <p><span class="bold">Имя: </span>{% if manager.get_full_name %}{{ manager.get_full_name }}{% else %}-{% endif %}</p>
                             <p><span class="bold">Должность: </span>{% if manager.position %}{{ manager.position }}{% else %}-{% endif %}</p>
                             <p><span class="bold">Email: </span>{{ manager.email }}</p>
-                            <p><span class="bold">Телефон: </span>{{ manager.phone }}</p>
+                            {% if manager.phone %}
+                                <p><span class="bold">Телефон: </span>{{ manager.phone }}</p>
+                            {% endif %}
                         </div>
                     </div>
                 {% endif %}
             </div>
         </div>
         <div class="account__content">
-            <form id="accountFilterForm" action="" method="get" class="account__sort-block">
+            <form id="accountFilterForm" action="" method="get" class=" only-desktop">
                     {% for section in filter_form.sections %}
                         {% if filter_form.cleaned_data.sections %}
                             <p class="account__sort {% if filter_form.cleaned_data.sections == section.choice_label %}active{% endif %}">{{ section }}</p>
@@ -44,19 +57,13 @@
                             <p class="account__sort {% if section.choice_label == 'Все' %}active{% endif %}">{{ section }}</p>
                         {% endif %}
                     {% endfor %}
-                    <!-- <p class="account__sort-button">Выбрать период</p>
-
-                    <div id="date-picker-container" style="display: none;">
-                        <input type="date" name="start_date" class="date-picker">
-                        <input type="date" name="end_date" class="date-picker">
-                        <button type="submit">Применить</button>
-                    </div> -->
+                    <input name="dates" class="account__sort-block" type="text" id="date-range" placeholder="Выберите даты" />
             </form>
             <div class="account_heading">
                 Ваши заказы
             </div>
             {% for order in orders %}
-                <div class="account__order">
+                <div class="account__order only-desktop">
                     <div class="account__order-heading">
                         Заказ №{{ order.number }}
                     </div>
@@ -68,7 +75,7 @@
                             <span class="bold">Дата оформления:</span> {{ order.created_at|date:"d.m.y (H:i)" }}
                         </div>
                     </div>
-                    <div class="cart-table">
+                    <div class="cart-table only-desktop">
                         <div class="cart-header">
                             <span>Производитель</span>
                             <span>Товар</span>
@@ -91,6 +98,56 @@
                     </div>
                 </div>
             {% endfor %}
+            <div class="account-orders__mobile">
+                {% for order in orders %}
+                    <div class="account-order__mobile">
+                        <div class="account-order__mobile-upper">
+                            <div class="account-order__mobile-header">
+                                <p class="heading">Заказ №{{ order.number }}</p>
+                                <p class="fs-14"><span class="bold">Дата оформления:</span> {{ order.created_at|date:"d.m.y (H:i)" }}</p>
+                            </div>
+                            <div class="fs-14">
+                                <span class="bold">Статус:</span> {{ order.status }} 
+                            </div>
+                            <div>
+                                <p>Сумма заказа: <span class="bold">{{ order.total_price }} ₽</span></p>
+                            </div>
+                            <button data-order-number="{{ order.number }}" onclick="openOrder('{{ order.number }}')" class="open-order-mobile">Подробнее</button>
+                        </div>
+                        <hr class="margined-hr"> 
+                        {% for item in order.items.all %}
+                            <div class="mobile-product-card" data-order-number="{{ order.number }}">
+                                <div class="upper">
+                                    <div class="product-data">
+                                        <div class="product-photo">
+                                            <div class="product-photo-wrapper">
+                                                <img src="{{ item.product_name|get_product_photo_by_name }}" alt="">
+                                            </div>
+                                            <p>{{ item.barcode }}</p>
+                                        </div>
+                                        <div class="product-name-and-price">
+                                            <p class="product-name">{{ item.product_name }}</p>
+                                            <p class="product-price">{{ item.unit_price }} ₽</p>
+                                        </div>
+                                        <button class="delete">
+
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="position-price">
+                                    <div class="product-remains">
+                                        <p>Кол-во: <span>{{ item.quantity }}</span></p>
+                                    </div>
+                                    <div>
+                                        <p>Цена по позиции: <span class="product-total-price">{{ item.total_price }}</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        <button data-order-number="{{ order.number }}" onclick="closeOrder('{{ order.number }}')" class="close-order-mobile display-none">Скрыть</button>
+                    </div>
+                {% endfor %}
+            </div>
         </div>
     </div>
 </main>
@@ -123,9 +180,43 @@
             console.error("Форма не найдена!");
         }
     }
-    // document.querySelector('.account__sort-button').addEventListener('click', function () {
-    //     let datePicker = document.getElementById('date-picker-container');
-    //     datePicker.style.display = datePicker.style.display === 'none' ? 'block' : 'none';
-    // });
+</script>
+
+<script defer>
+    const defaultDates = ["{{ start_date }}", "{{ end_date }}"]
+    console.log(defaultDates)
+
+    flatpickr("#date-range", {
+        mode: "range",  
+        dateFormat: "d.m.Y", 
+        locale: "ru", 
+        defaultDate: defaultDates,
+        onClose: function (selectedDates, dateStr, instance) {
+            if (selectedDates.length === 2) { 
+                document.getElementById("accountFilterForm").submit(); 
+            }
+        }
+    });
+</script>
+
+<script defer>
+    function openOrder(orderNumber) {
+        document.querySelectorAll(`.mobile-product-card[data-order-number="${orderNumber}"]`).forEach(element => {
+            element.classList.add('active');
+        });
+        document.querySelector(`.open-order-mobile[data-order-number="${orderNumber}"]`).classList.add('display-none');
+        document.querySelector(`.close-order-mobile[data-order-number="${orderNumber}"]`).classList.remove('display-none');
+    };
+    function closeOrder(orderNumber) {
+        document.querySelectorAll(`.mobile-product-card[data-order-number="${orderNumber}"]`).forEach(element => {
+            element.classList.remove('active');
+        });
+        document.querySelector(`.open-order-mobile[data-order-number="${orderNumber}"]`).classList.remove('display-none');
+        document.querySelector(`.close-order-mobile[data-order-number="${orderNumber}"]`).classList.add('display-none');
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+        // Аккордеон для заказов 
+        
+    });
 </script>
 {% endblock %}

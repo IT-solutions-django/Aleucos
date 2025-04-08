@@ -24,3 +24,11 @@ def product_remains(barcode: str) -> int:
     if product:
         return product.remains
     return 0
+
+
+@register.filter
+def get_product_photo_by_name(product_name: str) -> str: 
+    product = Product.objects.filter(title=product_name).first()
+    if product:
+        return product.photo.url 
+    return settings.DEFAULT_IMAGE_PATH

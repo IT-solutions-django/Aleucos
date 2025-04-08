@@ -15,14 +15,14 @@
         <div class="heading-label">
             <a href="{% url 'products:products_list' %}" class="color-black">Ваша корзина</a>
         </div>
-        <div class="breadcrumb">
+        <div class="breadcrumb only-desktop">
             <a href="{% url 'home:home' %}" class="hover-green">Главная</a>
             <p>/</p>
             <a href="" class="hover-green">Корзина</a>
         </div>
     </div>
 
-    <div class="cart-table">
+    <div class="cart-table only-desktop">
         {% if cart.products %}
             <div class="cart-header">
                 <span>Фото</span>
@@ -63,8 +63,66 @@
         </div>
         {% endif %}
     </div>
-    {% if cart.products %}
+
+    <div class="cart-mobile">
+        {% if cart.products %}
+            {% for barcode, item in cart.products.items %}
+                <div class="mobile-product-card" data-barcode="{{ barcode }}">
+                    <div class="upper">
+                        <div class="product-data">
+                            <div class="product-photo">
+                                <div class="product-photo-wrapper">
+                                    <img src="{{ barcode|product_image_url }}" alt="">
+                                </div>
+                                <p>{{ barcode }}</p>
+                            </div>
+                            <div class="product-name-and-price">
+                                <p class="product-name">{{ barcode|product_title }}</p>
+                                <p class="product-price">{{ item.unit_price }} ₽</p>
+                            </div>
+                        </div>
+                        <button class="delete-btn delete" data-barcode="{{ barcode }}" onclick="deleteFromCart('{{ barcode }}')">
+                            <img src="{% static 'img/delete-item.svg' %}" alt="">
+                        </button>
+                    </div>
+                    <div class="medium">
+                        <div>
+                            <div class="cart-quantity">
+                                <input id="mobile-quantity-{{ barcode }}" value="{{ item.quantity }}" oninput="checkQuantity('{{ barcode }}')">
+                                <button data-barcode="{{ barcode }}" class="minus-button">-</button>
+                                <button data-barcode="{{ barcode }}" class="plus-button">+</button>
+                            </div>
+                        </div>
+                        <div class="product-remains">
+                            <p>На складе: <span>{{ barcode|product_remains }}</span></p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="position-price">
+                        <p>Цена по позиции:</p>
+                        <p class="product-total-price">{{ item.total_product_price }} ₽</p>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-cart-label">
+                Ваша корзина пуста
+            </div>
+            <div>
+                <a class="hover-green continue-button" href="{% url 'products:products_list' %}">Перейти к каталогу →</a>
+            </div>
+        {% endif %}
+    </div>
+    <div class="cart-bottom-buttons">
+        <p class="result">Итог: <span>1000 р</span></p>
         <div class="continue__buttons">
+            <button onclick="checkCart()" class="continue-button">Продолжить</button>
+            <a href="{% url 'products:export_catalog' %}" class="get-price-button">Получить прайс</a>
+        </div>
+    </div>
+
+    {% if cart.products %}
+        <div class="continue__buttons only-desktop">
             <button onclick="checkCart()" class="continue-button">Продолжить</button>
             <a href="{% url 'products:export_catalog' %}" class="get-price-button">Получить прайс</a>
         </div>
@@ -73,7 +131,9 @@
             <p class="cart__next-subheading">Выберете условия доставки и способ оплаты</p>
             <div class="cart__next-input labeled">
                 <label for="city-input"><strong>Ваш город</strong></label>
-                <input type="text" id="city-input" name="city">
+                <input type="text" id="city-input" name="city" list="address_list">
+                <datalist id="address_list"></datalist>
+
             </div>
             <div class="cart__next-terms">
                 <input type="hidden" id="delivery-input" name="delivery_terms">
@@ -130,62 +190,38 @@
 {% block script %}
 <script defer>
     $(document).ready(function () {
-        $("#city-input").autocomplete({
-            source: function (request, response) {
-                $.getJSON(`https://nominatim.openstreetmap.org/search?format=json&q=${request.term}`, function (data) {
-                    response($.map(data, function (item) {
-                        return {
-                            label: item.display_name,
-                            value: item.display_name
-                        };
-                    }));
+        $("#city-input").on("input", function () {
+            console.log('кауиоршл')
+            let query = $(this).val();
+            if (query.length > 2) {
+                $.ajax({
+                    url: "https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address",
+                    method: "POST",
+                    contentType: "application/json",
+                    headers: {
+                        "Authorization": "Token aa594033d2dd8b0a72dcaa25487b293486127477"
+                    },
+                    data: JSON.stringify({ 
+                        query: query,
+                        count: 10,
+                        from_bound: { value: "city" },
+                        to_bound: { value: "city" }
+                    }),
+                    success: function (data) {
+                        let suggestions = data.suggestions.map(item => item.data.city);
+                        $("#address_list").empty();
+                        suggestions.forEach(addr => {
+                            $("#address_list").append(`<option value="${addr}">`);
+                        });
+                    }
                 });
-            },
-            minLength: 2
-        });
-    });
-
-</script>
-
-<script defer>
-    document.addEventListener("DOMContentLoaded", function () {
-        function validateForm() {
-            const cityInput = document.querySelector('#city-input');
-            const deliveryInput = document.querySelector('#delivery-input');
-            const paymentInput = document.querySelector('#payment-input');
-            const submitButton = document.querySelector('#submit-button');
-    
-            if (cityInput.value.trim() && deliveryInput.value && paymentInput.value) {
-                submitButton.disabled = false;
-                console.log('Валидация успешна');
-            } else {
-                console.log('Валидация не пройдена');
-                submitButton.disabled = true;
             }
-        }
-    
-        function handleTileSelection(containerClass, inputId) {
-            const container = document.querySelector(containerClass);
-            const input = document.querySelector(inputId);
-    
-            container.addEventListener('click', (event) => {
-                const target = event.target.closest('.cart__next-delivery-term');
-                if (target) {
-                    container.querySelectorAll('.selected').forEach((el) => el.classList.remove('selected'));
-                    target.classList.add('selected');
-                    input.value = target.getAttribute('data-value');
-                    validateForm();
-                }
-            });
-        }
-    
-        document.querySelector('#submit-button').disabled = true;
-        handleTileSelection('.cart__next-delivery-terms-tiles', '#delivery-input');
-        handleTileSelection('.cart__next-payment-terms .cart__next-delivery-terms-tiles', '#payment-input');
-        document.querySelector('#city-input').addEventListener('input', validateForm);
-    });
+        });
+});
 </script>
 
+
+{{ request.cart.to_dict|json_script:"cart-data" }}
 
 <script>
 const checkQuantity = (barcode) => {
@@ -274,30 +310,36 @@ const deleteFromCart = (barcode) => {
             alert("Ошибка при очистке корзины:", data.error);
         } else {
             cart = data.cart 
+            
+            if (isMobile()) {
+                let cardToDelete = document.querySelector(`.mobile-product-card[data-barcode="${barcode}"]`);
+                cardToDelete.remove();
 
-            const row = document.querySelector(`div[data-barcode="${barcode}"]`);
-            console.log(row);
-            if (row) {
-                row.remove();
-            }
+            } else {
+                const row = document.querySelector(`div[data-barcode="${barcode}"]`);
+                console.log(row);
+                if (row) {
+                    row.remove();
+                }
 
-            const totalPriceElement = document.getElementById("totalOrderPrice");
-            if (totalPriceElement) {
-                console.log(cart)
-                totalPriceElement.textContent = `Итого: ${cart.total_price} ₽`;
-            }
+                const totalPriceElement = document.getElementById("totalOrderPrice");
+                if (totalPriceElement) {
+                    console.log(cart)
+                    totalPriceElement.textContent = `Итого: ${cart.total_price} ₽`;
+                }
 
-            if (document.querySelectorAll('.cart-row').length == 0) {
-                document.querySelector('.cart-table').innerHTML = `
-                    <div class="empty-cart-block">
-                    <div class="empty-cart-label">
-                        Ваша корзина пуста
-                    </div>
-                    <div>
-                        <a class="hover-green continue-button" href="{% url 'products:products_list' %}">Перейти к каталогу →</a>
-                    </div>
-                </div>`;
-                document.querySelector('.continue__buttons').remove();
+                if (document.querySelectorAll('.cart-row').length == 0) {
+                    document.querySelector('.cart-table').innerHTML = `
+                        <div class="empty-cart-block">
+                        <div class="empty-cart-label">
+                            Ваша корзина пуста
+                        </div>
+                        <div>
+                            <a class="hover-green continue-button" href="{% url 'products:products_list' %}">Перейти к каталогу →</a>
+                        </div>
+                    </div>`;
+                    document.querySelector('.continue__buttons').remove();
+                }
             }
             
             renderCartPositionsCount(increase = false)
@@ -320,6 +362,10 @@ function checkCart() {
     .then(data => {
         if (data.success) {
             document.getElementById('cart__next').style.display = 'flex';
+            if (window.innerWidth < 600) {
+                document.querySelector('.cart-bottom-buttons').classList.add('display-none');
+                document.querySelector('#cart__next').scrollIntoView({ behavior: 'smooth' });
+            }
         } else {
             let errorsContainer = document.getElementById('errors-container');
             errorsContainer.innerHTML = '';  
@@ -335,22 +381,47 @@ function checkCart() {
 }
 
 const updateCartDisplay = (cart) => {
-    for (const barcode in cart.products) {
-        const row = document.querySelector(`div[data-barcode="${barcode}"]`);
-        if (row) {
+    let userDiscount = '{{ request.user.discount }}';
+    if (userDiscount == 'None') {
+        userDiscount = 0;
+    }
+    userDiscount /= 100;
+
+    if (isMobile()) {
+        for (const barcode in cart.products) {
+            let productCard = document.querySelector(`.mobile-product-card[data-barcode="${barcode}"]`); 
+
             const product = cart.products[barcode];
-            
-            const productUnitPrice = row.querySelector('.product-unit-price');
-            productUnitPrice.textContent = `${product.unit_price} ₽`;
 
-            const quantityInput = row.querySelector(`input[id="quantity-${barcode}"]`);
-            quantityInput.value = product.quantity;
+            let productUnitPrice = productCard.querySelector('.product-price'); 
+            productUnitPrice.textContent = `${formatNumber(product.unit_price * (1 - userDiscount))} ₽`; 
 
-            const productTotalPrice = row.querySelector('.product-total-price');
-            productTotalPrice.textContent = `${product.total_product_price} ₽`;
+            let productTotalPrice = productCard.querySelector('.product-total-price'); 
+            productTotalPrice.textContent = `${formatNumber(product.total_product_price * (1 - userDiscount))} ₽`;
+
+            const totalPrice = cart.total_price;
+            const totalPriceElement = document.querySelector('.cart-bottom-buttons .result span');
+            totalPriceElement.textContent = `${formatNumber(totalPrice * (1 - userDiscount))} ₽`; ;
+        }
+    } else {
+        for (const barcode in cart.products) {
+            const row = document.querySelector(`div[data-barcode="${barcode}"]`);
+            if (row) {
+                const product = cart.products[barcode];
+                
+                const productUnitPrice = row.querySelector('.product-unit-price');
+                productUnitPrice.textContent = `${formatNumber(product.unit_price * (1 - userDiscount))} ₽`;
+    
+                const quantityInput = row.querySelector(`input[id="quantity-${barcode}"]`);
+                quantityInput.value = product.quantity;
+    
+                const productTotalPrice = row.querySelector('.product-total-price');
+                productTotalPrice.textContent = `${formatNumber(product.total_product_price * (1 - userDiscount))} ₽`;
+            }
         }
     }
 };
+
 
 document.addEventListener("DOMContentLoaded", () => {
     let plusButtons = document.querySelectorAll('.plus-button'); 
@@ -365,14 +436,49 @@ document.addEventListener("DOMContentLoaded", () => {
             decreaseQuantity(button);
         });
     });
+
+    const cart = JSON.parse(document.getElementById('cart-data').textContent);
+    updateCartDisplay(cart);
 });
+
+function isMobile() {
+    if (window.innerWidth < 600) {
+        return true;
+    }
+    return false;
+}
+
+function formatNumber(number) {
+    let numStr = typeof number === 'number' ? number.toString() : String(number);
+    
+    let parts = numStr.split('.');
+    let integerPart = parts[0];
+    let decimalPart = parts.length > 1 ? parts[1] : '';
+    
+    if (decimalPart.length > 6) {
+        const num = parseFloat(numStr);
+        numStr = num.toFixed(2);
+        parts = numStr.split('.');
+        integerPart = parts[0];
+        decimalPart = parts.length > 1 ? parts[1] : '';
+    }
+    
+    integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+
+    return decimalPart ? `${integerPart}.${decimalPart}` : integerPart;
+}
 
 
 function increaseQuantity(plusButton) {
     plusButton.disabled = true;
 
     const barcode = plusButton.dataset.barcode;
-    const quantityInput = document.getElementById(`quantity-${barcode}`);
+    let quantityInput;
+    if (isMobile()) {
+        quantityInput = document.getElementById(`mobile-quantity-${barcode}`);
+    } else {
+        quantityInput = document.getElementById(`quantity-${barcode}`);
+    }
     let oldQuantity = parseInt(quantityInput.value);
     quantity = oldQuantity + 1;
     if (quantity < 1) {
@@ -415,7 +521,12 @@ function increaseQuantity(plusButton) {
         console.log('Уменьшаем колво')
 
         const barcode = minusButton.dataset.barcode;
-        const quantityInput = document.getElementById(`quantity-${barcode}`);
+        let quantityInput;
+        if (isMobile()) {
+            quantityInput = document.getElementById(`mobile-quantity-${barcode}`);
+        } else {
+            quantityInput = document.getElementById(`quantity-${barcode}`);
+        }
         let quantity = parseInt(quantityInput.value);
         quantity -= 1;
         quantityInput.value = quantity;
@@ -443,6 +554,45 @@ function increaseQuantity(plusButton) {
             minusButton.disabled = false;
         });
     }
+</script>
+
+<script defer>
+    document.addEventListener("DOMContentLoaded", function () {
+        function validateForm() {
+            const cityInput = document.querySelector('#city-input');
+            const deliveryInput = document.querySelector('#delivery-input');
+            const paymentInput = document.querySelector('#payment-input');
+            const submitButton = document.querySelector('#submit-button');
+    
+            if (cityInput.value.trim() && deliveryInput.value && paymentInput.value) {
+                submitButton.disabled = false;
+                console.log('Валидация успешна');
+            } else {
+                console.log('Валидация не пройдена');
+                submitButton.disabled = true;
+            }
+        }
+    
+        function handleTileSelection(containerClass, inputId) {
+            const container = document.querySelector(containerClass);
+            const input = document.querySelector(inputId);
+    
+            container.addEventListener('click', (event) => {
+                const target = event.target.closest('.cart__next-delivery-term');
+                if (target) {
+                    container.querySelectorAll('.selected').forEach((el) => el.classList.remove('selected'));
+                    target.classList.add('selected');
+                    input.value = target.getAttribute('data-value');
+                    validateForm();
+                }
+            });
+        }
+    
+        document.querySelector('#submit-button').disabled = true;
+        handleTileSelection('.cart__next-delivery-terms-tiles', '#delivery-input');
+        handleTileSelection('.cart__next-payment-terms .cart__next-delivery-terms-tiles', '#payment-input');
+        document.querySelector('#city-input').addEventListener('input', validateForm);
+    });
 </script>
 {% endblock %}
  

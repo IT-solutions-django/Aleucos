@@ -118,6 +118,16 @@ class ProductsListView(View):
         paginator = Paginator(products, 16)  
         page_obj = paginator.get_page(page_number)
 
+
+
+
+        # import logging
+        # logger = logging.getLogger('django')
+        # logger.info("Тестовая запись для Elasticsearch")
+
+
+
+
         context = {
             'form': form,
             'products': page_obj, 
@@ -133,7 +143,7 @@ class CatalogFiltersView(View):
     def get(self, request):
         form = SearchAndFilterForm(request.GET)
 
-        print(form.data)
+        print(f'Данные с формы: {form.data}')
 
         if form.is_valid():
             cd = form.cleaned_data
@@ -256,7 +266,13 @@ class ProductView(View):
     template_name = 'products/product.html' 
 
     def get(self, request, product_slug: str): 
-        product = get_object_or_404(Product, slug=product_slug)
+        print(f'Слаг: {product_slug}')
+        
+        # product = get_object_or_404(Product, slug=product_slug)
+        product = Product.objects.filter(slug=product_slug).first()
+
+        print(product.pk)
+
         similar_products = Product.objects.all().filter(category=product.category).exclude(pk=product.pk)
 
         cart_data = request.cart.to_dict()
@@ -265,8 +281,12 @@ class ProductView(View):
             for barcode, item in cart_data['products'].items()
         }
 
-        for product in similar_products:
-            product.quantity_in_cart = request.cart[Cart.KeyNames.PRODUCTS].get(str(product.barcode), {}).get(Cart.KeyNames.QUANTITY, 0)
+        product.quantity_in_cart = request.cart[Cart.KeyNames.PRODUCTS].get(str(product.barcode), {}).get(Cart.KeyNames.QUANTITY, 0)
+
+        for similar_product in similar_products:
+            similar_product.quantity_in_cart = request.cart[Cart.KeyNames.PRODUCTS].get(str(similar_product.barcode), {}).get(Cart.KeyNames.QUANTITY, 0)
+
+        print(product.pk)
 
         context = {
             'product': product,

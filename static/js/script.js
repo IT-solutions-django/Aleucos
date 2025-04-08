@@ -199,10 +199,7 @@ document.querySelectorAll('.form').forEach(item => {
 
     fields.forEach(item => item.value = "");
 
-    document.querySelector('.toast').classList.add("show");
-
-    setTimeout(() => {
-      document.querySelector('.toast').classList.remove("show");
-    }, 5000);
+    const toast = new bootstrap.Toast(document.querySelector(".toast.after-request"));
+    toast.show();
   });
 });

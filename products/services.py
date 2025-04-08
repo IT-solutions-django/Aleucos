@@ -103,7 +103,7 @@ class CatalogImporter:
 
         product = Product.objects.filter(barcode=product_data['barcode']).first()
         if product: 
-            product.remains = product_data['remains']
+            product.remains += product_data['remains']
             product.will_arrive_at = product_data['arriving_date']
             logger.info(f'У товара "{product_data["barcode"]}" обновлён остаток ({product.remains} шт.)')
             product.save()

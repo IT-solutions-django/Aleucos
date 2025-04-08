@@ -8,7 +8,7 @@
                     <h2 class="contacts__info-title">Оставьте заявку</h2>
                     <p class="contacts__info-text">Остались вопросы или интересует каталог с оптовыми ценами? <br> Заполните форму и отправьте свою заявку, наш менеджер свяжется с Вами для уточнения деталей.</p>
                 </div>
-                <div class="contacts__info-medium">
+                <div class="contacts__info-medium only-desktop">
                     <div class="contacts__info-box">
                         <img src="{% static 'img/green-checkmark.svg' %}" alt="" class="contacts__info-img">
                         <p class="contacts__info-box--text">Персональный менеджер</p>
@@ -22,23 +22,24 @@
                         <p class="contacts__info-box--text">На всю продукцию имеются сертификаты и декларации соответствия</p>
                     </div>
                 </div>
-                <div class="contacts__info-lower">
-                    <p class="contacts__info-suptext-loc">г.Владивосток, ул. Днепровская, д.25д, стр.4а</p>
-                    <a class="contacts__info-suptext" href="tel:+79644541700">+7 (964) 454-17-00</a>
+                <div class="contacts__info-lower only-desktop">
+                    <p class="contacts__info-suptext-loc">{{ company_info.address }}</p>
+                    <a class="contacts__info-suptext" href="tel:{{ company_info.phone }}">{{ company_info.phone }}</a>
                 </div>
             </div>
             <div class="contacts__form">
-                <form id="contactForm" class="form home__contact-form" action="">
-
-                    <div class="home__contact-form-item">
-                        <h2 class="contacts__form-title">Имя</h2>
-                        {{ contact_form.name }}
-                    </div>  
-                    <div class="home__contact-form-item">
-                        <h2 class="contacts__form-title">Телефон</h2>
-                        {{ contact_form.phone }}
+                <form id="contactForm" class="form home__contact-form" action="{% url 'home:home' %}">
+                    {% csrf_token %}
+                    <div class="mobile">
+                        <div class="home__contact-form-item">
+                            <h2 class="contacts__form-title">Имя</h2>
+                            {{ contact_form.name }}
+                        </div>  
+                        <div class="home__contact-form-item">
+                            <h2 class="contacts__form-title">Телефон</h2>
+                            {{ contact_form.phone }}
+                        </div>
                     </div>
-
                     <div class="home__contact-form-item">
                         <h2 class="contacts__form-title">Сообщение</h2>
                         {{ contact_form.message }}
