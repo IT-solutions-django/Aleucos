@@ -118,6 +118,16 @@ class ProductsListView(View):
         paginator = Paginator(products, 16)  
         page_obj = paginator.get_page(page_number)
 
+
+
+
+        # import logging
+        # logger = logging.getLogger('django')
+        # logger.info("Тестовая запись для Elasticsearch")
+
+
+
+
         context = {
             'form': form,
             'products': page_obj, 

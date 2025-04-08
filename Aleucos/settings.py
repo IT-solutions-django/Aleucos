@@ -105,28 +105,28 @@ WSGI_APPLICATION = 'Aleucos.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'aleucos',
-#         'USER': 'admin', 
-#         'PASSWORD': 'admin', 
-#         'HOST': "db", 
-#         'PORT': "5432" 
-#     }
-# }
-
-# Для локальной разработки
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'aleucos',
         'USER': 'admin', 
         'PASSWORD': 'admin', 
-        'HOST': "127.0.0.1", 
-        'PORT': "5433" 
+        'HOST': "db", 
+        'PORT': "5432" 
     }
 }
+
+# Для локальной разработки
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'aleucos',
+#         'USER': 'admin', 
+#         'PASSWORD': 'admin', 
+#         'HOST': "127.0.0.1", 
+#         'PORT': "5433" 
+#     }
+# }
 
 
 ELASTICSEARCH_DSL = {
@@ -258,3 +258,49 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 SERVER_EMAIL = EMAIL_HOST_USER
 EMAIL_ADMIN = EMAIL_HOST_USER
+
+
+# # Логирование
+
+# import logging
+# import logging.config
+# from pythonjsonlogger import jsonlogger
+
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+
+#     'formatters': {
+#         'json': {
+#             '()': 'pythonjsonlogger.jsonlogger.JsonFormatter',
+#             'format': '%(asctime)s %(levelname)s %(name)s %(message)s',
+#             'datefmt': '%Y-%m-%dT%H:%M:%S'
+#         },
+#     },
+
+#     'handlers': {
+#         'elastic': {
+#             'level': 'INFO',
+#             'class': 'Aleucos.elastic_log_handler.ElasticLogHandler',
+#             'formatter': 'json',
+#             # 'host': 'http://elasticsearch:9200',
+
+#             # Для тестов
+#             'host': 'http://localhost:9200', 
+
+#             'index': 'django-logs',
+#         },
+#         'console': {
+#             'class': 'logging.StreamHandler',
+#             'formatter': 'json',
+#         },
+#     },
+
+#     'loggers': {
+#         'django': {
+#             'handlers': ['console', 'elastic'],
+#             'level': 'INFO',
+#             'propagate': True,
+#         },
+#     }
+# }
