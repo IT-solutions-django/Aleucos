@@ -33,6 +33,22 @@
 
     <title>Aleucos оптовые поставки корейской косметики</title>
 </head>
+
+{% if not request.user.is_authenticated %}
+<style>
+    @media (max-width: 576px) {
+        #openSearchInput, #openSearchInput img {
+            width: 50px !important;
+            height: 50px;
+            z-index: 10000;
+        }
+        .header__service-link a img {
+            width: 60px !important;
+        }
+    }
+</style>
+{% endif %}
+
 <body class="{% if is_cart_page %}green-body{% endif %}">
     <div class="modal " id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
