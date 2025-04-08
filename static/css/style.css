@@ -1970,6 +1970,23 @@ label {
 .catalog__card-price {
   font-size: 18px;
   color: #242424;
+
+  display: flex;
+  align-items: center;
+  gap: 5.33px;
+  flex-wrap: wrap;
+  row-gap: 0;
+}
+.catalog__card-price-block p.with-discount,
+.catalog__card-price p.with-discount {
+  font-weight: bold;
+  font-size: 20px;
+}
+.catalog__card-price-block p.without-discount,
+.catalog__card-price p.without-discount {
+  color: #6F6F6F;
+  font-size: 16px;
+  text-decoration: line-through;
 }
 .catalog__card-cart-controls {
   display: flex;
@@ -2081,6 +2098,9 @@ input::-webkit-inner-spin-button {
   color: #0D1C12;
   border-radius: 21px;
   padding: 7px 12px;
+}
+.pagination__page-number-div p a, .pagination__page-control-div p a {
+  transition: all 0.3s ease;
 }
 .pagination__page-number-div p a:hover, .pagination__page-control-div p a:hover {
   background-color: #DAE8DE;

@@ -376,7 +376,12 @@
                                 {% if request.user.is_authenticated %}                                    
                                     <div class="catalog__card-price-block">
                                         <div class="catalog__card-price">
-                                            <p>{{ product.price_before_200k|floatformat:2|price_format }} ₽</p>
+                                            {% if request.user.discount %}
+                                                <p class="with-discount">{{ product.price_before_200k|apply_discount:request.user.discount }} ₽</p>
+                                                <p class="without-discount">{{ product.price_before_200k|floatformat:2|price_format }} ₽</p>
+                                            {% else %}
+                                                <p>{{ product.price_before_200k|floatformat:2|price_format }} ₽</p>
+                                            {% endif %}
                                         </div>
                                         {% if product.quantity_in_cart != 0 %}
                                             <div class="catalog__card-cart-controls">
