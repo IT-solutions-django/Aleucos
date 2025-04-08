@@ -225,7 +225,6 @@
                                             onclick="">Посмотреть все</a></p>
                                 </div>
                             </div>
-                        </form>
                         <div class="mobile-filters-section">
                             <div class="heading">Поиск по штрихкоду</div>
                             <div class="mobile-filters-points">
@@ -353,7 +352,14 @@
                 </div>
                 <div class="mobile-filters-panel">
                     <div>
-                        По популярности
+                        <div class="mobile-sort-dropdown">
+                            <select class="sort-select" onchange="handleMobileSortChange(this)">
+                                {% for section in form.sections %}
+                                    <option value="{{ section.choice_label }}">{{ section.choice_label }}</option>
+                                {% endfor %}
+                            </select>
+                        </form>
+                        </div>
                     </div>
                     <div class="open-mobile-filters">
                         <img src="{% static 'img/filter-icon.svg' %}" alt="">
@@ -500,6 +506,13 @@ document.addEventListener('DOMContentLoaded', function () {
         let formData = undefined;
         if (isMobile()) {
             formData = new FormData(document.getElementById('mobileFilterForm'));
+
+            const sortSelect = document.querySelector('.mobile-filters-panel .mobile-sort-dropdown .sort-select'); 
+            console.log(sortSelect)
+            const selectedSection = sortSelect.value; 
+            console.log(selectedSection)
+
+            formData.append('sections', selectedSection);
         } 
         else {
             formData = new FormData(document.getElementById('filter-form'));
@@ -542,14 +555,20 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!isMobile()) {
         filters.forEach(function (filter) {
             filter.addEventListener('change', sendFiltersData);
-            console.log('навесил обрабоьчтик')
         });
+    } else {
+        applyMobileFilters.addEventListener('click', () => {
+            sendFiltersData(); 
+            document.querySelector('.mobile-filters').classList.remove('active');
+        });
+
+        const sortSelect = document.querySelector('.mobile-filters-panel .mobile-sort-dropdown .sort-select'); 
+        sortSelect.addEventListener('change', () => {
+            sendFiltersData();
+        });
+
     }
 
-    applyMobileFilters.addEventListener('click', () => {
-        sendFiltersData(); 
-        document.querySelector('.mobile-filters').classList.remove('active');
-    });
 });
 
     // Сохранить фильтры при пагинации
@@ -869,12 +888,16 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Выбрать раздел каталога
-    topicsButtons = document.querySelectorAll('.catalog__topic');
-    topicsButtons.forEach(topicButton => {
-        topicButton.querySelector('p').addEventListener('click', function (event) {
-            selectTopic(topicButton);
-        });
-    })
+    if (isMobile()) {
+
+    } else {
+        topicsButtons = document.querySelectorAll('.catalog__topic');
+        topicsButtons.forEach(topicButton => {
+            topicButton.querySelector('p').addEventListener('click', function (event) {
+                selectTopic(topicButton);
+            });
+        })
+    }
     function selectTopic(topicButton) {
         const items = document.querySelectorAll('.catalog__topic');
 

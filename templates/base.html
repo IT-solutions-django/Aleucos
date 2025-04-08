@@ -98,7 +98,7 @@
                 <div class="points">
                     <div class="point">
                         <img src="{% static 'img/green-star.svg' %}" alt="">
-                        <a href="">Уход за телом</a>
+                        <a href="{% url 'products:products_list' %}">Уход за телом</a>
                     </div>
                     <div class="point">
                         <img src="{% static 'img/green-star.svg' %}" alt="">
@@ -158,7 +158,7 @@
                             <form id="searchForm" action="{% url 'products:products_list' %}" method="get">
                                 <input id="searchInput" name="q" class="header__service-input {% if search_text %}active{% endif %}" placeholder="Поиск" {% if search_text %}value="{{ search_text }}"{% endif %} type="text">
                             </form>
-                            <button id="openSearchInput" class="header__service-link">
+                            <button id="openSearchInput" class="header__service-link {% if search_text %}active{% endif %}">
                                 <img src="{% if search_text %}{% static 'img/close-search-button.svg' %}{% else %}{% static 'img/black-search-icon.svg' %}{% endif %}" 
                                     data-close-img="{% static 'img/close-search-button.svg' %}"
                                     data-open-img="{% static 'img/black-search-icon.svg' %}" 
@@ -183,7 +183,7 @@
                                     <a href="{% url 'home:home' %}#answersBlock"><button class="mobile-menu-point hover-green">Вопрос-ответ</button></a>
                                     <a href="{% url 'contacts:contacts' %}"><button class="mobile-menu-point hover-green">Контакты</button></a>
                                     <a href="{% url 'users:account' %}"><button class="mobile-menu-point hover-green">Личный кабинет</button></a>
-                                    <div class="leave-request-header-mobile">Оставить заявку</div>
+                                    <div class="leave-request-header-mobile" data-toggle="modal" data-target="#exampleModal" data-bs-toggle="modal" data-bs-target="#exampleModal">Оставить заявку</div>
                                     <div class="contacts__contact-info-phone">
                                         <a href="tel:{{ company_info.phone }}">{{ company_info.phone }}</a>
                                         <div class="footer__messagers">
@@ -388,17 +388,22 @@
     <script defer>
         document.addEventListener('DOMContentLoaded', function () {
             let openSearchButton = document.getElementById('openSearchInput'); 
-            let searchInput = document.getElementById('searchInput')
+            let searchInput = document.getElementById('searchInput');
             openSearchButton.addEventListener('click', () => {
                 let image = openSearchButton.querySelector('img');
                 searchInput.classList.toggle('active');
                 if (new URL(image.src).pathname == image.dataset.openImg) {
                     image.src = image.dataset.closeImg;
                     searchInput.focus();
+
+                    openSearchButton.classList.add('active');
+
                 } else {
                     image.src = image.dataset.openImg;
                     searchInput.blur();
                     searchInput.value = "";
+
+                    openSearchButton.classList.remove('active');
                 }
             });
         })
@@ -424,7 +429,6 @@
 <script>
     const forms = document.querySelectorAll(".contactForm");
     console.log(forms);
-    const closeButton = document.querySelector(".btn-close.offer__modal-btn");
     const toast = new bootstrap.Toast(document.querySelector(".toast.after-request"));
     
     forms.forEach((form) => {
@@ -436,8 +440,16 @@
             } else {
                 toast.show();
             }
+            if (isMobile()) {
+                const closeMobileMenuButton = document.querySelector('.close-mobile-menu');
+                closeMobileMenuButton?.click();
+
+                toast.show();
+            }
 
             form.reset();
+            const closeButton = document.querySelector(".btn-close.offer__modal-btn");
+
             closeButton.click();
             try {
                 let response = await fetch(`/api/save_registration_request/`, {
@@ -451,6 +463,13 @@
         });
     });
     
+    function isMobile() {
+        console.log('зашли')
+        if (window.innerWidth < 600) {
+            return true;
+        }
+        return false;
+    }
     </script>
 
 <script>

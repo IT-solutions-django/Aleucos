@@ -433,6 +433,10 @@
         /* margin-left: 24px; */
     }
 
+    .catalog {
+        padding: 25px 0;
+        padding-top: 74px !important;
+    }
     .contacts__inner {
         padding-top: 20px;
     }

@@ -1621,6 +1621,15 @@ label {
 
   /* display: block !important; */
 }
+.toast * {
+  pointer-events: none !important;
+  z-index: 100;
+}
+@media (max-width: 600px) {
+  .toast {
+    border-radius: 20px;
+  }
+}
 .toast-inner {
   display: flex;
   justify-content: space-around;
@@ -3304,6 +3313,14 @@ background-image: url(/static/img/CatalogBck.png);
   #openSearchInput img {
     width: 50px !important;
     height: 50px;
+    z-index: 10000;
+  }
+  #searchInput.active {
+    width: calc(100vw - 20px);
+    right: 10px;
+  }
+  #openSearchInput.active {
+    transform: translateX(20px);
   }
   .header-mobile-menu.active {
     display: flex;
