@@ -283,7 +283,7 @@ LOGGING = {
             'level': 'INFO',
             'class': 'Aleucos.elastic_log_handler.ElasticLogHandler',
             'formatter': 'json',
-            'host': 'http://localhost:9200',
+            'host': 'http://elasticsearch:9200',
             'index': 'business-logs',
         },
     },
