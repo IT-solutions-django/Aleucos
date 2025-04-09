@@ -15,6 +15,7 @@ from .filters import (PriceRangeFilter, WeightRangeFilter,
                       HasNotesFilter,  RemainsRangeFilter, HasPhotoFilter)
 from .services import ImportProductsStatusService, CatalogExporter
 from configs.models import Config
+from Aleucos.elastic_log_handler import log_product_arrival
 
 
 def is_admin_or_superuser(user):
@@ -131,6 +132,20 @@ class ProductAdmin(admin.ModelAdmin):
         except Exception: 
             self.message_user(request, 'Файл для экспорта не найден', level='error')
             return redirect('admin:products_product_changelist')
+        
+    def save_model(self, request, obj, form, change):
+        if change:  
+            old_obj = Product.objects.get(pk=obj.pk)
+            old_remains = old_obj.remains
+            new_remains = obj.remains
+
+            if new_remains > old_remains:
+                log_product_arrival(
+                    product=obj, 
+                    quantity= new_remains - old_remains
+                )
+
+        super().save_model(request, obj, form, change)
 
 
 @admin.register(ImportProductsStatus)

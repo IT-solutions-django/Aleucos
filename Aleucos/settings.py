@@ -105,28 +105,28 @@ WSGI_APPLICATION = 'Aleucos.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'aleucos',
-        'USER': 'admin', 
-        'PASSWORD': 'admin', 
-        'HOST': "db", 
-        'PORT': "5432" 
-    }
-}
-
-# Для локальной разработки
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
 #         'NAME': 'aleucos',
 #         'USER': 'admin', 
 #         'PASSWORD': 'admin', 
-#         'HOST': "127.0.0.1", 
-#         'PORT': "5433" 
+#         'HOST': "db", 
+#         'PORT': "5432" 
 #     }
 # }
+
+# Для локальной разработки
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'aleucos',
+        'USER': 'admin', 
+        'PASSWORD': 'admin', 
+        'HOST': "127.0.0.1", 
+        'PORT': "5433" 
+    }
+}
 
 
 ELASTICSEARCH_DSL = {
@@ -200,10 +200,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # Redis 
-REDIS_HOST = 'redis' 
+# REDIS_HOST = 'redis' 
 
 # Для локальной разработки
-# REDIS_HOST = 'localhost' 
+REDIS_HOST = 'localhost' 
 
 REDIS_PORT = '6379' 
 
@@ -262,45 +262,37 @@ EMAIL_ADMIN = EMAIL_HOST_USER
 
 # # Логирование
 
-# import logging
-# import logging.config
-# from pythonjsonlogger import jsonlogger
+import logging
+import logging.config
+from pythonjsonlogger import jsonlogger
 
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
 
-#     'formatters': {
-#         'json': {
-#             '()': 'pythonjsonlogger.jsonlogger.JsonFormatter',
-#             'format': '%(asctime)s %(levelname)s %(name)s %(message)s',
-#             'datefmt': '%Y-%m-%dT%H:%M:%S'
-#         },
-#     },
+    'formatters': {
+        'json': {
+            '()': 'Aleucos.elastic_log_handler.UTCJsonFormatter',
+            'format': '%(asctime)s %(levelname)s %(name)s %(message)s %(event_type)s %(data)s',
+            'datefmt': '%Y-%m-%dT%H:%M:%S'
+        },
+    },
 
-#     'handlers': {
-#         'elastic': {
-#             'level': 'INFO',
-#             'class': 'Aleucos.elastic_log_handler.ElasticLogHandler',
-#             'formatter': 'json',
-#             # 'host': 'http://elasticsearch:9200',
+    'handlers': {
+        'business_elastic': {
+            'level': 'INFO',
+            'class': 'Aleucos.elastic_log_handler.ElasticLogHandler',
+            'formatter': 'json',
+            'host': 'http://localhost:9200',
+            'index': 'business-logs',
+        },
+    },
 
-#             # Для тестов
-#             'host': 'http://localhost:9200', 
-
-#             'index': 'django-logs',
-#         },
-#         'console': {
-#             'class': 'logging.StreamHandler',
-#             'formatter': 'json',
-#         },
-#     },
-
-#     'loggers': {
-#         'django': {
-#             'handlers': ['console', 'elastic'],
-#             'level': 'INFO',
-#             'propagate': True,
-#         },
-#     }
-# }
+    'loggers': {
+        'business': {
+            'handlers': ['business_elastic'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    }
+}

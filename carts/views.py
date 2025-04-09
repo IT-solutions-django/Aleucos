@@ -10,6 +10,7 @@ from .services import Cart
 from orders.models import DeliveryTerm, PaymentMethod
 from loguru import logger
 from users.models import City
+from Aleucos.elastic_log_handler import log_product_sale
 
 
 @method_decorator(login_required, name='dispatch')
@@ -131,7 +132,7 @@ class CheckCartView(View):
 class CreateOrderView(View): 
     def post(self, request): 
         cart = request.cart 
-        user_discount = request.user.discount if request.user.discount else 0
+        user_discount = request.user.discount / 100 if request.user.discount else 0
         final_price_coefficient = (1 - user_discount)
 
         if not cart.get(Cart.KeyNames.PRODUCTS): 
@@ -181,6 +182,12 @@ class CreateOrderView(View):
             )
 
             product.remains -= quantity
+
+            log_product_sale(
+                product=product, 
+                quantity=quantity
+            )
+
             product.save()
         new_order.create_pdf_bill()
 

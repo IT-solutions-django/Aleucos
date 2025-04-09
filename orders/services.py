@@ -14,6 +14,8 @@ from configs.models import Config
 from orders.models import PaymentMethod, DeliveryTerm
 from users.models import City
 
+from Aleucos.elastic_log_handler import log_product_sale
+
 
 class OrderImporter:
     @staticmethod
@@ -22,7 +24,7 @@ class OrderImporter:
         manager_email: str,
         payment_method_id: int, 
         delivery_terms_id: int, 
-        city_id: int,
+        city: str,
         comment: str, 
         user_id: int
     ) -> None:
@@ -46,6 +48,9 @@ class OrderImporter:
             'items': [],
             'total_price': 0
         }
+
+        user_discount = user.discount / 100 if user.discount else 0
+        final_price_coefficient = (1 - user_discount)
 
         for index, row in enumerate(items_worksheet.iter_rows(min_row=4, values_only=True), 4):
             try:
@@ -72,10 +77,10 @@ class OrderImporter:
             user=order_data['user'],
             status=order_data['status'],
             manager=order_data['manager'],
-            total_price=order_data['total_price'], 
+            total_price=float(order_data['total_price']) * final_price_coefficient, 
             payment_method=PaymentMethod.objects.get(pk=payment_method_id), 
             delivery_terms=DeliveryTerm.objects.get(pk=delivery_terms_id), 
-            city=City.objects.get(pk=city_id),
+            city=city,
             comment=comment
         )
         for item_data in order_data['items']:
@@ -84,11 +89,17 @@ class OrderImporter:
                 product_name=item_data['product_name'], 
                 brand_name=item_data['brand_name'], 
                 quantity=item_data['quantity'], 
-                unit_price=item_data['unit_price'], 
-                total_price=item_data['total_price']
+                unit_price=float(item_data['unit_price']) * final_price_coefficient, 
+                total_price=float(item_data['total_price']) * final_price_coefficient
             )
             product = Product.objects.get(barcode=item_data['barcode'])
             product.remains -= item_data['quantity']
+
+            log_product_sale(
+                product=product, 
+                quantity=item_data['quantity']
+            )
+
             product.save()
             
             log_text = f'В заказ добавлен товар {item_data["product_name"]} ({item_data["quantity"]} шт)'
