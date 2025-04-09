@@ -92,7 +92,7 @@ class OrderAdmin(admin.ModelAdmin):
                     manager_email=request.user.email, 
                     payment_method_id=payment_method.pk, 
                     delivery_terms_id=delivery_terms.pk, 
-                    city_id=city.pk,
+                    city=city,
                     comment=comment, 
                     user_id=user.pk
                 )

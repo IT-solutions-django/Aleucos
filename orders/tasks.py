@@ -10,7 +10,7 @@ def import_orders_from_xlsx_task(
     manager_email: str, 
     payment_method_id: int, 
     delivery_terms_id: int, 
-    city_id: int,
+    city: str,
     comment: str, 
     user_id: int
 ) -> None:
@@ -25,7 +25,7 @@ def import_orders_from_xlsx_task(
             manager_email, 
             payment_method_id, 
             delivery_terms_id,
-            city_id,
+            city,
             comment, 
             user_id
         ) 

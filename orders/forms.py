@@ -12,8 +12,7 @@ class XlsxImportOrderForm(forms.Form):
         label='Клиент',
         required=True, 
     )
-    city = forms.ModelChoiceField(
-        queryset=City.objects.all(),
+    city = forms.CharField(
         label='Город',
         required=True
     )

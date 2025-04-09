@@ -32,6 +32,8 @@ from .models import WatermarkConfig
 from dataclasses import dataclass
 from datetime import datetime
 
+from Aleucos.elastic_log_handler import log_product_arrival
+
 
 @dataclass
 class WatermarkConfigLocal: 
@@ -104,9 +106,15 @@ class CatalogImporter:
         product = Product.objects.filter(barcode=product_data['barcode']).first()
         if product: 
             product.remains += product_data['remains']
+
+            log_product_arrival(
+                product=product, 
+                quantity=product_data['remains']
+            )
+
             product.will_arrive_at = product_data['arriving_date']
-            logger.info(f'У товара "{product_data["barcode"]}" обновлён остаток ({product.remains} шт.)')
             product.save()
+            logger.info(f'У товара "{product_data["barcode"]}" обновлён остаток ({product.remains} шт.)')
         else: 
             photo = product_data['photo']
 

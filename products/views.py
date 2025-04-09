@@ -20,6 +20,8 @@ from Aleucos import settings
 from django.http import FileResponse
 import os
 
+from Aleucos.elastic_log_handler import log_product_sale, log_product_arrival
+
 
 class ImportProductsStatusView(View): 
     def get(self, request): 
@@ -117,16 +119,6 @@ class ProductsListView(View):
         page_number = request.GET.get('page', 1) 
         paginator = Paginator(products, 16)  
         page_obj = paginator.get_page(page_number)
-
-
-
-
-        # import logging
-        # logger = logging.getLogger('django')
-        # logger.info("Тестовая запись для Elasticsearch")
-
-
-
 
         context = {
             'form': form,
