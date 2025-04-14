@@ -19,7 +19,7 @@ from configs.models import Config
 from Aleucos import settings
 from django.http import FileResponse
 import os
-
+from .services import generate_unique_article_number
 from Aleucos.elastic_log_handler import log_product_sale, log_product_arrival
 
 
@@ -303,3 +303,18 @@ class ExportCatalogView(View):
         except Exception: 
             self.message_user(request, 'Файл для экспорта не найден', level='error')
             return redirect('admin:products_product_changelist')
+        
+
+class SetArticlesIfNullView(View): 
+    def get(self, request): 
+        print('Зашли в функцию')
+
+        products = Product.objects.all()
+
+        for product in products: 
+            if not product.article: 
+                article = generate_unique_article_number() 
+                product.article = article
+                product.save() 
+        return JsonResponse({'message': 'ok'})
+        

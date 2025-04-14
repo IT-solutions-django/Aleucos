@@ -31,7 +31,7 @@ from io import BytesIO
 from .models import WatermarkConfig
 from dataclasses import dataclass
 from datetime import datetime
-
+import string
 from Aleucos.elastic_log_handler import log_product_arrival
 
 
@@ -447,3 +447,11 @@ def get_paginated_collection(request, collection: QuerySet, count_per_page: int 
 
 def get_all_model_objects(model: models.Model) -> QuerySet: 
     return model.objects.all()
+
+
+def generate_unique_article_number() -> str:
+    characters = string.digits
+    while True:
+        article_number = ''.join(random.choice(characters) for _ in range(8))
+        if not Product.objects.filter(article=article_number).exists():
+            return f'A{article_number}'

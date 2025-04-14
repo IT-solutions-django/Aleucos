@@ -105,28 +105,28 @@ WSGI_APPLICATION = 'Aleucos.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'aleucos',
-        'USER': 'admin', 
-        'PASSWORD': 'admin', 
-        'HOST': "db", 
-        'PORT': "5432" 
-    }
-}
-
-# Для локальной разработки
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
 #         'NAME': 'aleucos',
 #         'USER': 'admin', 
 #         'PASSWORD': 'admin', 
-#         'HOST': "127.0.0.1", 
-#         'PORT': "5433" 
+#         'HOST': "db", 
+#         'PORT': "5432" 
 #     }
 # }
+
+# Для локальной разработки
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'aleucos',
+        'USER': 'admin', 
+        'PASSWORD': 'admin', 
+        'HOST': "127.0.0.1", 
+        'PORT': "5433" 
+    }
+}
 
 
 ELASTICSEARCH_DSL = {
@@ -200,10 +200,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # Redis 
-REDIS_HOST = 'redis' 
+# REDIS_HOST = 'redis' 
 
 # Для локальной разработки
-# REDIS_HOST = 'localhost' 
+REDIS_HOST = 'localhost' 
 
 REDIS_PORT = '6379' 
 

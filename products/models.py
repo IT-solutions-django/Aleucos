@@ -46,7 +46,8 @@ class ProductType(models.Model):
 
 
 class Product(models.Model): 
-    barcode = models.BigIntegerField(_('Штрихкод')) 
+    article = models.CharField('Артикул', max_length=9)
+    barcode = models.BigIntegerField(_('Штрихкод'), null=True, blank=True) 
     brand = models.ForeignKey(Brand, verbose_name=_('Бренд'), on_delete=models.CASCADE, null=False, related_name='products') 
     title = models.CharField(_('Название'), max_length=200, null=False) 
     description = models.CharField(_('Описание'), max_length=200, null=True, blank=True) 
