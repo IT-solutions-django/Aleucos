@@ -31,7 +31,7 @@ from io import BytesIO
 from .models import WatermarkConfig
 from dataclasses import dataclass
 from datetime import datetime
-
+import string
 from Aleucos.elastic_log_handler import log_product_arrival
 
 
@@ -62,6 +62,7 @@ class CatalogImporter:
         for index, row in enumerate(worksheet.iter_rows(min_row=4, values_only=True), 4):
             try:
                 product_data = CatalogImporter.process_row(index, row, image_loader, watermark_conf)
+                print(product_data)
                 if product_data:
                     products_data.append(product_data)
 
@@ -73,13 +74,13 @@ class CatalogImporter:
                 ImportProductsStatusService.error(log_text)
                 return
             
-        try:
-            CatalogImporter.check_duplicates(products_data)
-        except ProductImportError as e:
-            log_text = f'Ошибка при импорте каталога: {str(e)}. Импорт был прерван'
-            logger.error(log_text)
-            ImportProductsStatusService.error(log_text)
-            return
+        # try:
+        #     CatalogImporter.check_duplicates(products_data)
+        # except ProductImportError as e:
+        #     log_text = f'Ошибка при импорте каталога: {str(e)}. Импорт был прерван'
+        #     logger.error(log_text)
+        #     ImportProductsStatusService.error(log_text)
+        #     return
 
 
         for product_data in products_data:
@@ -91,6 +92,7 @@ class CatalogImporter:
 
     @staticmethod 
     def check_duplicates(products_data: list[dict]) -> None: 
+        """На данный момент необходимость в функции отпала"""
         print('Проверяем дубликаты')
         barcodes = [product['barcode'] for product in products_data]
         duplicate_barcodes = list(set([barcode for barcode in barcodes if barcodes.count(barcode) > 1]))
@@ -101,11 +103,41 @@ class CatalogImporter:
         
     @staticmethod 
     def save_product_data(product_data: dict) -> None: 
-        brand, _ = Brand.objects.get_or_create(title=str(product_data['brand_title'])) 
+        brand = None 
+        if product_data['brand_title']:
+            brand, _ = Brand.objects.get_or_create(title=str(product_data['brand_title'])) 
 
-        product = Product.objects.filter(barcode=product_data['barcode']).first()
+        # Проверка, есть ли уже такой товар в базе
+        product = Product.objects.filter(title=product_data['title'])
+
+        if product_data['barcode']: 
+            product = product.filter(barcode=product_data['barcode']).first() 
+        else: 
+            product = product.first() 
+
+        # Если товар есть, обновляем данные
         if product: 
-            product.remains += product_data['remains']
+            product.remains += product_data['remains'] 
+            product.photo = product_data['photo']
+            product.price_before_200k = product_data['price_before_200k']
+            product.price_after_200k = product_data['price_after_200k']
+            product.price_after_500k = product_data['price_after_500k'] 
+            product.description = product_data['description'] 
+            product.volume = product_data['volume'] 
+            product.weight = product_data['weight'] 
+            product.notes = product_data['notes'] 
+            
+            if brand: 
+                product.brand = brand
+
+            category = None
+            if product_data.get('category'):
+                category, created = Category.objects.get_or_create(title=product_data['category'])
+                if created: 
+                    logger.info(f'Была добавлена новая категория: {category.title}')
+
+            if category: 
+                product.category = category
 
             log_product_arrival(
                 product=product, 
@@ -123,14 +155,16 @@ class CatalogImporter:
             else:
                 CatalogImporter.delete_image_if_exists(photo.name)
 
-            category, created = Category.objects.get_or_create(title=product_data['category'])
-            if created: 
-                logger.info(f'Была добавлена новая категория: {category.title}')
+            category = None
+            if product_data.get('category'):
+                category, created = Category.objects.get_or_create(title=product_data['category'])
+                if created: 
+                    logger.info(f'Была добавлена новая категория: {category.title}')
 
             print(category)
 
             product = Product(
-                barcode=product_data['barcode'],
+                barcode=product_data['barcode'] ,
                 brand=brand,
                 title=product_data['title'],
                 description=product_data['description'],
@@ -146,6 +180,8 @@ class CatalogImporter:
                 remains=product_data['remains'], 
                 will_arrive_at=product_data['arriving_date']
             )
+            if product_data.get('category'): 
+                product.category = category
             product.save()
             logger.info(f'Товар "{product_data["title"]}" сохранён в базу данных')
 
@@ -176,7 +212,6 @@ class CatalogImporter:
             price_after_200k, 
             price_after_500k, 
             remains,
-            category,
         )
 
         remains = 0 if remains is None else int(remains)
@@ -194,7 +229,8 @@ class CatalogImporter:
                 elif type(arriving_date) != datetime: 
                     arriving_date = None
         
-        photo = CatalogImporter.get_image_or_none(barcode, index, image_loader, watermark_conf)
+
+        photo = CatalogImporter.get_image_or_none(barcode if barcode else f'{brand_title} {title[:10]}', index, image_loader, watermark_conf)
 
         if weight is not None:
             weight = CatalogImporter.convert_str_to_decimal(str(weight))
@@ -215,7 +251,7 @@ class CatalogImporter:
             'price_after_200k': price_after_200k,
             'price_after_500k': price_after_500k,
             'is_in_stock': is_in_stock,
-            'category': category,
+            'category': category if category else None,
             'remains': remains, 
             'arriving_date': arriving_date,
         }
@@ -232,7 +268,7 @@ class CatalogImporter:
 
             watermarked_image = add_watermark(
                 image_stream, 
-                barcode, 
+                name=barcode, 
                 text=watermark_conf.text, 
                 font_size=watermark_conf.font_size, 
                 position=watermark_conf.position, 
@@ -240,9 +276,9 @@ class CatalogImporter:
             )
 
             if watermarked_image:
-                logger.info(f"Водяной знак успешно добавлен на изображение для товара с баркодом {barcode}.")
+                logger.info(f"Водяной знак успешно добавлен на изображение для товара {barcode}.")
             else:
-                logger.warning(f"Не удалось добавить водяной знак для товара с баркодом {barcode}.")
+                logger.warning(f"Не удалось добавить водяной знак для товара {barcode}.")
 
             return watermarked_image
         except Exception as e:
@@ -269,18 +305,11 @@ class CatalogImporter:
         price_after_200k: float | None,
         price_after_500k: float | None, 
         remains: int | str | None, 
-        category: str | None
     ) -> None:
         if title is None:
             raise ProductImportError(f'У товара со штрихкодом {barcode} отсутствует название')
-        elif barcode is None or str(barcode) == '0':
-            raise ProductImportError(f'У товара {title} отсутствует штрихкод')
         elif any(price in (None, 0) for price in (price_before_200k, price_after_200k, price_after_500k)):
             raise ProductImportError(f'У товара {title} со штрихкодом {barcode} отсутствует цена')
-        elif not str(barcode).strip().isnumeric():
-            raise ProductImportError(f'У товара неверный штрихкод: {barcode}')
-        elif str(category) == "" or category is None:
-            raise ProductImportError(f'У товара со штрихкодом {barcode} не указана категория')
         if remains: 
             if not str(remains).strip().isnumeric(): 
                 raise ProductImportError(f'У товара неверный остаток на складе: {remains}')
@@ -291,7 +320,7 @@ class CatalogImporter:
         Brand.objects.all().delete()
 
 
-def add_watermark(image_path, barcode: str, text="©Aleucos", font_size=30, position="bottom_left", opacity=255):
+def add_watermark(image_path, name: str, text="©Aleucos", font_size=30, position="bottom_left", opacity=255):
     image = PILImage.open(image_path).convert("RGBA")
     txt_layer = PILImage.new("RGBA", image.size, (255, 255, 255, 0))
     draw = ImageDraw.Draw(txt_layer)
@@ -314,7 +343,7 @@ def add_watermark(image_path, barcode: str, text="©Aleucos", font_size=30, posi
     watermarked_image.convert("RGB").save(output_stream, "PNG")
     output_stream.seek(0)
 
-    return ContentFile(output_stream.read(), f"{barcode}.png")
+    return ContentFile(output_stream.read(), f"{name}.png")
 
 
 class CatalogExporter:
@@ -447,3 +476,11 @@ def get_paginated_collection(request, collection: QuerySet, count_per_page: int 
 
 def get_all_model_objects(model: models.Model) -> QuerySet: 
     return model.objects.all()
+
+
+def generate_unique_article_number() -> str:
+    characters = string.digits
+    while True:
+        article_number = ''.join(random.choice(characters) for _ in range(8))
+        if not Product.objects.filter(article=article_number).exists():
+            return f'A{article_number}'

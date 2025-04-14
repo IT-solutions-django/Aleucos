@@ -46,11 +46,12 @@ class ProductType(models.Model):
 
 
 class Product(models.Model): 
-    barcode = models.BigIntegerField(_('Штрихкод')) 
-    brand = models.ForeignKey(Brand, verbose_name=_('Бренд'), on_delete=models.CASCADE, null=False, related_name='products') 
+    article = models.CharField('Артикул', max_length=9)
+    barcode = models.BigIntegerField(_('Штрихкод'), null=True, blank=True) 
+    brand = models.ForeignKey(Brand, verbose_name=_('Бренд'), on_delete=models.CASCADE, null=True, blank=True, related_name='products') 
     title = models.CharField(_('Название'), max_length=200, null=False) 
     description = models.CharField(_('Описание'), max_length=200, null=True, blank=True) 
-    category = models.ForeignKey(Category, verbose_name=_('Категория'), on_delete=models.CASCADE, null=True, related_name='categories')
+    category = models.ForeignKey(Category, verbose_name=_('Категория'), on_delete=models.CASCADE, null=True, blank=True, related_name='categories')
     photo = models.ImageField(_('Фото'), upload_to='products', null=False, default=settings.DEFAULT_IMAGE_PATH) 
     volume = models.CharField(_('Объём'), max_length=100, null=True) 
     weight = models.DecimalField(_('Вес'), decimal_places=2, max_digits=4, null=True, blank=True,
@@ -78,14 +79,19 @@ class Product(models.Model):
     def get_absolute_url(self) -> str: 
         return reverse('products:product', args=[self.slug])
     
-    def save(self, *args, **kwargs) -> None:        
+    def save(self, *args, **kwargs) -> None: 
+        from .services import generate_unique_article_number
+
         if self.remains == 0: 
             self.is_in_stock = False 
         else: 
             self.is_in_stock = True
 
+        if not self.article: 
+            self.article = generate_unique_article_number()
+
         if not self.slug:
-            self.slug = f"{self.barcode}-{slugify(self.title[:50])}"
+            self.slug = f"{str(self.barcode) if self.barcode else ''}-{slugify(self.title[:50])}"
 
         super(Product, self).save(*args, **kwargs)
     

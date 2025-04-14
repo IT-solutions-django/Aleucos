@@ -34,22 +34,22 @@
                 <span>Цена по позиции</span>
                 <span></span>
             </div>
-            {% for barcode, item in cart.products.items %}
-                <div class="cart-row" data-barcode="{{ barcode }}">
+            {% for article, item in cart.products.items %}
+                <div class="cart-row" data-article="{{ article }}">
                     <div class="cart-row__image">
-                        <img src="{{ barcode|product_image_url }}" alt="{{ barcode }}">
+                        <img src="{{ article|product_image_url }}" alt="{{ article }}">
                     </div>
-                    <span>{{ barcode|product_title }}</span>
-                    <span>{{ barcode }}</span>
+                    <span>{{ article|product_title }}</span>
+                    <span>{{ article|product_barcode }}</span>
                     <span class="product-unit-price">{{ item.unit_price }} ₽</span>
                     <div class="cart-quantity">
-                        <input id="quantity-{{ barcode }}" value="{{ item.quantity }}" oninput="checkQuantity('{{ barcode }}')">
-                        <button data-barcode="{{ barcode }}" class="minus-button">-</button>
-                        <button data-barcode="{{ barcode }}" class="plus-button">+</button>
+                        <input id="quantity-{{ article }}" value="{{ item.quantity }}" oninput="checkQuantity('{{ article }}')">
+                        <button data-article="{{ article }}" class="minus-button">-</button>
+                        <button data-article="{{ article }}" class="plus-button">+</button>
                     </div>
-                    <span>{{ barcode|product_remains }}</span>
+                    <span>{{ article|product_remains }}</span>
                     <span class="product-total-price">{{ item.total_product_price }} ₽</span>
-                    <button class="delete-btn" data-barcode="{{ barcode }}" onclick="deleteFromCart('{{ barcode }}')">удалить</button>
+                    <button class="delete-btn" data-article="{{ article }}" onclick="deleteFromCart('{{ article }}')">удалить</button>
                 </div>
             {% endfor %}
         {% else %}
@@ -66,35 +66,35 @@
 
     <div class="cart-mobile">
         {% if cart.products %}
-            {% for barcode, item in cart.products.items %}
-                <div class="mobile-product-card" data-barcode="{{ barcode }}">
+            {% for article, item in cart.products.items %}
+                <div class="mobile-product-card" data-article="{{ article }}">
                     <div class="upper">
                         <div class="product-data">
                             <div class="product-photo">
                                 <div class="product-photo-wrapper">
-                                    <img src="{{ barcode|product_image_url }}" alt="">
+                                    <img src="{{ article|product_image_url }}" alt="">
                                 </div>
-                                <p>{{ barcode }}</p>
+                                <p>{{ article|product_barcode }}</p>
                             </div>
                             <div class="product-name-and-price">
-                                <p class="product-name">{{ barcode|product_title }}</p>
+                                <p class="product-name">{{ article|product_title }}</p>
                                 <p class="product-price">{{ item.unit_price }} ₽</p>
                             </div>
                         </div>
-                        <button class="delete-btn delete" data-barcode="{{ barcode }}" onclick="deleteFromCart('{{ barcode }}')">
+                        <button class="delete-btn delete" data-article="{{ article }}" onclick="deleteFromCart('{{ article }}')">
                             <img src="{% static 'img/delete-item.svg' %}" alt="">
                         </button>
                     </div>
                     <div class="medium">
                         <div>
                             <div class="cart-quantity">
-                                <input id="mobile-quantity-{{ barcode }}" value="{{ item.quantity }}" oninput="checkQuantity('{{ barcode }}')">
-                                <button data-barcode="{{ barcode }}" class="minus-button">-</button>
-                                <button data-barcode="{{ barcode }}" class="plus-button">+</button>
+                                <input id="mobile-quantity-{{ article }}" value="{{ item.quantity }}" oninput="checkQuantity('{{ article }}')">
+                                <button data-article="{{ article }}" class="minus-button">-</button>
+                                <button data-article="{{ article }}" class="plus-button">+</button>
                             </div>
                         </div>
                         <div class="product-remains">
-                            <p>На складе: <span>{{ barcode|product_remains }}</span></p>
+                            <p>На складе: <span>{{ article|product_remains }}</span></p>
                         </div>
                     </div>
                     <hr>
@@ -131,7 +131,7 @@
             <p class="cart__next-subheading">Выберете условия доставки и способ оплаты</p>
             <div class="cart__next-input labeled">
                 <label for="city-input"><strong>Ваш город</strong></label>
-                <input type="text" id="city-input" name="city" list="address_list">
+                <input type="text" id="city-input" name="city" list="address_list" value="{% if request.user.city %}{{ request.user.city }}{% endif %}">
                 <datalist id="address_list"></datalist>
 
             </div>
@@ -224,16 +224,16 @@
 {{ request.cart.to_dict|json_script:"cart-data" }}
 
 <script>
-const checkQuantity = (barcode) => {
-    const quantityInput = document.getElementById(`quantity-${barcode}`);
+const checkQuantity = (article) => {
+    const quantityInput = document.getElementById(`quantity-${article}`);
     let value = quantityInput.value;
-    updateQuantity(barcode);
+    updateQuantity(article);
 };
 
 let timeout = null;
 
-const updateQuantity = (barcode) => {
-    const quantityInput = document.getElementById(`quantity-${barcode}`);
+const updateQuantity = (article) => {
+    const quantityInput = document.getElementById(`quantity-${article}`);
 
     if (timeout) {
         clearTimeout(timeout);
@@ -250,7 +250,7 @@ const updateQuantity = (barcode) => {
                 "X-CSRFToken": "{{ csrf_token }}"
             },
             body: new URLSearchParams({
-                'barcode': barcode,
+                'article': article,
                 'quantity': newQuantity
             })
         })
@@ -292,7 +292,7 @@ const flushCart = () => {
     })
     .catch(error => console.error("Ошибка при отправке запроса:", error));
 };
-const deleteFromCart = (barcode) => {
+const deleteFromCart = (article) => {
     fetch("{% url 'carts:change' %}", {
         method: "POST",
         headers: {
@@ -300,7 +300,7 @@ const deleteFromCart = (barcode) => {
             "X-CSRFToken": "{{ csrf_token }}"
         },
         body: new URLSearchParams({
-            'barcode': barcode,
+            'article': article,
             'quantity': -1
         })
     })
@@ -312,11 +312,11 @@ const deleteFromCart = (barcode) => {
             cart = data.cart 
             
             if (isMobile()) {
-                let cardToDelete = document.querySelector(`.mobile-product-card[data-barcode="${barcode}"]`);
+                let cardToDelete = document.querySelector(`.mobile-product-card[data-article="${article}"]`);
                 cardToDelete.remove();
 
             } else {
-                const row = document.querySelector(`div[data-barcode="${barcode}"]`);
+                const row = document.querySelector(`div[data-article="${article}"]`);
                 console.log(row);
                 if (row) {
                     row.remove();
@@ -388,10 +388,10 @@ const updateCartDisplay = (cart) => {
     userDiscount /= 100;
 
     if (isMobile()) {
-        for (const barcode in cart.products) {
-            let productCard = document.querySelector(`.mobile-product-card[data-barcode="${barcode}"]`); 
+        for (const article in cart.products) {
+            let productCard = document.querySelector(`.mobile-product-card[data-article="${article}"]`); 
 
-            const product = cart.products[barcode];
+            const product = cart.products[article];
 
             let productUnitPrice = productCard.querySelector('.product-price'); 
             productUnitPrice.textContent = `${formatNumber(product.unit_price * (1 - userDiscount))} ₽`; 
@@ -404,15 +404,15 @@ const updateCartDisplay = (cart) => {
             totalPriceElement.textContent = `${formatNumber(totalPrice * (1 - userDiscount))} ₽`; ;
         }
     } else {
-        for (const barcode in cart.products) {
-            const row = document.querySelector(`div[data-barcode="${barcode}"]`);
+        for (const article in cart.products) {
+            const row = document.querySelector(`div[data-article="${article}"]`);
             if (row) {
-                const product = cart.products[barcode];
+                const product = cart.products[article];
                 
                 const productUnitPrice = row.querySelector('.product-unit-price');
                 productUnitPrice.textContent = `${formatNumber(product.unit_price * (1 - userDiscount))} ₽`;
     
-                const quantityInput = row.querySelector(`input[id="quantity-${barcode}"]`);
+                const quantityInput = row.querySelector(`input[id="quantity-${article}"]`);
                 quantityInput.value = product.quantity;
     
                 const productTotalPrice = row.querySelector('.product-total-price');
@@ -472,12 +472,12 @@ function formatNumber(number) {
 function increaseQuantity(plusButton) {
     plusButton.disabled = true;
 
-    const barcode = plusButton.dataset.barcode;
+    const article = plusButton.dataset.article;
     let quantityInput;
     if (isMobile()) {
-        quantityInput = document.getElementById(`mobile-quantity-${barcode}`);
+        quantityInput = document.getElementById(`mobile-quantity-${article}`);
     } else {
-        quantityInput = document.getElementById(`quantity-${barcode}`);
+        quantityInput = document.getElementById(`quantity-${article}`);
     }
     let oldQuantity = parseInt(quantityInput.value);
     quantity = oldQuantity + 1;
@@ -493,7 +493,7 @@ function increaseQuantity(plusButton) {
             "X-CSRFToken": "{{ csrf_token }}"
         },
         body: new URLSearchParams({
-            'barcode': barcode,
+            'article': article,
             'quantity': 1,
             'append': true
         })
@@ -520,12 +520,12 @@ function increaseQuantity(plusButton) {
         minusButton.disabled = true;
         console.log('Уменьшаем колво')
 
-        const barcode = minusButton.dataset.barcode;
+        const article = minusButton.dataset.article;
         let quantityInput;
         if (isMobile()) {
-            quantityInput = document.getElementById(`mobile-quantity-${barcode}`);
+            quantityInput = document.getElementById(`mobile-quantity-${article}`);
         } else {
-            quantityInput = document.getElementById(`quantity-${barcode}`);
+            quantityInput = document.getElementById(`quantity-${article}`);
         }
         let quantity = parseInt(quantityInput.value);
         quantity -= 1;
@@ -538,7 +538,7 @@ function increaseQuantity(plusButton) {
                 "X-CSRFToken": "{{ csrf_token }}"
             },
             body: new URLSearchParams({
-                'barcode': barcode,
+                'article': article,
                 'quantity': -1,
                 'append': true
             })

@@ -6,10 +6,80 @@
     <div>
         <form action="." method="POST" enctype="multipart/form-data">
             {{ form.as_p }}
+            <!-- <datalist id="address_list"></datalist> -->
             {% csrf_token %}
             <input type="submit" value="Импортировать заказ из XLSX">
         </form>
     </div>
     {% endif %}
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+
+<script defer>
+    const userSelect = document.getElementById('id_user'); 
+    const cityInput = document.getElementById('id_city');
+
+    cityInput.setAttribute('list', 'address_list');
+
+    const dataList = document.createElement('datalist');
+    dataList.id = 'address_list';
+
+
+    cityInput.insertAdjacentElement('afterend', dataList);
+
+    userSelect.addEventListener('change', (element) => {
+        let value = userSelect.value;
+        if (value) {
+            fetch(`/orders/get-city/${value}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(data);
+                cityInput.value = data.city;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+        else {
+            cityInput.value = '';
+        }
+    });
+
+
+    $("#id_city").on("input", function () {
+        let query = $(this).val();
+        if (query.length > 2) {
+            $.ajax({
+                url: "https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address",
+                method: "POST",
+                contentType: "application/json",
+                headers: {
+                    "Authorization": "Token aa594033d2dd8b0a72dcaa25487b293486127477"
+                },
+                data: JSON.stringify({ 
+                    query: query,
+                    count: 10,
+                    from_bound: { value: "city" },
+                    to_bound: { value: "city" }
+                }),
+                success: function (data) {
+                    let suggestions = data.suggestions.map(item => item.data.city);
+                    console.log(suggestions);
+                    $("#address_list").empty();
+                    suggestions.forEach(addr => {
+                        $("#address_list").append(`<option value="${addr}">`);
+                    });
+                }
+            });
+        }
+    });
+</script>
 
 {% endblock %}

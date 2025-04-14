@@ -148,6 +148,7 @@ def after_order_save(sender, instance: Order, created, **kwargs):
 
 
 class OrderItem(models.Model):
+    article = models.CharField('Артикул', max_length=9)
     product_name = models.CharField('Товар')
     brand_name = models.CharField('Производитель', null=True, blank=True)
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items', verbose_name=_('Заказ'))

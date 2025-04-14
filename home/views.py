@@ -20,12 +20,12 @@ class HomeView(View):
 
         cart_data = request.cart.to_dict()
         products_in_cart = {
-            barcode: item['quantity'] 
-            for barcode, item in cart_data['products'].items()
+            article: item['quantity'] 
+            for article, item in cart_data['products'].items()
         }
 
         for product in popular_products:
-            product.quantity_in_cart = request.cart[Cart.KeyNames.PRODUCTS].get(str(product.barcode), {}).get(Cart.KeyNames.QUANTITY, 0)
+            product.quantity_in_cart = request.cart[Cart.KeyNames.PRODUCTS].get(str(product.article), {}).get(Cart.KeyNames.QUANTITY, 0)
 
         context = {
             'contact_form': RequestForm(),

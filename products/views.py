@@ -19,7 +19,7 @@ from configs.models import Config
 from Aleucos import settings
 from django.http import FileResponse
 import os
-
+from .services import generate_unique_article_number
 from Aleucos.elastic_log_handler import log_product_sale, log_product_arrival
 
 
@@ -109,12 +109,12 @@ class ProductsListView(View):
 
         cart_data = request.cart.to_dict()
         products_in_cart = {
-            barcode: item['quantity'] 
-            for barcode, item in cart_data['products'].items()
+            article: item['quantity'] 
+            for article, item in cart_data['products'].items()
         }
 
         for product in products:
-            product.quantity_in_cart = request.cart[Cart.KeyNames.PRODUCTS].get(str(product.barcode), {}).get(Cart.KeyNames.QUANTITY, 0)
+            product.quantity_in_cart = request.cart[Cart.KeyNames.PRODUCTS].get(str(product.article), {}).get(Cart.KeyNames.QUANTITY, 0)
 
         page_number = request.GET.get('page', 1) 
         paginator = Paginator(products, 16)  
@@ -221,12 +221,12 @@ class CatalogFiltersView(View):
 
         cart_data = request.cart.to_dict()
         products_in_cart = {
-            barcode: item['quantity'] 
-            for barcode, item in cart_data['products'].items()
+            article: item['quantity'] 
+            for article, item in cart_data['products'].items()
         }
 
         for product in products:
-            product.quantity_in_cart = request.cart[Cart.KeyNames.PRODUCTS].get(str(product.barcode), {}).get(Cart.KeyNames.QUANTITY, 0)
+            product.quantity_in_cart = request.cart[Cart.KeyNames.PRODUCTS].get(str(product.article), {}).get(Cart.KeyNames.QUANTITY, 0)
         
         page_number = request.GET.get('page', 1) 
         products = Paginator(products, 16)  
@@ -269,14 +269,14 @@ class ProductView(View):
 
         cart_data = request.cart.to_dict()
         products_in_cart = {
-            barcode: item['quantity'] 
-            for barcode, item in cart_data['products'].items()
+            article: item['quantity'] 
+            for article, item in cart_data['products'].items()
         }
 
-        product.quantity_in_cart = request.cart[Cart.KeyNames.PRODUCTS].get(str(product.barcode), {}).get(Cart.KeyNames.QUANTITY, 0)
+        product.quantity_in_cart = request.cart[Cart.KeyNames.PRODUCTS].get(str(product.article), {}).get(Cart.KeyNames.QUANTITY, 0)
 
         for similar_product in similar_products:
-            similar_product.quantity_in_cart = request.cart[Cart.KeyNames.PRODUCTS].get(str(similar_product.barcode), {}).get(Cart.KeyNames.QUANTITY, 0)
+            similar_product.quantity_in_cart = request.cart[Cart.KeyNames.PRODUCTS].get(str(similar_product.article), {}).get(Cart.KeyNames.QUANTITY, 0)
 
         print(product.pk)
 
@@ -303,3 +303,18 @@ class ExportCatalogView(View):
         except Exception: 
             self.message_user(request, 'Файл для экспорта не найден', level='error')
             return redirect('admin:products_product_changelist')
+        
+
+class SetArticlesIfNullView(View): 
+    def get(self, request): 
+        print('Зашли в функцию')
+
+        products = Product.objects.all()
+
+        for product in products: 
+            if not product.article: 
+                article = generate_unique_article_number() 
+                product.article = article
+                product.save() 
+        return JsonResponse({'message': 'ok'})
+        

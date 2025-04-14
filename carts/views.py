@@ -17,7 +17,7 @@ from Aleucos.elastic_log_handler import log_product_sale
 class ChangeCartView(View):
     def post(self, request):
         cart = request.cart
-        barcode = int(request.POST.get('barcode'))
+        article: str = request.POST.get('article')
         raw_quantity = request.POST.get('quantity')
         append = bool(request.POST.get('append', False))
 
@@ -27,13 +27,13 @@ class ChangeCartView(View):
             return JsonResponse({
                 'cart': cart.to_dict(), 
             })
-        if not barcode: 
+        if not article: 
             JsonResponse({
-                'error': 'отсутствует штрихкод'
+                'error': 'отсутствует артикул'
             })
-        product = Product.objects.filter(barcode=barcode).first() 
+        product = Product.objects.filter(article=article).first() 
         if not product: 
-            cart.remove(str(barcode))
+            cart.remove(str(article))
             return JsonResponse({
                 'cart': cart.to_dict(), 
             })
@@ -44,7 +44,7 @@ class ChangeCartView(View):
             })
         if Cart.KeyNames.PRODUCTS not in cart:
             cart[Cart.KeyNames.PRODUCTS] = {}
-        product_in_cart = cart[Cart.KeyNames.PRODUCTS].get(str(barcode))
+        product_in_cart = cart[Cart.KeyNames.PRODUCTS].get(str(article))
         if product_in_cart is None: 
             new_quantity_in_cart = 1 
         else: 
@@ -97,14 +97,14 @@ class CheckCartView(View):
         if not cart.get(Cart.KeyNames.PRODUCTS):
             errors.append('Корзина пуста')
 
-        barcodes_to_remove = []
+        articles_to_remove = []
 
-        for barcode, product_data in list(cart[Cart.KeyNames.PRODUCTS].items()):
+        for article, product_data in list(cart[Cart.KeyNames.PRODUCTS].items()):
             try:
-                product = Product.objects.get(barcode=barcode)
+                product = Product.objects.get(article=article)
             except Product.DoesNotExist:
-                errors.append(f'Товара со штрихкодом {barcode} больше нет в наличии. Недоступные товары не будут включены в заказ')
-                barcodes_to_remove.append(barcode)
+                errors.append(f'Товара с артикулом {article} больше нет в наличии. Недоступные товары не будут включены в заказ')
+                articles_to_remove.append(article)
                 continue
 
             quantity = product_data[Cart.KeyNames.QUANTITY]
@@ -113,8 +113,8 @@ class CheckCartView(View):
                 errors.append(f'Недостаточно товара "{product.title}" на складе: доступно {product.remains} шт., запрошено {quantity} шт. Недоступные товары не будут включены в заказ')
                 request.cart.change(product, product.remains) 
 
-        for barcode in barcodes_to_remove: 
-            request.cart.remove(barcode)
+        for article in articles_to_remove: 
+            request.cart.remove(article)
 
         if errors:
             return JsonResponse({
@@ -143,6 +143,9 @@ class CreateOrderView(View):
         city = request.POST.get('city')
         comment = request.POST.get('comment')
 
+        request.user.city = city 
+        request.user.save()
+
         try:
             payment_method = PaymentMethod.objects.get(pk=payment_method_id)
             delivery_terms = DeliveryTerm.objects.get(pk=delivery_terms_id)
@@ -164,15 +167,16 @@ class CreateOrderView(View):
             city=city
         )
 
-        for barcode, product_data in cart[Cart.KeyNames.PRODUCTS].items(): 
+        for article, product_data in cart[Cart.KeyNames.PRODUCTS].items(): 
 
-            product = Product.objects.get(barcode=barcode)
+            product = Product.objects.get(barcode=article)
 
             unit_price = product_data[Cart.KeyNames.UNIT_PRICE] * final_price_coefficient
             quantity = product_data[Cart.KeyNames.QUANTITY]
             total_product_price = product_data[Cart.KeyNames.TOTAL_PRODUCT_PRICE] * final_price_coefficient
 
             OrderItem.objects.create(
+                article=article,
                 product_name=product.title,
                 brand_name=product.brand.title,
                 order=new_order, 

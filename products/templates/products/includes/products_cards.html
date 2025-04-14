@@ -22,17 +22,17 @@
                     </div>
                     {% if product.quantity_in_cart != 0 %}
                         <div class="catalog__card-cart-controls">
-                            <button id="{{ product.barcode }}" class="catalog__card-cart-control-minus">
+                            <button id="{{ product.article }}" class="catalog__card-cart-control-minus">
                                 <img src="{% static 'img/Vector (1).svg' %}" alt="cart">
                             </button>
-                            <input type="number" id="quantity-input-{{ product.barcode }}" class="catalog__card-quantity-input" value="{{ product.quantity_in_cart }}">
-                            <button id="{{ product.barcode }}" class="catalog__card-cart-control-plus">
+                            <input type="number" id="quantity-input-{{ product.article }}" class="catalog__card-quantity-input" value="{{ product.quantity_in_cart }}">
+                            <button id="{{ product.article }}" class="catalog__card-cart-control-plus">
                                 <img src="{% static 'img/Vector (2).svg' %}" alt="cart">
                             </button>
                         </div>
                     {% else %}
                         {% if product.is_in_stock %}
-                            <div id="{{ product.barcode }}" class="catalog__card-cart-button add-to-cart">
+                            <div id="{{ product.article }}" class="catalog__card-cart-button add-to-cart">
                                 В корзину
                             </div>
                         {% else %} 

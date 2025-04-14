@@ -48,7 +48,7 @@ class User(AbstractUser):
     email = models.EmailField(_('Электронная почта'), unique=True)
     password = models.CharField(_('Пароль'), max_length=128, blank=True)
     photo = models.ImageField(_('Фотография'), upload_to='users', null=True, blank=True)
-    city = models.ForeignKey(verbose_name='Город', to=City, null=True, blank=True, on_delete=models.SET_NULL)
+    city = models.CharField('Город', max_length=100, null=True, blank=True)
 
     discount = models.IntegerField('Скидка', null=True, blank=True, choices=DISCOUNT_CHOICES)
 
