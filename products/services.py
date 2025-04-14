@@ -380,19 +380,20 @@ class CatalogExporter:
             worksheet[f'R{curr_row_index}'] = product.category.title
             worksheet[f'S{curr_row_index}'] = product.will_arrive_at
 
-            image_path = os.path.join(settings.MEDIA_ROOT, product.photo.name)
-            try:
-                img = Image(image_path)
+            if product.photo:
+                image_path = os.path.join(settings.MEDIA_ROOT, product.photo.name)
+                try:
+                    img = Image(image_path)
 
-                img.width = 102
-                img.height = 100
+                    img.width = 102
+                    img.height = 100
 
-                worksheet.add_image(img, f"E{curr_row_index}")
+                    worksheet.add_image(img, f"E{curr_row_index}")
 
-                worksheet.column_dimensions['E'].width = 15 
-                worksheet.row_dimensions[curr_row_index].height = 80
-            except FileNotFoundError:
-                worksheet[f'E{curr_row_index}'] = "Файл не найден"
+                    worksheet.column_dimensions['E'].width = 15 
+                    worksheet.row_dimensions[curr_row_index].height = 80
+                except FileNotFoundError:
+                    worksheet[f'E{curr_row_index}'] = "Файл не найден"
 
             curr_row_index += 1
 
