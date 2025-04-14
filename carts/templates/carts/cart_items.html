@@ -131,7 +131,7 @@
             <p class="cart__next-subheading">Выберете условия доставки и способ оплаты</p>
             <div class="cart__next-input labeled">
                 <label for="city-input"><strong>Ваш город</strong></label>
-                <input type="text" id="city-input" name="city" list="address_list">
+                <input type="text" id="city-input" name="city" list="address_list" value="{% if request.user.city %}{{ request.user.city }}{% endif %}">
                 <datalist id="address_list"></datalist>
 
             </div>

@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.views import View
 from .models import ImportOrderStatus
+from users.models import User
 
 
 
@@ -19,3 +20,14 @@ class ImportOrdersStatusView(View):
         if not statuses:
             data = []
         return JsonResponse(data, safe=False)
+    
+
+class GetUserCityAPIView(View): 
+    def get(self, request, user_id: int): 
+        user = User.objects.filter(pk=user_id).first()
+        city = ''
+        if user and user.city: 
+            city = user.city 
+        return JsonResponse({
+            'city': city
+        })

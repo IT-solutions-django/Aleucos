@@ -143,6 +143,9 @@ class CreateOrderView(View):
         city = request.POST.get('city')
         comment = request.POST.get('comment')
 
+        request.user.city = city 
+        request.user.save()
+
         try:
             payment_method = PaymentMethod.objects.get(pk=payment_method_id)
             delivery_terms = DeliveryTerm.objects.get(pk=delivery_terms_id)
