@@ -169,7 +169,7 @@ class CreateOrderView(View):
 
         for article, product_data in cart[Cart.KeyNames.PRODUCTS].items(): 
 
-            product = Product.objects.get(barcode=article)
+            product = Product.objects.get(article=article)
 
             unit_price = product_data[Cart.KeyNames.UNIT_PRICE] * final_price_coefficient
             quantity = product_data[Cart.KeyNames.QUANTITY]
