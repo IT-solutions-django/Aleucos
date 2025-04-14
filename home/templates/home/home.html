@@ -161,17 +161,17 @@
                                             </div>
                                             {% if product.quantity_in_cart != 0 %}
                                                 <div class="catalog__card-cart-controls">
-                                                    <button id="{{ product.barcode }}" class="catalog__card-cart-control-minus">
+                                                    <button id="{{ product.article }}" class="catalog__card-cart-control-minus">
                                                         <img src="{% static 'img/Vector (1).svg' %}" alt="cart">
                                                     </button>
-                                                    <input type="number" id="quantity-input-{{ product.barcode }}" class="catalog__card-quantity-input" value="{{ product.quantity_in_cart }}">
-                                                    <button id="{{ product.barcode }}" class="catalog__card-cart-control-plus">
+                                                    <input type="number" id="quantity-input-{{ product.article }}" class="catalog__card-quantity-input" value="{{ product.quantity_in_cart }}">
+                                                    <button id="{{ product.article }}" class="catalog__card-cart-control-plus">
                                                         <img src="{% static 'img/Vector (2).svg' %}" alt="cart">
                                                     </button>
                                                 </div>
                                             {% else %}
                                                 {% if product.is_in_stock %}
-                                                    <div id="{{ product.barcode }}" class="catalog__card-cart-button add-to-cart">
+                                                    <div id="{{ product.article }}" class="catalog__card-cart-button add-to-cart">
                                                         В корзину
                                                     </div>
                                                 {% else %} 
@@ -617,7 +617,7 @@
             event.preventDefault();
             
             const card = button.closest(".catalog__card");
-            const barcode = button.id;
+            const article = button.id;
             const addToCartButtonBackup = button.cloneNode(true); 
 
             renderCartPositionsCount(increase = true)
@@ -625,11 +625,11 @@
             const cartControls = document.createElement('div');
             cartControls.classList.add('catalog__card-cart-controls');
             cartControls.innerHTML = `
-                <button id="${barcode}" class="catalog__card-cart-control-minus">
+                <button id="${article}" class="catalog__card-cart-control-minus">
                     <img src="{% static 'img/Vector (1).svg' %}" alt="cart">
                 </button>
-                <input type="number" id="quantity-input-${barcode}" class="catalog__card-quantity-input" min="1" value="1">
-                <button id="${barcode}" class="catalog__card-cart-control-plus">
+                <input type="number" id="quantity-input-${article}" class="catalog__card-quantity-input" min="1" value="1">
+                <button id="${article}" class="catalog__card-cart-control-plus">
                     <img src="{% static 'img/Vector (2).svg' %}" alt="cart">
                 </button>
             `;
@@ -643,7 +643,7 @@
                     "X-CSRFToken": "{{ csrf_token }}"
                 },
                 body: new URLSearchParams({
-                    'barcode': barcode,
+                    'article': article,
                     'quantity': 1,
                     'append': true
                 })
@@ -683,7 +683,7 @@
     function increaseQuantity(plusButton) {
         plusButton.disabled = true;
         
-        const barcode = plusButton.id;
+        const article = plusButton.id;
 
         const quantityInput = plusButton.previousElementSibling;
         let oldQuantity = parseInt(quantityInput.value);
@@ -700,7 +700,7 @@
                 "X-CSRFToken": "{{ csrf_token }}"
             },
             body: new URLSearchParams({
-                'barcode': barcode,
+                'article': article,
                 'quantity': 1,
                 'append': true
             })
@@ -732,7 +732,7 @@
         minusButton.disabled = true;
         console.log('Уменьшаем колво')
 
-        const barcode = minusButton.id;
+        const article = minusButton.id;
         const quantityInput = minusButton.nextElementSibling;
         let quantity = parseInt(quantityInput.value);
         quantity -= 1;
@@ -740,7 +740,7 @@
             const addToCartButton = document.createElement('div');
             addToCartButton.classList.add('catalog__card-add-to-cart-div');
             addToCartButton.innerHTML = `
-            <div id="${barcode}" class="catalog__card-cart-button add-to-cart">
+            <div id="${article}" class="catalog__card-cart-button add-to-cart">
                                                     В корзину
                                                 </div>
         `;
@@ -758,7 +758,7 @@
                 "X-CSRFToken": "{{ csrf_token }}"
             },
             body: new URLSearchParams({
-                'barcode': barcode,
+                'article': article,
                 'quantity': -1,
                 'append': true
             })

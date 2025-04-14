@@ -19,13 +19,13 @@ class Cart(UserDict):
 
     def change(self, product: Product, quantity=0, append=False) -> dict:
         self.changed = True
-        barcode = str(product.barcode)
+        product_id = str(product.article)
 
         k = self.KeyNames
 
         self.setdefault(k.PRODUCTS, {})
         self.setdefault(k.TOTAL_CART_PRICE, 0)
-        self[k.PRODUCTS].setdefault(barcode, {
+        self[k.PRODUCTS].setdefault(product_id, {
             k.QUANTITY: 0,
             k.UNIT_PRICE_BEFORE_200K: product.price_before_200k,
             k.UNIT_PRICE_AFTER_200K: product.price_after_200k,
@@ -35,49 +35,45 @@ class Cart(UserDict):
         })
 
         if append:
-            self[k.PRODUCTS][barcode][k.QUANTITY] += quantity
-            print(f'append=true\nТекущее количество={self[k.PRODUCTS][barcode][k.QUANTITY]}')
+            self[k.PRODUCTS][product_id][k.QUANTITY] += quantity
         else:
-            self[k.PRODUCTS][barcode][k.QUANTITY] = quantity
-            print(f'append=false\nТекущее количество={self[k.PRODUCTS][barcode][k.QUANTITY]}')
+            self[k.PRODUCTS][product_id][k.QUANTITY] = quantity
 
-        if self[k.PRODUCTS][barcode][k.QUANTITY] <= 0:
-            print('Удаляем товар')
-            del self[k.PRODUCTS][barcode]
+        if self[k.PRODUCTS][product_id][k.QUANTITY] <= 0:
+            del self[k.PRODUCTS][product_id]
         else:
-            unit_price = self[k.PRODUCTS][barcode][k.UNIT_PRICE_BEFORE_200K]
+            unit_price = self[k.PRODUCTS][product_id][k.UNIT_PRICE_BEFORE_200K]
             total_price = unit_price * quantity
-            self[k.PRODUCTS][barcode][k.UNIT_PRICE] = unit_price
-            self[k.PRODUCTS][barcode][k.TOTAL_PRODUCT_PRICE] = total_price
+            self[k.PRODUCTS][product_id][k.UNIT_PRICE] = unit_price
+            self[k.PRODUCTS][product_id][k.TOTAL_PRODUCT_PRICE] = total_price
 
             self.update_total_order_price()
-            if self[k.TOTAL_CART_PRICE] < 200000: 
-                for barcode, item in self[k.PRODUCTS].items():
+
+            if self[k.TOTAL_CART_PRICE] < 200000:
+                for pid, item in self[k.PRODUCTS].items():
                     new_unit_price = flaot_to_decimal(item[k.UNIT_PRICE_BEFORE_200K])
                     item[k.UNIT_PRICE] = new_unit_price
                     item[k.TOTAL_PRODUCT_PRICE] = new_unit_price * item[k.QUANTITY]
 
-                self.update_total_order_price()
-            if self[k.TOTAL_CART_PRICE] >= 200000: 
-                for barcode, item in self[k.PRODUCTS].items():
-                    new_unit_price = flaot_to_decimal(item[k.UNIT_PRICE_AFTER_200K] )
+            elif self[k.TOTAL_CART_PRICE] < 500000:
+                for pid, item in self[k.PRODUCTS].items():
+                    new_unit_price = flaot_to_decimal(item[k.UNIT_PRICE_AFTER_200K])
                     item[k.UNIT_PRICE] = new_unit_price
                     item[k.TOTAL_PRODUCT_PRICE] = new_unit_price * item[k.QUANTITY]
-                    
-                self.update_total_order_price()
-            if self[k.TOTAL_CART_PRICE] >= 500000: 
-                for barcode, item in self[k.PRODUCTS].items():
+
+            else:
+                for pid, item in self[k.PRODUCTS].items():
                     new_unit_price = flaot_to_decimal(item[k.UNIT_PRICE_AFTER_500K])
                     item[k.UNIT_PRICE] = new_unit_price
                     item[k.TOTAL_PRODUCT_PRICE] = new_unit_price * item[k.QUANTITY]
 
-        self.update_total_order_price()
+            self.update_total_order_price()
 
         return self
     
-    def remove(self, barcode: str) -> None: 
+    def remove(self, article: str) -> None: 
         self.changed = True
-        del self[Cart.KeyNames.PRODUCTS][barcode]
+        del self[Cart.KeyNames.PRODUCTS][article]
         
     def update_total_order_price(self) -> None:
         k = self.KeyNames
@@ -104,20 +100,20 @@ class Cart(UserDict):
 
         def convert_value(value):
             if isinstance(value, Decimal):
-                return float(value)  
+                return float(value)
             return value
 
         return {
             k.PRODUCTS: {
-                barcode: {
+                article: {
                     k.QUANTITY: convert_value(item[k.QUANTITY]),
                     k.UNIT_PRICE_BEFORE_200K: convert_value(item[k.UNIT_PRICE_BEFORE_200K]),
                     k.UNIT_PRICE_AFTER_200K: convert_value(item[k.UNIT_PRICE_AFTER_200K]),
                     k.UNIT_PRICE_AFTER_500K: convert_value(item[k.UNIT_PRICE_AFTER_500K]),
                     k.TOTAL_PRODUCT_PRICE: convert_value(item[k.TOTAL_PRODUCT_PRICE]),
-                    k.UNIT_PRICE: convert_value(item[k.UNIT_PRICE])
+                    k.UNIT_PRICE: convert_value(item[k.UNIT_PRICE]),
                 }
-                for barcode, item in self[k.PRODUCTS].items()
+                for article, item in self[k.PRODUCTS].items()
             },
             k.TOTAL_CART_PRICE: convert_value(self[k.TOTAL_CART_PRICE])
         }

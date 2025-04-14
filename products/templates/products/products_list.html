@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 {% load products_tags %}
+{% load cart_tags %}
 
 {% block content %}
 <main class="catalog">
@@ -373,7 +374,7 @@
                     {% for product in products %}
                         <div class="catalog__card">
                             <a href="{{ product.get_absolute_url }}" class="catalog__card-image">
-                                <img src="{{ product.photo.url }}" alt="cart" class="catalog__cart-image">
+                                <img src="{{ product.article|product_image_url }}" alt="cart" class="catalog__cart-image">
                             </a>
                             <div class="catalog__card-bottom">
                                 <div class="catalog__card-name">
@@ -391,17 +392,17 @@
                                         </div>
                                         {% if product.quantity_in_cart != 0 %}
                                             <div class="catalog__card-cart-controls">
-                                                <button id="{{ product.barcode }}" class="catalog__card-cart-control-minus">
+                                                <button id="{{ product.article }}" class="catalog__card-cart-control-minus">
                                                     <img src="{% static 'img/Vector (1).svg' %}" alt="cart">
                                                 </button>
-                                                <input type="number" id="quantity-input-{{ product.barcode }}" class="catalog__card-quantity-input" value="{{ product.quantity_in_cart }}">
-                                                <button id="{{ product.barcode }}" class="catalog__card-cart-control-plus">
+                                                <input type="number" id="quantity-input-{{ product.article }}" class="catalog__card-quantity-input" value="{{ product.quantity_in_cart }}">
+                                                <button id="{{ product.article }}" class="catalog__card-cart-control-plus">
                                                     <img src="{% static 'img/Vector (2).svg' %}" alt="cart">
                                                 </button>
                                             </div>
                                         {% else %}
                                             {% if product.is_in_stock %}
-                                                <div id="{{ product.barcode }}" class="catalog__card-cart-button add-to-cart">
+                                                <div id="{{ product.article }}" class="catalog__card-cart-button add-to-cart">
                                                     В корзину
                                                 </div>
                                             {% else %} 
@@ -632,7 +633,7 @@ document.addEventListener('DOMContentLoaded', function () {
             event.preventDefault();
             
             const card = button.closest(".catalog__card");
-            const barcode = button.id;
+            const article = button.id;
             const addToCartButtonBackup = button.cloneNode(true); 
 
             renderCartPositionsCount(increase = true)
@@ -640,11 +641,11 @@ document.addEventListener('DOMContentLoaded', function () {
             const cartControls = document.createElement('div');
             cartControls.classList.add('catalog__card-cart-controls');
             cartControls.innerHTML = `
-                <button id="${barcode}" class="catalog__card-cart-control-minus">
+                <button id="${article}" class="catalog__card-cart-control-minus">
                     <img src="{% static 'img/Vector (1).svg' %}" alt="cart">
                 </button>
-                <input type="number" id="quantity-input-${barcode}" class="catalog__card-quantity-input" min="1" value="1">
-                <button id="${barcode}" class="catalog__card-cart-control-plus">
+                <input type="number" id="quantity-input-${article}" class="catalog__card-quantity-input" min="1" value="1">
+                <button id="${article}" class="catalog__card-cart-control-plus">
                     <img src="{% static 'img/Vector (2).svg' %}" alt="cart">
                 </button>
             `;
@@ -658,7 +659,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     "X-CSRFToken": "{{ csrf_token }}"
                 },
                 body: new URLSearchParams({
-                    'barcode': barcode,
+                    'article': article,
                     'quantity': 1,
                     'append': true
                 })
@@ -698,7 +699,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function increaseQuantity(plusButton) {
         plusButton.disabled = true;
         
-        const barcode = plusButton.id;
+        const article = plusButton.id;
 
         const quantityInput = plusButton.previousElementSibling;
         let oldQuantity = parseInt(quantityInput.value);
@@ -715,7 +716,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 "X-CSRFToken": "{{ csrf_token }}"
             },
             body: new URLSearchParams({
-                'barcode': barcode,
+                'article': article,
                 'quantity': 1,
                 'append': true
             })
@@ -747,7 +748,7 @@ document.addEventListener('DOMContentLoaded', function () {
         minusButton.disabled = true;
         console.log('Уменьшаем колво')
 
-        const barcode = minusButton.id;
+        const article = minusButton.id;
         const quantityInput = minusButton.nextElementSibling;
         let quantity = parseInt(quantityInput.value);
         quantity -= 1;
@@ -755,7 +756,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const addToCartButton = document.createElement('div');
             addToCartButton.classList.add('catalog__card-add-to-cart-div');
             addToCartButton.innerHTML = `
-            <div id="${barcode}" class="catalog__card-cart-button add-to-cart">
+            <div id="${article}" class="catalog__card-cart-button add-to-cart">
                                                     В корзину
                                                 </div>
         `;
@@ -773,7 +774,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 "X-CSRFToken": "{{ csrf_token }}"
             },
             body: new URLSearchParams({
-                'barcode': barcode,
+                'article': article,
                 'quantity': -1,
                 'append': true
             })
@@ -803,7 +804,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (inputElement.classList.contains('catalog__card-quantity-input')) {
                 const newQuantity = parseInt(inputElement.value);
-                const barcode = inputElement.id.replace('quantity-input-', '');
+                const article = inputElement.id.replace('quantity-input-', '');
 
                 if (isNaN(newQuantity) || newQuantity < 1) {
                     alert('Пожалуйста, введите верное значение.');
@@ -811,11 +812,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     return;
                 }
 
-                updateCartQuantity(barcode, newQuantity, inputElement);
+                updateCartQuantity(article, newQuantity, inputElement);
             }
         });
     });
-    function updateCartQuantity(barcode, newQuantity, inputElement) {
+    function updateCartQuantity(article, newQuantity, inputElement) {
         fetch("{% url 'carts:change' %}", {
             method: "POST",
             headers: {
@@ -823,7 +824,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 "X-CSRFToken": "{{ csrf_token }}"
             },
             body: new URLSearchParams({
-                'barcode': barcode,
+                'article': article,
                 'quantity': newQuantity,
             })
         })

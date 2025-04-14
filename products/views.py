@@ -109,12 +109,12 @@ class ProductsListView(View):
 
         cart_data = request.cart.to_dict()
         products_in_cart = {
-            barcode: item['quantity'] 
-            for barcode, item in cart_data['products'].items()
+            article: item['quantity'] 
+            for article, item in cart_data['products'].items()
         }
 
         for product in products:
-            product.quantity_in_cart = request.cart[Cart.KeyNames.PRODUCTS].get(str(product.barcode), {}).get(Cart.KeyNames.QUANTITY, 0)
+            product.quantity_in_cart = request.cart[Cart.KeyNames.PRODUCTS].get(str(product.article), {}).get(Cart.KeyNames.QUANTITY, 0)
 
         page_number = request.GET.get('page', 1) 
         paginator = Paginator(products, 16)  
@@ -221,12 +221,12 @@ class CatalogFiltersView(View):
 
         cart_data = request.cart.to_dict()
         products_in_cart = {
-            barcode: item['quantity'] 
-            for barcode, item in cart_data['products'].items()
+            article: item['quantity'] 
+            for article, item in cart_data['products'].items()
         }
 
         for product in products:
-            product.quantity_in_cart = request.cart[Cart.KeyNames.PRODUCTS].get(str(product.barcode), {}).get(Cart.KeyNames.QUANTITY, 0)
+            product.quantity_in_cart = request.cart[Cart.KeyNames.PRODUCTS].get(str(product.article), {}).get(Cart.KeyNames.QUANTITY, 0)
         
         page_number = request.GET.get('page', 1) 
         products = Paginator(products, 16)  
@@ -269,14 +269,14 @@ class ProductView(View):
 
         cart_data = request.cart.to_dict()
         products_in_cart = {
-            barcode: item['quantity'] 
-            for barcode, item in cart_data['products'].items()
+            article: item['quantity'] 
+            for article, item in cart_data['products'].items()
         }
 
-        product.quantity_in_cart = request.cart[Cart.KeyNames.PRODUCTS].get(str(product.barcode), {}).get(Cart.KeyNames.QUANTITY, 0)
+        product.quantity_in_cart = request.cart[Cart.KeyNames.PRODUCTS].get(str(product.article), {}).get(Cart.KeyNames.QUANTITY, 0)
 
         for similar_product in similar_products:
-            similar_product.quantity_in_cart = request.cart[Cart.KeyNames.PRODUCTS].get(str(similar_product.barcode), {}).get(Cart.KeyNames.QUANTITY, 0)
+            similar_product.quantity_in_cart = request.cart[Cart.KeyNames.PRODUCTS].get(str(similar_product.article), {}).get(Cart.KeyNames.QUANTITY, 0)
 
         print(product.pk)
 

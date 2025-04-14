@@ -5,22 +5,24 @@ from products.models import Product
 register = template.Library()
 
 @register.filter
-def product_image_url(barcode: str) -> str:
-    product = Product.objects.filter(barcode=barcode).first()
-    if product:
-        return product.photo.url
+def product_image_url(article: str) -> str:
+    product = Product.objects.filter(article=article).first()
+    if not product:
+        return settings.DEFAULT_IMAGE_PATH
+    if product.photo:
+        return product.photo.url 
     return settings.DEFAULT_IMAGE_PATH
 
 @register.filter
-def product_title(barcode: str) -> str: 
-    product = Product.objects.filter(barcode=barcode).first()
+def product_title(article: str) -> str: 
+    product = Product.objects.filter(article=article).first()
     if product:
         return product.title
     return "Товар не найден"
 
 @register.filter
-def product_remains(barcode: str) -> int: 
-    product = Product.objects.filter(barcode=barcode).first()
+def product_remains(article: str) -> int: 
+    product = Product.objects.filter(article=article).first()
     if product:
         return product.remains
     return 0
@@ -32,3 +34,12 @@ def get_product_photo_by_name(product_name: str) -> str:
     if product:
         return product.photo.url 
     return settings.DEFAULT_IMAGE_PATH
+
+
+@register.filter 
+def product_barcode(article: str) -> str | None: 
+    product = Product.objects.filter(article=article).first()
+    if product: 
+        if product.barcode: 
+            return product.barcode 
+    return '–'

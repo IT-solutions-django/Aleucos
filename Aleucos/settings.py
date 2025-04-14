@@ -191,7 +191,7 @@ STATICFILES_DIRS = [
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-DEFAULT_IMAGE_PATH = 'products/default.png'
+DEFAULT_IMAGE_PATH = '/static/img/default.png'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -283,7 +283,9 @@ LOGGING = {
             'level': 'INFO',
             'class': 'Aleucos.elastic_log_handler.ElasticLogHandler',
             'formatter': 'json',
-            'host': 'http://elasticsearch:9200',
+            # 'host': 'http://elasticsearch:9200',
+
+            'host': 'http://localhost:9200',
             'index': 'business-logs',
         },
     },
