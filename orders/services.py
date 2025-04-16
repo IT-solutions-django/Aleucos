@@ -97,7 +97,8 @@ class OrderImporter:
 
             log_product_sale(
                 product=product, 
-                quantity=item_data['quantity']
+                quantity=item_data['quantity'], 
+                manager_name=manager.get_fullname()
             )
 
             product.save()

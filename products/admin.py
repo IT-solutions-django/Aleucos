@@ -112,7 +112,10 @@ class ProductAdmin(admin.ModelAdmin):
             xlsx_file_path = default_storage.save(filename, xlsx_file)
             xlsx_file_full_path = os.path.join(settings.MEDIA_ROOT, xlsx_file_path)
 
-            import_products_from_xlsx_task.delay(xlsx_file_full_path)
+            import_products_from_xlsx_task.delay(
+                xlsx_file_path=xlsx_file_full_path, 
+                manager_name=request.user.get_fullname(),
+            )
 
             self.message_user(request, 'Импорт товаров запущен в фоновом режиме. Логи будут доступны по окончании процесса')
             return redirect('admin:status_of_products_import')
@@ -143,7 +146,8 @@ class ProductAdmin(admin.ModelAdmin):
             if new_remains > old_remains:
                 log_product_arrival(
                     product=obj, 
-                    quantity= new_remains - old_remains
+                    quantity= new_remains - old_remains, 
+                    manager_name=request.user.get_fullname()
                 )
 
         super().save_model(request, obj, form, change)

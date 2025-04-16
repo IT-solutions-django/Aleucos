@@ -45,7 +45,7 @@ class WatermarkConfigLocal:
 
 class CatalogImporter:
     @staticmethod
-    def import_catalog_from_xlsx(xlsx_file: UploadedFile) -> int:
+    def import_catalog_from_xlsx(xlsx_file: UploadedFile, manager_name: str) -> int:
         workbook = load_workbook(filename=xlsx_file, data_only=True)
         worksheet = workbook.worksheets[1]
         image_loader = SheetImageLoader(worksheet)
@@ -61,11 +61,15 @@ class CatalogImporter:
 
         for index, row in enumerate(worksheet.iter_rows(min_row=4, values_only=True), 4):
             try:
-                product_data = CatalogImporter.process_row(index, row, image_loader, watermark_conf)
+                product_data = CatalogImporter.process_row(
+                    index, 
+                    row, 
+                    image_loader, 
+                    watermark_conf, 
+                )
                 print(product_data)
                 if product_data:
                     products_data.append(product_data)
-
             except EndOfTable:
                 break
             except ProductImportError as e:
@@ -73,18 +77,12 @@ class CatalogImporter:
                 logger.error(log_text)
                 ImportProductsStatusService.error(log_text)
                 return
-            
-        # try:
-        #     CatalogImporter.check_duplicates(products_data)
-        # except ProductImportError as e:
-        #     log_text = f'Ошибка при импорте каталога: {str(e)}. Импорт был прерван'
-        #     logger.error(log_text)
-        #     ImportProductsStatusService.error(log_text)
-        #     return
-
 
         for product_data in products_data:
-            CatalogImporter.save_product_data(product_data)
+            CatalogImporter.save_product_data(
+                product_data=product_data, 
+                manager_name=manager_name
+            )
         log_text = f'Каталог был успешно импортирован!'
 
         logger.success(log_text)
@@ -102,7 +100,7 @@ class CatalogImporter:
             raise ProductImportError(f'В таблице обнаружены дубликаты штрихкодов: {", ".join(duplicate_barcodes)}')
         
     @staticmethod 
-    def save_product_data(product_data: dict) -> None: 
+    def save_product_data(product_data: dict, manager_name: str) -> None: 
         brand = None 
         if product_data['brand_title']:
             brand, _ = Brand.objects.get_or_create(title=str(product_data['brand_title'])) 
@@ -143,7 +141,8 @@ class CatalogImporter:
 
             log_product_arrival(
                 product=product, 
-                quantity=product_data['remains']
+                quantity=product_data['remains'], 
+                manager_name=manager_name
             )
 
             product.will_arrive_at = product_data['arriving_date']
