@@ -1,10 +1,12 @@
 {% load static %}
 {% load products_tags %}
+{% load cart_tags %}
+
 
 {% for product in products %}
     <div class="catalog__card">
         <a href="{{ product.get_absolute_url }}" class="catalog__card-image">
-            <img src="{{ product.photo.url }}" alt="cart" class="catalog__cart-image">
+            <img src="{{ product.article|product_image_url }}" alt="cart" class="catalog__cart-image">
         </a>
         <div class="catalog__card-bottom">
             <div class="catalog__card-name">

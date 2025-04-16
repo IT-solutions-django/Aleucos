@@ -126,6 +126,8 @@ class CatalogImporter:
             product.volume = product_data['volume'] 
             product.weight = product_data['weight'] 
             product.notes = product_data['notes'] 
+
+            print(f"Такой товар уже есть: {product_data['title']}")
             
             if brand: 
                 product.brand = brand
@@ -146,7 +148,7 @@ class CatalogImporter:
 
             product.will_arrive_at = product_data['arriving_date']
             product.save()
-            logger.info(f'У товара "{product_data["barcode"]}" обновлён остаток ({product.remains} шт.)')
+            logger.info(f'У товара "{product.article}" обновлён остаток ({product.remains} шт.)')
         else: 
             photo = product_data['photo']
 
