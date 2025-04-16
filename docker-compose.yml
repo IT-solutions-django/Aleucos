@@ -46,6 +46,8 @@ services:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
     depends_on:
       - elasticsearch
+    volumes:
+      - ./kibana_data:/usr/share/kibana/data
     networks:
       - dev
     ports:
@@ -58,6 +60,8 @@ services:
       - "3000:3000"
     depends_on:
       - elasticsearch
+    volumes:
+      - ./grafana_data:/var/lib/grafana
     networks:
       - dev
 

@@ -189,7 +189,8 @@ class CreateOrderView(View):
 
             log_product_sale(
                 product=product, 
-                quantity=quantity
+                quantity=quantity, 
+                manager_name=request.user.get_fullname
             )
 
             product.save()
