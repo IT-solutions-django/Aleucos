@@ -31,7 +31,7 @@ def product_remains(article: str) -> int:
 @register.filter
 def get_product_photo_by_name(product_name: str) -> str: 
     product = Product.objects.filter(title=product_name).first()
-    if product:
+    if product and product.photo:
         return product.photo.url 
     return settings.DEFAULT_IMAGE_PATH
 
