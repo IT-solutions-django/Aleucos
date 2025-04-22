@@ -1,7 +1,7 @@
 import random
 import string
 from django.db import models
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch.dispatcher import receiver
 from django.dispatch import receiver
 from Aleucos.crm import crm
@@ -12,8 +12,15 @@ import os
 from django.core.files.base import ContentFile
 from users.models import User
 from .pdf_generator.services import generate_pdf_bill
-from users.models import City
-
+from configs.models import Config
+from Aleucos import settings
+from loguru import logger
+from openpyxl.reader.excel import load_workbook 
+from products.models import Product
+from tempfile import NamedTemporaryFile
+from openpyxl.drawing.image import Image
+from django.core.files.base import ContentFile
+from io import BytesIO
 
 
 class OrderStatus(models.Model):
@@ -70,6 +77,7 @@ class Order(models.Model):
     delivery_terms = models.ForeignKey(DeliveryTerm, on_delete=models.SET_DEFAULT, default=1, verbose_name=_('Условия доставки'))
     pdf_bill = models.FileField(_('Счёт'), upload_to='orders', null=True, blank=True)
     city = models.CharField(verbose_name='Город', max_length=255, null=True, blank=True)
+    info_excel = models.FileField('Информация о заказе (Excel)', upload_to='orders/excel/', null=True, blank=True)
 
     class Meta:
         verbose_name = _('Заказ')
@@ -126,6 +134,14 @@ class Order(models.Model):
 @receiver(post_save, sender=Order)
 def after_order_save(sender, instance: Order, created, **kwargs):
     if created:
+        # Если заказ создаёт сотрудник, интеграция с amoCRM отключается
+        client = instance.user 
+        if client.is_staff: 
+            return
+        
+        if instance.manager.is_superuser: 
+            return
+
         responsible_user_email = instance.manager.email 
         responsible_user_id = crm.get_user_id(user_email=responsible_user_email)
 
@@ -135,16 +151,29 @@ def after_order_save(sender, instance: Order, created, **kwargs):
             contact_id = instance.user.id_in_amocrm if instance.user else None, 
             price = instance.total_price
         )
-        instance.id_in_amocrm = id_in_amocrm 
+        Order.objects.filter(pk=instance.pk).update(id_in_amocrm=id_in_amocrm)
         instance.save()
-    else: 
-        if instance.pdf_bill:
-            crm.update_lead_data(
-                order_id_in_amocrm=instance.id_in_amocrm, 
-                new_order_status=instance.status.title,
-                price=int(instance.total_price),
-            )
-    pass
+    # else:
+    #     if hasattr(instance, '_export_needed') and instance._export_needed:
+    #         from orders.services import OrderExcelGenerator
+    #         OrderExcelGenerator.export_order_to_xlsx(instance)
+
+
+@receiver(pre_save, sender=Order)
+def track_order_changes(sender, instance: Order, **kwargs):
+    if instance.pk:
+        try:
+            previous = sender.objects.get(pk=instance.pk)
+            if instance.status != previous.status or instance.total_price != previous.total_price:
+                if not instance.manager.is_staff:
+                    crm.update_lead_data(
+                        order_id_in_amocrm=instance.id_in_amocrm, 
+                        new_order_status=instance.status.title,
+                        price=int(instance.total_price),
+                    )
+                instance._export_needed = True  
+        except sender.DoesNotExist:
+            pass
 
 
 class OrderItem(models.Model):

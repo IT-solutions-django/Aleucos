@@ -106,12 +106,9 @@ class CatalogImporter:
             brand, _ = Brand.objects.get_or_create(title=str(product_data['brand_title'])) 
 
         # Проверка, есть ли уже такой товар в базе
-        product = Product.objects.filter(title=product_data['title'])
-
-        if product_data['barcode']: 
-            product = product.filter(barcode=product_data['barcode']).first() 
-        else: 
-            product = product.first() 
+        product = None
+        if product_data['article']: 
+            product = Product.objects.filter(title=product_data['title']).first()
 
         # Если товар есть, обновляем данные
         if product: 
@@ -125,7 +122,7 @@ class CatalogImporter:
             product.weight = product_data['weight'] 
             product.notes = product_data['notes'] 
 
-            print(f"Такой товар уже есть: {product_data['title']}")
+            print(f"Такой товар уже есть: {product_data['article']}")
             
             if brand: 
                 product.brand = brand
@@ -186,22 +183,31 @@ class CatalogImporter:
             product.save()
             logger.info(f'Товар "{product_data["title"]}" сохранён в базу данных')
 
+            log_product_arrival(
+                product=product, 
+                quantity=product_data['remains'], 
+                manager_name=manager_name
+            )
+
     @staticmethod
     def process_row(index: int, row: tuple, image_loader: SheetImageLoader, watermark_conf: WatermarkConfigLocal) -> None:
-        barcode = row[0]
-        brand_title = row[1]
-        title = row[2]
-        description = str(row[3])
-        photo = row[4]
-        volume = row[5]
-        weight = row[6]
-        notes = row[7]
-        price_before_200k = row[9]
-        price_after_200k = row[10]
-        price_after_500k = row[11]
-        remains = row[16]
-        category = row[17]
+        article = row[0]
+        barcode = row[1]
+        brand_title = row[2]
+        title = row[3]
+        description = str(row[4])
+        photo = row[5]
+        volume = row[6]
+        weight = row[7]
+        notes = row[8]
+
+        remains = row[10]
+        category = row[11]
         arriving_date = None
+
+        price_before_200k = row[13]
+        price_after_200k = row[14]
+        price_after_500k = row[15]
 
         if brand_title is None and title is None and barcode is None:
             raise EndOfTable()
@@ -219,7 +225,7 @@ class CatalogImporter:
         is_in_stock = bool(remains)
 
         if not is_in_stock: 
-            arriving_date = row[18] 
+            arriving_date = row[12] 
             if arriving_date: 
                 if type(arriving_date) == str:         
                     try:
@@ -240,6 +246,7 @@ class CatalogImporter:
         price_after_500k = CatalogImporter.convert_str_to_decimal(str(price_after_500k))
 
         product_data = {
+            'article': article,
             'barcode': barcode,
             'brand_title': brand_title,
             'title': title,
@@ -262,7 +269,7 @@ class CatalogImporter:
     @staticmethod
     def get_image_or_none(barcode: str, row_index: int, image_loader: SheetImageLoader, watermark_conf: WatermarkConfigLocal) -> ContentFile | None:
         try:
-            image = image_loader.get(f'E{row_index}')
+            image = image_loader.get(f'F{row_index}')
             image_stream = io.BytesIO()
             image.save(image_stream, format='PNG')
             image_stream.seek(0)
@@ -339,9 +346,12 @@ def add_watermark(image_path, name: str, text="©Aleucos", font_size=30, positio
     draw.text((text_position[0] + shadow_offset[0], text_position[1] + shadow_offset[1]), text, font=font, fill=(0, 0, 0, opacity // 2))
     draw.text(text_position, text, font=font, fill=(255, 255, 255, opacity))
     watermarked_image = PILImage.alpha_composite(image, txt_layer)
+
+    background = PILImage.new("RGB", watermarked_image.size, (255, 255, 255))
+    background.paste(watermarked_image, mask=watermarked_image.getchannel("A"))
     
     output_stream = BytesIO()
-    watermarked_image.convert("RGB").save(output_stream, "PNG")
+    background.save(output_stream, "PNG")
     output_stream.seek(0)
 
     return ContentFile(output_stream.read(), f"{name}.png")
@@ -365,21 +375,24 @@ class CatalogExporter:
         curr_row_index = 4
 
         for product in products:
-            worksheet.merge_cells(f'T{curr_row_index}:W{curr_row_index}')
+            worksheet.merge_cells(f'U{curr_row_index}:X{curr_row_index}')
             
-            worksheet[f'A{curr_row_index}'] = str(product.barcode)
-            worksheet[f'B{curr_row_index}'] = product.brand.title
-            worksheet[f'C{curr_row_index}'] = product.title
-            worksheet[f'D{curr_row_index}'] = product.description
-            worksheet[f'F{curr_row_index}'] = product.volume
-            worksheet[f'G{curr_row_index}'] = product.weight
-            worksheet[f'H{curr_row_index}'] = product.notes
-            worksheet[f'J{curr_row_index}'] = product.price_before_200k
-            worksheet[f'K{curr_row_index}'] = product.price_after_200k
-            worksheet[f'L{curr_row_index}'] = product.price_after_500k
-            worksheet[f'Q{curr_row_index}'] = product.remains
-            worksheet[f'R{curr_row_index}'] = product.category.title
-            worksheet[f'S{curr_row_index}'] = product.will_arrive_at
+            worksheet[f'A{curr_row_index}'] = str(product.article)
+            worksheet[f'B{curr_row_index}'] = str(product.barcode)
+            worksheet[f'C{curr_row_index}'] = product.brand.title
+            worksheet[f'D{curr_row_index}'] = product.title
+            worksheet[f'E{curr_row_index}'] = product.description if product.description is not None else ''
+            worksheet[f'G{curr_row_index}'] = product.volume
+            worksheet[f'H{curr_row_index}'] = product.weight
+            worksheet[f'I{curr_row_index}'] = product.notes
+
+            worksheet[f'K{curr_row_index}'] = product.remains
+            worksheet[f'L{curr_row_index}'] = product.category.title
+            worksheet[f'M{curr_row_index}'] = product.will_arrive_at
+
+            worksheet[f'N{curr_row_index}'] = product.price_before_200k
+            worksheet[f'O{curr_row_index}'] = product.price_after_200k
+            worksheet[f'P{curr_row_index}'] = product.price_after_500k
 
             if product.photo:
                 image_path = os.path.join(settings.MEDIA_ROOT, product.photo.name)
@@ -389,18 +402,18 @@ class CatalogExporter:
                     img.width = 102
                     img.height = 100
 
-                    worksheet.add_image(img, f"E{curr_row_index}")
+                    worksheet.add_image(img, f"F{curr_row_index}")
 
-                    worksheet.column_dimensions['E'].width = 15 
+                    worksheet.column_dimensions['F'].width = 15 
                     worksheet.row_dimensions[curr_row_index].height = 80
                 except FileNotFoundError:
                     worksheet[f'E{curr_row_index}'] = "Файл не найден"
 
             curr_row_index += 1
 
-        worksheet['J2'] = f"=SUMPRODUCT(J4:J{curr_row_index - 1}, M4:M{curr_row_index - 1})"
-        worksheet['K2'] = f"=SUMPRODUCT(K4:K{curr_row_index - 1}, M4:M{curr_row_index - 1})"
-        worksheet['L2'] = f"=SUMPRODUCT(L4:L{curr_row_index - 1}, M4:M{curr_row_index - 1})"
+        worksheet['N2'] = f"=SUMPRODUCT(N4:N{curr_row_index - 1}, Q4:Q{curr_row_index - 1})"
+        worksheet['O2'] = f"=SUMPRODUCT(O4:O{curr_row_index - 1}, Q4:Q{curr_row_index - 1})"
+        worksheet['P2'] = f"=SUMPRODUCT(P4:P{curr_row_index - 1}, Q4:Q{curr_row_index - 1})"
 
         temp_file_path = None
         try:

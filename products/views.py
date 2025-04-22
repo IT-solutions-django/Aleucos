@@ -58,6 +58,7 @@ class ProductsListView(View):
                             TrigramSimilarity('title', search_text),
                             TrigramSimilarity('description', search_text),
                             TrigramSimilarity('notes', search_text),
+                            TrigramSimilarity('article', search_text),
                             Value(0.0) 
                         )
                     ).filter(similarity__gt=0.1).order_by('-similarity')  

@@ -156,11 +156,17 @@ class CreateOrderView(View):
             logger.error(f'Способа оплаты с ID={payment_method_id} не существует')
             return redirect('carts:cart_items')
             
+        manager = None
+        if request.user.is_staff: 
+            manager = request.user
+        else: 
+            manager = request.user.manager
+
         total_order_price = cart[Cart.KeyNames.TOTAL_CART_PRICE] * final_price_coefficient
         new_order = Order.objects.create(
             user=request.user, 
             total_price=total_order_price, 
-            manager=request.user.manager, 
+            manager=manager, 
             payment_method=payment_method, 
             delivery_terms=delivery_terms,
             comment=comment,
@@ -195,6 +201,11 @@ class CreateOrderView(View):
 
             product.save()
         new_order.create_pdf_bill()
+
+        # Выгрузка информации о заказе в Excel
+        from orders.services import OrderExcelGenerator
+        OrderExcelGenerator.export_order_to_xlsx(new_order)
+        new_order.save()
 
         request.cart.flush()
         messages.success(request, f'Заказ №{new_order.number} успешно создан!', extra_tags=messages.SUCCESS)

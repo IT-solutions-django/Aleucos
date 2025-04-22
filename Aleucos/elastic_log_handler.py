@@ -78,7 +78,7 @@ def log_product_sale(product, quantity: int, manager_name: str) -> None:
 def get_missing_fields(product) -> dict:
     """Определяет отсутствующие поля у товара"""
     required_fields = [
-        'barcode'
+        'barcode',
         'brand', 
         'description', 
         'category', 
