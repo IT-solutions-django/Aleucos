@@ -106,12 +106,9 @@ class CatalogImporter:
             brand, _ = Brand.objects.get_or_create(title=str(product_data['brand_title'])) 
 
         # Проверка, есть ли уже такой товар в базе
-        product = Product.objects.filter(title=product_data['title'])
-
-        if product_data['barcode']: 
-            product = product.filter(barcode=product_data['barcode']).first() 
-        else: 
-            product = product.first() 
+        product = None
+        if product_data['article']: 
+            product = Product.objects.filter(title=product_data['title']).first()
 
         # Если товар есть, обновляем данные
         if product: 
@@ -125,7 +122,7 @@ class CatalogImporter:
             product.weight = product_data['weight'] 
             product.notes = product_data['notes'] 
 
-            print(f"Такой товар уже есть: {product_data['title']}")
+            print(f"Такой товар уже есть: {product_data['article']}")
             
             if brand: 
                 product.brand = brand
@@ -186,22 +183,31 @@ class CatalogImporter:
             product.save()
             logger.info(f'Товар "{product_data["title"]}" сохранён в базу данных')
 
+            log_product_arrival(
+                product=product, 
+                quantity=product_data['remains'], 
+                manager_name=manager_name
+            )
+
     @staticmethod
     def process_row(index: int, row: tuple, image_loader: SheetImageLoader, watermark_conf: WatermarkConfigLocal) -> None:
-        barcode = row[0]
-        brand_title = row[1]
-        title = row[2]
-        description = str(row[3])
-        photo = row[4]
-        volume = row[5]
-        weight = row[6]
-        notes = row[7]
-        price_before_200k = row[9]
-        price_after_200k = row[10]
-        price_after_500k = row[11]
-        remains = row[16]
-        category = row[17]
+        article = row[0]
+        barcode = row[1]
+        brand_title = row[2]
+        title = row[3]
+        description = str(row[4])
+        photo = row[5]
+        volume = row[6]
+        weight = row[7]
+        notes = row[8]
+
+        remains = row[10]
+        category = row[11]
         arriving_date = None
+
+        price_before_200k = row[13]
+        price_after_200k = row[14]
+        price_after_500k = row[15]
 
         if brand_title is None and title is None and barcode is None:
             raise EndOfTable()
@@ -219,7 +225,7 @@ class CatalogImporter:
         is_in_stock = bool(remains)
 
         if not is_in_stock: 
-            arriving_date = row[18] 
+            arriving_date = row[12] 
             if arriving_date: 
                 if type(arriving_date) == str:         
                     try:
@@ -240,6 +246,7 @@ class CatalogImporter:
         price_after_500k = CatalogImporter.convert_str_to_decimal(str(price_after_500k))
 
         product_data = {
+            'article': article,
             'barcode': barcode,
             'brand_title': brand_title,
             'title': title,
@@ -262,7 +269,7 @@ class CatalogImporter:
     @staticmethod
     def get_image_or_none(barcode: str, row_index: int, image_loader: SheetImageLoader, watermark_conf: WatermarkConfigLocal) -> ContentFile | None:
         try:
-            image = image_loader.get(f'E{row_index}')
+            image = image_loader.get(f'F{row_index}')
             image_stream = io.BytesIO()
             image.save(image_stream, format='PNG')
             image_stream.seek(0)
@@ -339,9 +346,12 @@ def add_watermark(image_path, name: str, text="©Aleucos", font_size=30, positio
     draw.text((text_position[0] + shadow_offset[0], text_position[1] + shadow_offset[1]), text, font=font, fill=(0, 0, 0, opacity // 2))
     draw.text(text_position, text, font=font, fill=(255, 255, 255, opacity))
     watermarked_image = PILImage.alpha_composite(image, txt_layer)
+
+    background = PILImage.new("RGB", watermarked_image.size, (255, 255, 255))
+    background.paste(watermarked_image, mask=watermarked_image.getchannel("A"))
     
     output_stream = BytesIO()
-    watermarked_image.convert("RGB").save(output_stream, "PNG")
+    background.save(output_stream, "PNG")
     output_stream.seek(0)
 
     return ContentFile(output_stream.read(), f"{name}.png")
