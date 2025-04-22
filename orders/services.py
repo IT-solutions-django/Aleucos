@@ -270,7 +270,7 @@ class OrderExcelGenerator:
             worksheet[f'I{curr_row_index}'] = product.notes
 
             worksheet[f'K{curr_row_index}'] = product.remains
-            worksheet[f'L{curr_row_index}'] = product.category.title
+            worksheet[f'L{curr_row_index}'] = product.category.title if product.category else ''
             worksheet[f'M{curr_row_index}'] = product.will_arrive_at
 
             worksheet[f'N{curr_row_index}'] = product.price_before_200k
