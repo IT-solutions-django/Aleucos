@@ -13,7 +13,7 @@ from django.core.files.base import ContentFile
 from users.models import User
 from .pdf_generator.services import generate_pdf_bill
 from users.models import City
-
+from configs.models import Config
 
 
 class OrderStatus(models.Model):
@@ -126,6 +126,12 @@ class Order(models.Model):
 @receiver(post_save, sender=Order)
 def after_order_save(sender, instance: Order, created, **kwargs):
     if created:
+        
+        # Если заказ создаёт сотрудник, интеграция с amoCRM отключается
+        client = instance.user 
+        if client.is_staff: 
+            return
+
         responsible_user_email = instance.manager.email 
         responsible_user_id = crm.get_user_id(user_email=responsible_user_email)
 

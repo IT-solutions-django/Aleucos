@@ -156,11 +156,17 @@ class CreateOrderView(View):
             logger.error(f'Способа оплаты с ID={payment_method_id} не существует')
             return redirect('carts:cart_items')
             
+        manager = None
+        if request.user.is_staff: 
+            manager = request.user
+        else: 
+            manager = request.user.manager
+
         total_order_price = cart[Cart.KeyNames.TOTAL_CART_PRICE] * final_price_coefficient
         new_order = Order.objects.create(
             user=request.user, 
             total_price=total_order_price, 
-            manager=request.user.manager, 
+            manager=manager, 
             payment_method=payment_method, 
             delivery_terms=delivery_terms,
             comment=comment,
