@@ -13,6 +13,13 @@ from users.models import User
 from configs.models import Config
 from orders.models import PaymentMethod, DeliveryTerm
 from users.models import City
+from openpyxl.reader.excel import load_workbook 
+from products.models import Product
+from tempfile import NamedTemporaryFile
+from openpyxl.drawing.image import Image
+from django.core.files.base import ContentFile
+from io import BytesIO 
+import os
 
 from Aleucos.elastic_log_handler import log_product_sale
 
@@ -113,6 +120,11 @@ class OrderImporter:
         log_text = f'Заказ №{order.number} для клиента {order.user.email} был успешно создан!' if order.user else f'Заказ №{order.number} был успешно создан!'
         logger.info(log_text)
         ImportOrderStatusService.success(log_text, manager_email)
+
+        # Выгрузка информации о заказе в Excel
+        from orders.services import OrderExcelGenerator
+        OrderExcelGenerator.export_order_to_xlsx(order)
+        order.save()
 
     @staticmethod
     def process_order_row(index: int, row: tuple) -> OrderItem | None:
@@ -221,3 +233,83 @@ class ImportOrderStatusService:
     @staticmethod 
     def get_all_statuses(manager: User) -> QuerySet | None: 
         return ImportOrderStatus.objects.all().filter(manager=manager)
+
+
+class OrderExcelGenerator:
+    @staticmethod
+    def export_order_to_xlsx(order: Order) -> str:
+        print(f'Количество товаров: {order.items.all().count()}')
+        catalog_template_path = os.path.join(settings.MEDIA_ROOT, 'catalog', Config.get_instance().export_catalog_template_filename)
+
+        try:
+            workbook = load_workbook(filename=catalog_template_path, data_only=True)
+        except PermissionError:
+            logger.error('Ошибка при экспорте каталога: файл занят другим процессом')
+            return ""
+        
+        worksheet = workbook['Актуальное наличие на складе']
+
+        items = order.items.all()
+
+        curr_row_index = 4
+
+        for item in items:
+            worksheet.merge_cells(f'U{curr_row_index}:X{curr_row_index}')
+
+            item: OrderItem
+
+            product = Product.objects.get(article=item.article)
+            
+            worksheet[f'A{curr_row_index}'] = str(product.article)
+            worksheet[f'B{curr_row_index}'] = str(product.barcode)
+            worksheet[f'C{curr_row_index}'] = product.brand.title
+            worksheet[f'D{curr_row_index}'] = product.title
+            worksheet[f'E{curr_row_index}'] = product.description if product.description is not None else ''
+            worksheet[f'G{curr_row_index}'] = product.volume
+            worksheet[f'H{curr_row_index}'] = product.weight
+            worksheet[f'I{curr_row_index}'] = product.notes
+
+            worksheet[f'K{curr_row_index}'] = product.remains
+            worksheet[f'L{curr_row_index}'] = product.category.title
+            worksheet[f'M{curr_row_index}'] = product.will_arrive_at
+
+            worksheet[f'N{curr_row_index}'] = product.price_before_200k
+            worksheet[f'O{curr_row_index}'] = product.price_after_200k
+            worksheet[f'P{curr_row_index}'] = product.price_after_500k
+            
+            worksheet[f'Q{curr_row_index}'] = item.quantity
+
+            if product.photo:
+                image_path = os.path.join(settings.MEDIA_ROOT, product.photo.name)
+                try:
+                    img = Image(image_path)
+
+                    img.width = 102
+                    img.height = 100
+
+                    worksheet.add_image(img, f"F{curr_row_index}")
+
+                    worksheet.column_dimensions['F'].width = 15 
+                    worksheet.row_dimensions[curr_row_index].height = 80
+                except FileNotFoundError:
+                    worksheet[f'E{curr_row_index}'] = "Файл не найден"
+
+            curr_row_index += 1
+
+        worksheet['N2'] = f"=SUMPRODUCT(N4:N{curr_row_index - 1}, Q4:Q{curr_row_index - 1})"
+        worksheet['O2'] = f"=SUMPRODUCT(O4:O{curr_row_index - 1}, Q4:Q{curr_row_index - 1})"
+        worksheet['P2'] = f"=SUMPRODUCT(P4:P{curr_row_index - 1}, Q4:Q{curr_row_index - 1})"
+
+        output = BytesIO()
+        workbook.save(output)
+        output.seek(0)  # Перемещаем указатель в начало файла
+
+        # Создаем имя файла
+        filename = f"order_{order.number}.xlsx"
+
+        # Сохраняем в поле модели
+        order.info_excel.save(filename, ContentFile(output.getvalue()))
+        order.save()
+
+        output.close()
+        return True

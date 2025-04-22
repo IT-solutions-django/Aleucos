@@ -28,7 +28,7 @@ def import_orders_from_xlsx_task(
             city,
             comment, 
             user_id
-        ) 
+        )     
 
 
 @shared_task
