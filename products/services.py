@@ -365,21 +365,24 @@ class CatalogExporter:
         curr_row_index = 4
 
         for product in products:
-            worksheet.merge_cells(f'T{curr_row_index}:W{curr_row_index}')
+            worksheet.merge_cells(f'U{curr_row_index}:X{curr_row_index}')
             
-            worksheet[f'A{curr_row_index}'] = str(product.barcode)
-            worksheet[f'B{curr_row_index}'] = product.brand.title
-            worksheet[f'C{curr_row_index}'] = product.title
-            worksheet[f'D{curr_row_index}'] = product.description
-            worksheet[f'F{curr_row_index}'] = product.volume
-            worksheet[f'G{curr_row_index}'] = product.weight
-            worksheet[f'H{curr_row_index}'] = product.notes
-            worksheet[f'J{curr_row_index}'] = product.price_before_200k
-            worksheet[f'K{curr_row_index}'] = product.price_after_200k
-            worksheet[f'L{curr_row_index}'] = product.price_after_500k
-            worksheet[f'Q{curr_row_index}'] = product.remains
-            worksheet[f'R{curr_row_index}'] = product.category.title
-            worksheet[f'S{curr_row_index}'] = product.will_arrive_at
+            worksheet[f'A{curr_row_index}'] = str(product.article)
+            worksheet[f'B{curr_row_index}'] = str(product.barcode)
+            worksheet[f'C{curr_row_index}'] = product.brand.title
+            worksheet[f'D{curr_row_index}'] = product.title
+            worksheet[f'E{curr_row_index}'] = product.description
+            worksheet[f'G{curr_row_index}'] = product.volume
+            worksheet[f'H{curr_row_index}'] = product.weight
+            worksheet[f'I{curr_row_index}'] = product.notes
+
+            worksheet[f'K{curr_row_index}'] = product.remains
+            worksheet[f'L{curr_row_index}'] = product.category.title
+            worksheet[f'M{curr_row_index}'] = product.will_arrive_at
+
+            worksheet[f'N{curr_row_index}'] = product.price_before_200k
+            worksheet[f'O{curr_row_index}'] = product.price_after_200k
+            worksheet[f'P{curr_row_index}'] = product.price_after_500k
 
             if product.photo:
                 image_path = os.path.join(settings.MEDIA_ROOT, product.photo.name)
@@ -389,18 +392,18 @@ class CatalogExporter:
                     img.width = 102
                     img.height = 100
 
-                    worksheet.add_image(img, f"E{curr_row_index}")
+                    worksheet.add_image(img, f"F{curr_row_index}")
 
-                    worksheet.column_dimensions['E'].width = 15 
+                    worksheet.column_dimensions['F'].width = 15 
                     worksheet.row_dimensions[curr_row_index].height = 80
                 except FileNotFoundError:
                     worksheet[f'E{curr_row_index}'] = "Файл не найден"
 
             curr_row_index += 1
 
-        worksheet['J2'] = f"=SUMPRODUCT(J4:J{curr_row_index - 1}, M4:M{curr_row_index - 1})"
-        worksheet['K2'] = f"=SUMPRODUCT(K4:K{curr_row_index - 1}, M4:M{curr_row_index - 1})"
-        worksheet['L2'] = f"=SUMPRODUCT(L4:L{curr_row_index - 1}, M4:M{curr_row_index - 1})"
+        worksheet['N2'] = f"=SUMPRODUCT(N4:N{curr_row_index - 1}, Q4:Q{curr_row_index - 1})"
+        worksheet['O2'] = f"=SUMPRODUCT(O4:O{curr_row_index - 1}, Q4:Q{curr_row_index - 1})"
+        worksheet['P2'] = f"=SUMPRODUCT(P4:P{curr_row_index - 1}, Q4:Q{curr_row_index - 1})"
 
         temp_file_path = None
         try:

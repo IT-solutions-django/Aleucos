@@ -43,3 +43,11 @@ def product_barcode(article: str) -> str | None:
         if product.barcode: 
             return product.barcode 
     return '–'
+
+@register.filter
+def product_brand(article: str) -> str | None: 
+    product = Product.objects.filter(article=article).first()
+    if product: 
+        if product.brand:
+            return product.brand 
+    return '–'

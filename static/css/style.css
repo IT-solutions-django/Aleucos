@@ -66,6 +66,10 @@ body {
   display: none;
 }
 
+.only-mobile {
+  display: none !important;
+}
+
 .display-none {
   display: none;
 }
@@ -408,7 +412,7 @@ main {
   transition: all 0.4s ease;
 }
 .offer__btn-сatalog:hover {
-  background-color: rgb(236, 236, 236);
+  background-color: rgb(241, 241, 241);
 }
 
 .offer__info {
@@ -1731,6 +1735,9 @@ label {
   display: flex;
   gap: 8px;
 }
+.cart .breadcrumb.only-mobile {
+  margin-bottom: 0px;
+}
 .breadcrumb .green-link {
   color: var(--color-green);
 }
@@ -2248,7 +2255,7 @@ input::-webkit-inner-spin-button {
 
 .cart-header, .cart-row {
   display: grid;
-  grid-template-columns: 80px 3fr 1fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 80px 3fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
   align-items: center;
   padding: 10px;
 }
@@ -2377,6 +2384,8 @@ input::-webkit-inner-spin-button {
   border: 1px solid rgb(145, 145, 145, 0.2);
   padding: 13px 32px;
   border-radius: 20px;
+
+  transition: all 0.3s ease;
 }
 .continue__buttons {
   margin-top: 30px;
@@ -3038,6 +3047,9 @@ background-image: url(/static/img/CatalogBck.png);
   opacity: 0.02;
 
   border-radius: 20px;
+}
+.cart .get-price-button:hover {
+  background-color: rgb(243, 243, 243);
 }
 .cooperation-cards .advantage__icon {
   position: absolute;
@@ -3747,6 +3759,8 @@ background-image: url(/static/img/CatalogBck.png);
     padding: 9.5px 22px;
     max-height: 40px;
     line-height: 18px;
+
+    transition: all 0.3s ease;
   }
   .cart__next {
     transform: translateX(-10px);
@@ -3903,6 +3917,9 @@ background-image: url(/static/img/CatalogBck.png);
   }
   .mobile-filters-panel {
     display: flex;
+  }
+  .only-mobile.flex {
+    display: flex !important;
   }
   .open-mobile-filters {
     display: flex;
