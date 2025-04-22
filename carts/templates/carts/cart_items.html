@@ -449,13 +449,14 @@ function isMobile() {
 }
 
 function formatNumber(number) {
+    console.log(number)
     let numStr = typeof number === 'number' ? number.toString() : String(number);
     
     let parts = numStr.split('.');
     let integerPart = parts[0];
     let decimalPart = parts.length > 1 ? parts[1] : '';
     
-    if (decimalPart.length > 6) {
+    if (decimalPart.length > 2) {
         const num = parseFloat(numStr);
         numStr = num.toFixed(2);
         parts = numStr.split('.');
@@ -464,6 +465,9 @@ function formatNumber(number) {
     }
     
     integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+
+
+    console.log(`${integerPart}.${decimalPart}`)
 
     return decimalPart ? `${integerPart}.${decimalPart}` : integerPart;
 }
