@@ -70,6 +70,7 @@ class Order(models.Model):
     delivery_terms = models.ForeignKey(DeliveryTerm, on_delete=models.SET_DEFAULT, default=1, verbose_name=_('Условия доставки'))
     pdf_bill = models.FileField(_('Счёт'), upload_to='orders', null=True, blank=True)
     city = models.CharField(verbose_name='Город', max_length=255, null=True, blank=True)
+    info_excel = models.FileField('Информация о заказе (Excel)', upload_to='orders/excel/', null=True, blank=True)
 
     class Meta:
         verbose_name = _('Заказ')
@@ -130,6 +131,9 @@ def after_order_save(sender, instance: Order, created, **kwargs):
         # Если заказ создаёт сотрудник, интеграция с amoCRM отключается
         client = instance.user 
         if client.is_staff: 
+            return
+        
+        if instance.manager.is_superuser: 
             return
 
         responsible_user_email = instance.manager.email 

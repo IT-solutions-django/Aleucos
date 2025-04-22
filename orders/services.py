@@ -85,6 +85,7 @@ class OrderImporter:
         )
         for item_data in order_data['items']:
             OrderItem.objects.create(
+                article=item_data['article'],
                 order=order,
                 product_name=item_data['product_name'], 
                 brand_name=item_data['brand_name'], 
@@ -92,7 +93,7 @@ class OrderImporter:
                 unit_price=float(item_data['unit_price']) * final_price_coefficient, 
                 total_price=float(item_data['total_price']) * final_price_coefficient
             )
-            product = Product.objects.get(barcode=item_data['barcode'])
+            product = Product.objects.get(article=item_data['article'])
             product.remains -= item_data['quantity']
 
             log_product_sale(
@@ -115,26 +116,24 @@ class OrderImporter:
 
     @staticmethod
     def process_order_row(index: int, row: tuple) -> OrderItem | None:
-        barcode = row[0]
-        brand_title = row[1]
-        title = row[2]
-        quantity = int(row[12]) if row[12] is not None else 0 
+        article = row[0]
+        barcode = row[1]
+        brand_title = row[2]
+        title = row[3]
+        quantity = int(row[16]) if row[16] is not None else 0 
 
         if quantity == 0: 
             return 
-        if brand_title is None and title is None and barcode is None:
+        if brand_title is None and title is None and article is None:
             raise EndOfTable()
-        OrderImporter.validate_product_data(barcode, title)
+        OrderImporter.validate_product_data(article, title)
 
         try:
-            product = Product.objects.get(barcode=barcode)
+            product = Product.objects.get(article=article)
         except Product.DoesNotExist: 
-            raise OrderImportError(f'Товара со штрихкодом {barcode} не существует')
-        except Product.MultipleObjectsReturned: 
-            raise OrderImportError(f'В базе данных существует несколько товаров со штрихкодом {barcode}')
-        
+            raise OrderImportError(f'Товара со артикулом {article} не существует')
         if product.remains - quantity < 0: 
-            raise OrderImportError(f'Товара со штрихкодом {barcode} недостаточно на складе ({product.remains} шт. есть, запрашивается {quantity} шт.)')
+            raise OrderImportError(f'Товара со артикулом {article}  недостаточно на складе ({product.remains} шт. есть, запрашивается {quantity} шт.)')
 
         price_before_200k = product.price_before_200k
 
@@ -142,7 +141,7 @@ class OrderImporter:
         total_price = quantity * unit_price
 
         return {
-            'barcode': product.barcode,
+            'article': product.article,
             'product_name': product.title,
             'brand_name': product.brand.title,
             'quantity': quantity,
@@ -156,13 +155,13 @@ class OrderImporter:
 
         if total_price >= 200000:
             for item in order_data['items']:
-                item['unit_price'] = Product.objects.get(barcode=item['barcode']).price_after_200k
+                item['unit_price'] = Product.objects.get(article=item['article']).price_after_200k
                 item['total_price'] = item['quantity'] * item['unit_price']
             total_price = sum(item['total_price'] for item in order_data['items'])
 
         if total_price >= 500000:
             for item in order_data['items']:
-                item['unit_price'] = Product.objects.get(barcode=item['barcode']).price_after_500k
+                item['unit_price'] = Product.objects.get(article=item['article']).price_after_500k
                 item['total_price'] = item['quantity'] * item['unit_price']
             total_price = sum(item['total_price'] for item in order_data['items'])
 
@@ -175,14 +174,11 @@ class OrderImporter:
         return value.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
     @staticmethod
-    def validate_product_data(barcode: str | float | None, title: str | None) -> None:
+    def validate_product_data(article: str | float | None, title: str | None) -> None:
+        if article is None: 
+            raise OrderImportError(f'У товара отсутствует артикул')
         if title is None:
-            raise OrderImportError(f'У товара со штрихкодом {barcode} отсутствует название')
-        elif barcode is None or str(barcode) == '0':
-            raise OrderImportError(f'У товара {title} отсутствует штрихкод')
-       
-        elif not str(barcode).strip().isnumeric():
-            raise OrderImportError(f'У товара неверный штрихкод: {barcode}')
+            raise OrderImportError(f'У товара со артикулом {article} отсутствует название')       
 
 
 class ImportOrderStatusService: 
