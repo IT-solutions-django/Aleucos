@@ -404,6 +404,11 @@ main {
   border-radius: 20px;
   position: relative;
   z-index: 5;
+
+  transition: all 0.4s ease;
+}
+.offer__btn-сatalog:hover {
+  background-color: rgb(236, 236, 236);
 }
 
 .offer__info {
@@ -526,6 +531,9 @@ main {
 .catalog__item {
   padding: 52px;
   position: relative; 
+}
+.catalog__item .catalog__item-title {
+  transition: all 0.3s ease;
 }
 .advantage__item {
   position: relative;
@@ -704,6 +712,11 @@ main {
   position: absolute;
   z-index: 2;
   bottom: 50px;
+
+  transition: all 0.3s ease;
+}
+.catalog__item-btn:hover {
+  background-color: rgb(255, 255, 255, 1);
 }
 
 .catolog__items-img {

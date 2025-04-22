@@ -14,6 +14,8 @@
                     {% if not request.user.is_authenticated %}
                         <button type="button" class="offer__btn-application" data-toggle="modal" data-target="#exampleModal" data-bs-toggle="modal" data-bs-target="#exampleModal">Оставить заявку</button>
                         <button class="offer__btn-сatalog" data-bs-toggle="modal" data-bs-target="#exampleModal2">Получить каталог</button>
+                    {% else %}
+                        <a href="{% url 'products:export_catalog' %}" class="offer__btn-сatalog">Получить каталог</a>
                     {% endif %}
                 </div>
                 <div class="offer__info">
@@ -106,23 +108,23 @@
                 <h2 class="catalog__title home__subheading">Каталог</h2>
                 <div>
                     <div class="catolog__items">
-                        <div class="catalog__item catalog__item--1">
+                        <a href="{% url 'products:products_list' %}" class="catalog__item catalog__item--1">
                             <h2 class="catalog__item-title">Для ухода <br> за волосам</h2>
-                            <a href="{% url 'products:products_list' %}"><button class="catalog__item-btn">328 товаров</button></a>
-                        </div>
-                        <div class="catalog__item catalog__item--2">
+                            <button class="catalog__item-btn">328 товаров</button>
+                        </a>
+                        <a href="{% url 'products:products_list' %}" class="catalog__item catalog__item--2">
                             <h2 class="catalog__item-title">Для ухода <br> за кожей</h2>
-                            <a href="{% url 'products:products_list' %}"><button class="catalog__item-btn">328 товаров</button></a>
-                        </div>
-                        <div class="catalog__item catalog__item--3">
+                            <button class="catalog__item-btn">328 товаров</button>
+                        </a>
+                        <a href="{% url 'products:products_list' %}" class="catalog__item catalog__item--3">
                             <h2 class="catalog__item-title">Макияж</h2>
-                            <a href="{% url 'products:products_list' %}"><button class="catalog__item-btn">328 товаров</button></a>
-                        </div>
-                        <div class="catalog__item catalog__item--4">
+                            <button class="catalog__item-btn">328 товаров</button>
+                        </a>
+                        <a href="{% url 'products:products_list' %}" class="catalog__item catalog__item--4">
                             <h2 class="catalog__item-title">Для детей</h2>
-                            <a href="{% url 'products:products_list' %}"><button class="catalog__item-btn">328 товаров</button></a>
-                        </div>
-                        <img class="catolog__items-img" src="{% static 'img/BigStar.svg' %}" alt="" srcset="">
+                            <button class="catalog__item-btn">328 товаров</button>
+                        </a>
+                        <img href="{% url 'products:products_list' %}" class="catolog__items-img" src="{% static 'img/BigStar.svg' %}" alt="" srcset="">
                     </div>
                     <div>
                         <button class="catalog__btn section__btn"><a style="color: white;" href="{% url 'products:products_list' %}">Смотреть всё</a></button>
