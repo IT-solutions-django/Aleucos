@@ -78,7 +78,10 @@ class FlushCartView(View):
 class CartItemsView(View):
     def get(self, request):   
         delivery_terms = DeliveryTerm.objects.all()
-        payment_methods = PaymentMethod.objects.all()
+        payment_methods = sorted(
+            PaymentMethod.objects.all(),
+            key=lambda x: (x.title == 'Другое', x.title)
+        )
 
         context = {
             'cart': request.cart, 
