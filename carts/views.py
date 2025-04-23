@@ -173,22 +173,35 @@ class CreateOrderView(View):
             city=city
         )
 
+
+        articles = list(cart[Cart.KeyNames.PRODUCTS].keys())
+        products = Product.objects.filter(article__in=articles).select_related('brand')
+        products_dict = {p.article: p for p in products}  
+
+        if len(products) != len(articles):
+            missing_articles = set(articles) - set(products_dict.keys())
+            logger.error(f'Товары не найдены: {missing_articles}')
+            return redirect('carts:cart_items')
+
+        order_items = []
         for article, product_data in cart[Cart.KeyNames.PRODUCTS].items(): 
 
-            product = Product.objects.get(article=article)
+            product = products_dict[article]
 
             unit_price = product_data[Cart.KeyNames.UNIT_PRICE] * final_price_coefficient
             quantity = product_data[Cart.KeyNames.QUANTITY]
             total_product_price = product_data[Cart.KeyNames.TOTAL_PRODUCT_PRICE] * final_price_coefficient
 
-            OrderItem.objects.create(
-                article=article,
-                product_name=product.title,
-                brand_name=product.brand.title,
-                order=new_order, 
-                quantity=quantity, 
-                unit_price=unit_price, 
-                total_price=total_product_price
+            order_items.append(
+                OrderItem(
+                    article=article,
+                    product_name=product.title,
+                    brand_name=product.brand.title,
+                    order=new_order, 
+                    quantity=quantity, 
+                    unit_price=unit_price, 
+                    total_price=total_product_price
+                )
             )
 
             product.remains -= quantity
@@ -200,6 +213,8 @@ class CreateOrderView(View):
             )
 
             product.save()
+
+        OrderItem.objects.bulk_create(order_items)
         new_order.create_pdf_bill()
 
         request.cart.flush()
