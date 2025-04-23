@@ -202,11 +202,6 @@ class CreateOrderView(View):
             product.save()
         new_order.create_pdf_bill()
 
-        # Выгрузка информации о заказе в Excel
-        from orders.services import OrderExcelGenerator
-        OrderExcelGenerator.export_order_to_xlsx(new_order)
-        new_order.save()
-
         request.cart.flush()
         messages.success(request, f'Заказ №{new_order.number} успешно создан!', extra_tags=messages.SUCCESS)
         return redirect('users:account')

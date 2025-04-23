@@ -153,10 +153,6 @@ def after_order_save(sender, instance: Order, created, **kwargs):
         )
         Order.objects.filter(pk=instance.pk).update(id_in_amocrm=id_in_amocrm)
         instance.save()
-    # else:
-    #     if hasattr(instance, '_export_needed') and instance._export_needed:
-    #         from orders.services import OrderExcelGenerator
-    #         OrderExcelGenerator.export_order_to_xlsx(instance)
 
 
 @receiver(pre_save, sender=Order)

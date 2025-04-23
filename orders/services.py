@@ -121,11 +121,6 @@ class OrderImporter:
         logger.info(log_text)
         ImportOrderStatusService.success(log_text, manager_email)
 
-        # Выгрузка информации о заказе в Excel
-        from orders.services import OrderExcelGenerator
-        OrderExcelGenerator.export_order_to_xlsx(order)
-        order.save()
-
     @staticmethod
     def process_order_row(index: int, row: tuple) -> OrderItem | None:
         article = row[0]

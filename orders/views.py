@@ -1,8 +1,10 @@
 from django.shortcuts import render
-from django.http import JsonResponse
+from django.http import FileResponse, JsonResponse
 from django.views import View
 from .models import ImportOrderStatus
 from users.models import User
+from .models import Order
+from .services import OrderExcelGenerator
 
 
 
@@ -31,3 +33,22 @@ class GetUserCityAPIView(View):
         return JsonResponse({
             'city': city
         })
+    
+
+class DownloadExcelVersion(View): 
+    """Выгрузка информации о заказе в Excel"""
+    def get(self, request, order_number: int): 
+        order = Order.objects.get(number=order_number) 
+        OrderExcelGenerator.export_order_to_xlsx(order)
+
+        if order.info_excel: 
+            try:
+                file = order.info_excel.open('rb')
+                response = FileResponse(file)
+                filename = f"order_{order.number}.xlsx"
+                response['Content-Disposition'] = f'attachment; filename="{filename}"'
+                response['Content-Type'] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                return response
+            except: 
+                pass
+        
