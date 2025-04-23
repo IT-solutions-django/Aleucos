@@ -33,12 +33,15 @@ class OrderItemInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ['id', 'number', 'user', 'total_price', 'comment', 'status']
+    list_display = ['number', 'user', 'total_price', 'comment', 'status']
+    search_fields = ['number']
     list_filter = [
         HasClient
     ]
     inlines = [OrderItemInline]  
     change_list_template = 'orders/order_change_list.html'
+    change_form_template = 'orders/order/change_form.html' 
+
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
