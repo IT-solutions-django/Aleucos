@@ -90,17 +90,29 @@ class OrderImporter:
             city=city,
             comment=comment
         )
+
+
+        articles = []
+        for item_data in order_data['items']: 
+            articles.append(item_data['article'])
+        products = Product.objects.filter(article__in=articles)
+        products_dict = {p.article: p for p in products}  
+
+
+        order_items = []
         for item_data in order_data['items']:
-            OrderItem.objects.create(
-                article=item_data['article'],
-                order=order,
-                product_name=item_data['product_name'], 
-                brand_name=item_data['brand_name'], 
-                quantity=item_data['quantity'], 
-                unit_price=float(item_data['unit_price']) * final_price_coefficient, 
-                total_price=float(item_data['total_price']) * final_price_coefficient
+            order_items.append(
+                OrderItem(
+                    article=item_data['article'],
+                    order=order,
+                    product_name=item_data['product_name'], 
+                    brand_name=item_data['brand_name'], 
+                    quantity=item_data['quantity'], 
+                    unit_price=float(item_data['unit_price']) * final_price_coefficient, 
+                    total_price=float(item_data['total_price']) * final_price_coefficient
+                )
             )
-            product = Product.objects.get(article=item_data['article'])
+            product = products_dict[item_data['article']]
             product.remains -= item_data['quantity']
 
             log_product_sale(
@@ -114,6 +126,8 @@ class OrderImporter:
             log_text = f'В заказ добавлен товар {item_data["product_name"]} ({item_data["quantity"]} шт)'
             logger.info(log_text)
             ImportOrderStatusService.process(log_text, manager_email)
+
+        OrderItem.objects.bulk_create(order_items)
         order.save()
         order.create_pdf_bill()
 
