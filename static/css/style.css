@@ -409,10 +409,14 @@ main {
   position: relative;
   z-index: 5;
 
-  transition: all 0.4s ease;
+  transition: all 0.3s ease;
 }
+.product__get-price {
+  transition:  all 0.3s ease;
+}
+.product__get-price:hover,
 .offer__btn-сatalog:hover {
-  background-color: rgb(241, 241, 241);
+  background-color: rgb(243, 243, 243);
 }
 
 .offer__info {
@@ -2055,6 +2059,8 @@ input::-webkit-inner-spin-button {
   border-radius: 50%;
   cursor: pointer;
   font-size: 18px;
+
+  transition: all 0.3s ease;
 }
 .catalog__card-cart-controls button:hover {
   background-color: #DAE8DE;
@@ -3616,6 +3622,9 @@ background-image: url(/static/img/CatalogBck.png);
     padding: 10.5px 24px;
   }
   .product .catalog__card-cart-button {
+    padding: 8.5px 24px;
+  }
+  .product .catalog__card-cart-button {
     padding-left: 50px;
   }
   .mobile-product-price {
@@ -3967,5 +3976,15 @@ background-image: url(/static/img/CatalogBck.png);
   }
   .cart__next-delivery-term {
     height: 40px;
+  }
+}
+
+@media (max-width: 345px) {
+  .mobile-product-buttons {
+    flex-direction: column;
+  }
+  .product__get-price, 
+  .product .catalog__card-cart-button {
+    width: fit-content;
   }
 }

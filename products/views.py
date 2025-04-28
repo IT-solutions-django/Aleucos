@@ -58,7 +58,7 @@ class ProductsListView(View):
                     products = products.annotate(
                         similarity=Greatest(
                             TrigramSimilarity('title', search_text),
-                            TrigramSimilarity('description', search_text),
+                            TrigramSimilarity('title_russian', search_text),
                             TrigramSimilarity('notes', search_text),
                             TrigramSimilarity('article', search_text),
                             Value(0.0) 
@@ -154,7 +154,7 @@ class CatalogFiltersView(View):
                     products = products.annotate(
                         similarity=Greatest(
                             TrigramSimilarity('title', search_text),
-                            TrigramSimilarity('description', search_text),
+                            TrigramSimilarity('title_russian', search_text),
                             TrigramSimilarity('notes', search_text),
                             Value(0.0) 
                         )

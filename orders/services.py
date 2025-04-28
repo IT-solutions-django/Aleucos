@@ -273,7 +273,7 @@ class OrderExcelGenerator:
             worksheet[f'B{curr_row_index}'] = str(product.barcode)
             worksheet[f'C{curr_row_index}'] = product.brand.title
             worksheet[f'D{curr_row_index}'] = product.title
-            worksheet[f'E{curr_row_index}'] = product.description if product.description is not None else ''
+            worksheet[f'E{curr_row_index}'] = product.title_russian if product.title_russian is not None else ''
             worksheet[f'G{curr_row_index}'] = product.volume
             worksheet[f'H{curr_row_index}'] = product.weight
             worksheet[f'I{curr_row_index}'] = product.notes

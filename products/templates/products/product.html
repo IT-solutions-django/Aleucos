@@ -18,7 +18,7 @@
     </div>
     <div class="product__section">
         <div class="product__card">
-            <div class="product__name">{{ product.brand.title }} - {{ product.title }} {% if product.volume %}({{ product.volume }}){% endif %}</div>
+            <div class="product__name">{{ product.brand.title }} - {{ product.title }} {% if product.volume %}({{ product.volume }}) - {{ product.title_russian }}{% endif %}</div>
             <div class="product__body">
                 <a class="product__image" href="{{ product.article|product_image_url }}">
                     <img src="{{ product.article|product_image_url }}" alt="">

@@ -14,7 +14,7 @@ class ProductDocument(Document):
 
     class Django: 
         model = Product 
-        fields = ['title', 'description', 'notes']
+        fields = ['title', 'title_russian', 'notes']
 
         ignore_signals = True
         auto_refresh = False
