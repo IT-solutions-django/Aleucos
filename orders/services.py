@@ -20,8 +20,9 @@ from openpyxl.drawing.image import Image
 from django.core.files.base import ContentFile
 from io import BytesIO 
 import os
-
 from Aleucos.elastic_log_handler import log_product_sale
+from openpyxl.styles import Border, Side
+from copy import copy
 
 
 class OrderImporter:
@@ -248,7 +249,7 @@ class OrderExcelGenerator:
     @staticmethod
     def export_order_to_xlsx(order: Order) -> str:
         print(f'Количество товаров: {order.items.all().count()}')
-        catalog_template_path = os.path.join(settings.MEDIA_ROOT, 'catalog', Config.get_instance().export_catalog_template_filename)
+        catalog_template_path = os.path.join(settings.MEDIA_ROOT, 'catalog', 'order_template.xlsx')
 
         try:
             workbook = load_workbook(filename=catalog_template_path, data_only=True)
@@ -273,13 +274,13 @@ class OrderExcelGenerator:
             worksheet[f'B{curr_row_index}'] = str(product.barcode)
             worksheet[f'C{curr_row_index}'] = product.brand.title
             worksheet[f'D{curr_row_index}'] = product.title
-            worksheet[f'E{curr_row_index}'] = product.description if product.description is not None else ''
+            worksheet[f'E{curr_row_index}'] = product.title_russian if product.title_russian is not None else ''
             worksheet[f'G{curr_row_index}'] = product.volume
             worksheet[f'H{curr_row_index}'] = product.weight
             worksheet[f'I{curr_row_index}'] = product.notes
 
             worksheet[f'K{curr_row_index}'] = product.remains
-            worksheet[f'L{curr_row_index}'] = product.category.title if product.category else ''
+            worksheet[f'L{curr_row_index}'] = ','.join(category.title for category in product.categories.all())
             worksheet[f'M{curr_row_index}'] = product.will_arrive_at
 
             worksheet[f'N{curr_row_index}'] = product.price_before_200k
@@ -303,20 +304,35 @@ class OrderExcelGenerator:
                 except FileNotFoundError:
                     worksheet[f'E{curr_row_index}'] = "Файл не найден"
 
-            curr_row_index += 1
+            curr_row_index += 1\
+        
+        thin_border = Border(
+            top=Side(style='thin'),
+            right=Side(style='thin'),
+            bottom=Side(style='thin'),
+            left=Side(style='thin')
+        )
+        for row in worksheet.iter_rows(min_row=4, max_row=curr_row_index-1):
+            for cell in row[:17]:
+                cell.border = thin_border
+
 
         worksheet['N2'] = f"=SUMPRODUCT(N4:N{curr_row_index - 1}, Q4:Q{curr_row_index - 1})"
         worksheet['O2'] = f"=SUMPRODUCT(O4:O{curr_row_index - 1}, Q4:Q{curr_row_index - 1})"
         worksheet['P2'] = f"=SUMPRODUCT(P4:P{curr_row_index - 1}, Q4:Q{curr_row_index - 1})"
 
+        worksheet[f'A1'] = f'Менеджер:'
+        worksheet[f'B1'] = f'{order.manager.get_fullname()}'
+
+        worksheet[f'A2'] = f'Клиент:'
+        worksheet[f'B2'] = f'{order.user.get_fullname()}'
+
         output = BytesIO()
         workbook.save(output)
-        output.seek(0)  # Перемещаем указатель в начало файла
+        output.seek(0)  
 
-        # Создаем имя файла
         filename = f"order_{order.number}.xlsx"
 
-        # Сохраняем в поле модели
         order.info_excel.save(filename, ContentFile(output.getvalue()))
         order.save()
 

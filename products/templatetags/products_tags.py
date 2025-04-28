@@ -1,4 +1,5 @@
 from django import template
+from ..models import Category
 
 
 register = template.Library()
@@ -26,3 +27,15 @@ def price_format(value):
 @register.filter
 def apply_discount(price, discount):
     return price_format(float(price) * (1 - discount / 100))
+
+
+@register.filter
+def get_products_count_by_category(category_title):
+    category = Category.objects.filter(title=category_title).first()
+
+    if not category: 
+        return 0 
+    
+    print(category_title)
+    
+    return category.products.all().count()

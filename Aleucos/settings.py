@@ -219,13 +219,15 @@ CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
 
 # Loguru 
-logger.add("logs/logs.log", 
-           format='{time} {level} {message}', 
-           rotation="10 MB", 
-           retention="7 days",
-           compression="zip", 
-           level="DEBUG", 
-           enqueue=True)
+logger.add(
+    "logs/logs.log", 
+    format='{time} {level} {message}', 
+    rotation="10 MB", 
+    retention="7 days",
+    compression="zip", 
+    level="DEBUG", 
+    enqueue=True
+)
 
 
 # Messages

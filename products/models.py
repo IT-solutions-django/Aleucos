@@ -50,8 +50,9 @@ class Product(models.Model):
     barcode = models.BigIntegerField(_('Штрихкод'), null=True, blank=True) 
     brand = models.ForeignKey(Brand, verbose_name=_('Бренд'), on_delete=models.CASCADE, null=True, blank=True, related_name='products') 
     title = models.CharField(_('Название'), max_length=200, null=False) 
-    description = models.CharField(_('Описание'), max_length=200, null=True, blank=True) 
-    category = models.ForeignKey(Category, verbose_name=_('Категория'), on_delete=models.CASCADE, null=True, blank=True, related_name='categories')
+    title_russian = models.CharField(_('Русское название'), max_length=200, null=True, blank=True) 
+    description = models.TextField(_('Описание'), max_length=1000, null=True, blank=True) 
+    categories = models.ManyToManyField(Category, verbose_name=_('Категории'), null=True, blank=True, related_name='products')
     photo = models.ImageField(_('Фото'), upload_to='products', null=False, default=settings.DEFAULT_IMAGE_PATH) 
     volume = models.CharField(_('Объём'), max_length=100, null=True) 
     weight = models.DecimalField(_('Вес'), decimal_places=2, max_digits=4, null=True, blank=True,
@@ -72,9 +73,13 @@ class Product(models.Model):
     class Meta: 
         verbose_name = _('Товар')
         verbose_name_plural = _('Товары')
+        ordering = ['brand__title', 'title']
 
     def __str__(self) -> str:
         return f'{self.title}'
+    
+    def get_categories_string(self) -> str: 
+        return ','.join([category.title for category in self.categories.all()])
     
     def get_absolute_url(self) -> str: 
         return reverse('products:product', args=[self.slug])

@@ -21,6 +21,8 @@ from django.http import FileResponse
 import os
 from .services import generate_unique_article_number
 from Aleucos.elastic_log_handler import log_product_sale, log_product_arrival
+from django.db.models import Count, Q
+
 
 
 class ImportProductsStatusView(View): 
@@ -56,7 +58,7 @@ class ProductsListView(View):
                     products = products.annotate(
                         similarity=Greatest(
                             TrigramSimilarity('title', search_text),
-                            TrigramSimilarity('description', search_text),
+                            TrigramSimilarity('title_russian', search_text),
                             TrigramSimilarity('notes', search_text),
                             TrigramSimilarity('article', search_text),
                             Value(0.0) 
@@ -81,7 +83,7 @@ class ProductsListView(View):
 
             selected_categories = cd.get('categories')
             if selected_categories:
-                products = products.filter(category__id__in=selected_categories)
+                products = products.filter(categories__id__in=selected_categories)
 
             selected_brands = cd.get('brands')
             if selected_brands:
@@ -152,7 +154,7 @@ class CatalogFiltersView(View):
                     products = products.annotate(
                         similarity=Greatest(
                             TrigramSimilarity('title', search_text),
-                            TrigramSimilarity('description', search_text),
+                            TrigramSimilarity('title_russian', search_text),
                             TrigramSimilarity('notes', search_text),
                             Value(0.0) 
                         )
@@ -183,7 +185,7 @@ class CatalogFiltersView(View):
 
             selected_categories = cd.get('categories')
             if selected_categories:
-                products = products.filter(category__id__in=selected_categories)
+                products = products.filter(categories__id__in=selected_categories)
 
             selected_brands = cd.get('brands')
             if selected_brands:
@@ -266,7 +268,13 @@ class ProductView(View):
 
         print(product.pk)
 
-        similar_products = Product.objects.all().filter(category=product.category).exclude(pk=product.pk)
+        similar_products = (
+            Product.objects
+            .filter(categories__in=product.categories.all()) 
+            .exclude(pk=product.pk) 
+            .annotate(same_categories=Count('categories', filter=Q(categories__in=product.categories.all())))
+            .order_by('-same_categories', '-created_at')    
+        )
 
         cart_data = request.cart.to_dict()
         products_in_cart = {

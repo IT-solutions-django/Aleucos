@@ -409,10 +409,14 @@ main {
   position: relative;
   z-index: 5;
 
-  transition: all 0.4s ease;
+  transition: all 0.3s ease;
 }
+.product__get-price {
+  transition:  all 0.3s ease;
+}
+.product__get-price:hover,
 .offer__btn-сatalog:hover {
-  background-color: rgb(241, 241, 241);
+  background-color: rgb(243, 243, 243);
 }
 
 .offer__info {
@@ -538,6 +542,9 @@ main {
 }
 .catalog__item .catalog__item-title {
   transition: all 0.3s ease;
+}
+.catalog__item .catalog__item-title {
+  max-width: 60%;
 }
 .advantage__item {
   position: relative;
@@ -1720,11 +1727,20 @@ label {
 }
 
 .heading-wrapper {
+ display: flex;
+ width: 100%;
+ justify-content: space-between;
+ align-items: center;
+}
+.heading-wrapper .left-part {
   display: flex;
   flex-direction: column;
   gap: 8px;
   margin-top: 16px; 
   margin-bottom: 40px;
+}
+.heading-wrapper .right-part .offer__btn-сatalog {
+  display: block;
 }
 .heading-label {
   font-family: var(--font-jacarta);
@@ -2055,6 +2071,8 @@ input::-webkit-inner-spin-button {
   border-radius: 50%;
   cursor: pointer;
   font-size: 18px;
+
+  transition: all 0.3s ease;
 }
 .catalog__card-cart-controls button:hover {
   background-color: #DAE8DE;
@@ -2229,7 +2247,7 @@ input::-webkit-inner-spin-button {
   width: 180px;
 }
 .product .catalog__card-cart-button {
-  padding: 15.5px 24px 15.5px 56px;
+  padding: 12.5px 24px 15.5px 56px;
 }
 .product__get-price {
   padding: 15.5px 24px;
@@ -3228,6 +3246,9 @@ background-image: url(/static/img/CatalogBck.png);
   .header-desktop {
     display: none;
   }
+  .catalog__item .catalog__item-title {
+    max-width: 100%;
+  }
 }
 @media (max-width: 576px) {
   .company {
@@ -3616,6 +3637,9 @@ background-image: url(/static/img/CatalogBck.png);
     padding: 10.5px 24px;
   }
   .product .catalog__card-cart-button {
+    padding: 8.5px 24px;
+  }
+  .product .catalog__card-cart-button {
     padding-left: 50px;
   }
   .mobile-product-price {
@@ -3967,5 +3991,18 @@ background-image: url(/static/img/CatalogBck.png);
   }
   .cart__next-delivery-term {
     height: 40px;
+  }
+  .catalog__item .catalog__item-title {
+    max-width: 140px;
+  }
+}
+
+@media (max-width: 345px) {
+  .mobile-product-buttons {
+    flex-direction: column;
+  }
+  .product__get-price, 
+  .product .catalog__card-cart-button {
+    width: fit-content;
   }
 }

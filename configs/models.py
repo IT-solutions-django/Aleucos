@@ -16,6 +16,12 @@ def get_default_order_status_name_mapper() -> dict[str, str]:
 
 
 class Config(models.Model): 
+    home_page_categories = models.CharField(
+        'Категории на главной странице', 
+        max_length=150, 
+        help_text='4 категории, перечисленные через запятую, которые будут отображаться в блоке "Каталог" на главной странице', 
+        default='Уход за волосами, Уход за кожей лица, Декоративная косметика, Для детей'
+    )
     import_catalog_filename = models.CharField(
         'IMPORT_CATALOG_FILENAME', 
         max_length=150, 

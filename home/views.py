@@ -8,7 +8,7 @@ from users.models import RegistrationRequest, User
 from configs.models import Config 
 from django.contrib.auth.models import Group 
 from Aleucos.crm import crm
-from products.models import Product
+from products.models import Product, Category
 from carts.services import Cart
 
 
@@ -27,10 +27,14 @@ class HomeView(View):
         for product in popular_products:
             product.quantity_in_cart = request.cart[Cart.KeyNames.PRODUCTS].get(str(product.article), {}).get(Cart.KeyNames.QUANTITY, 0)
 
+        home_categories_names = map(lambda x: x.strip(), Config.get_instance().home_page_categories.split(','))
+        home_categories = Category.objects.filter(title__in=home_categories_names)
+
         context = {
             'contact_form': RequestForm(),
             'popular_products': popular_products,
-            'products_in_cart': products_in_cart
+            'products_in_cart': products_in_cart, 
+            'home_categories': home_categories,
         }
         return render(request, self.template_name, context)
 

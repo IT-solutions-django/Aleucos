@@ -117,7 +117,7 @@ class CatalogImporter:
             product.price_before_200k = product_data['price_before_200k']
             product.price_after_200k = product_data['price_after_200k']
             product.price_after_500k = product_data['price_after_500k'] 
-            product.description = product_data['description'] 
+            product.title_russian = product_data['title_russian'] 
             product.volume = product_data['volume'] 
             product.weight = product_data['weight'] 
             product.notes = product_data['notes'] 
@@ -127,14 +127,17 @@ class CatalogImporter:
             if brand: 
                 product.brand = brand
 
-            category = None
             if product_data.get('category'):
-                category, created = Category.objects.get_or_create(title=product_data['category'])
-                if created: 
-                    logger.info(f'Была добавлена новая категория: {category.title}')
+                category_titles = [c.strip() for c in product_data['category'].split(',') if c.strip()]
+                
+                category_objs = []
+                for title in category_titles:
+                    category_obj, created = Category.objects.get_or_create(title=title)
+                    category_objs.append(category_obj)
+                    if created:
+                        logger.info(f'Была добавлена новая категория: {category_obj.title}')
 
-            if category: 
-                product.category = category
+                product.categories.add(*category_objs) 
 
             log_product_arrival(
                 product=product, 
@@ -165,7 +168,7 @@ class CatalogImporter:
                 barcode=product_data['barcode'] ,
                 brand=brand,
                 title=product_data['title'],
-                description=product_data['description'],
+                title_russian=product_data['title_russian'],
                 photo=product_data['photo'],
                 volume=product_data['volume'],
                 weight=product_data['weight'],
@@ -174,13 +177,22 @@ class CatalogImporter:
                 price_after_200k=product_data['price_after_200k'],
                 price_after_500k=product_data['price_after_500k'],
                 is_in_stock=product_data['is_in_stock'],
-                category=category,
                 remains=product_data['remains'], 
                 will_arrive_at=product_data['arriving_date']
             )
-            if product_data.get('category'): 
-                product.category = category
             product.save()
+            if product_data.get('category'): 
+                category_titles = [c.strip() for c in product_data['category'].split(',') if c.strip()]
+                
+                category_objs = []
+                for title in category_titles:
+                    category_obj, created = Category.objects.get_or_create(title=title)
+                    category_objs.append(category_obj)
+                    if created:
+                        logger.info(f'Была добавлена новая категория: {category_obj.title}')
+
+                product.categories.add(*category_objs) 
+
             logger.info(f'Товар "{product_data["title"]}" сохранён в базу данных')
 
             log_product_arrival(
@@ -195,7 +207,7 @@ class CatalogImporter:
         barcode = row[1]
         brand_title = row[2]
         title = row[3]
-        description = str(row[4])
+        title_russian = str(row[4])
         photo = row[5]
         volume = row[6]
         weight = row[7]
@@ -250,7 +262,7 @@ class CatalogImporter:
             'barcode': barcode,
             'brand_title': brand_title,
             'title': title,
-            'description': description,
+            'title_russian': title_russian,
             'photo': photo,
             'volume': volume,
             'weight': weight,
@@ -381,13 +393,13 @@ class CatalogExporter:
             worksheet[f'B{curr_row_index}'] = str(product.barcode)
             worksheet[f'C{curr_row_index}'] = product.brand.title
             worksheet[f'D{curr_row_index}'] = product.title
-            worksheet[f'E{curr_row_index}'] = product.description if product.description is not None else ''
+            worksheet[f'E{curr_row_index}'] = product.title_russian if product.title_russian is not None else ''
             worksheet[f'G{curr_row_index}'] = product.volume
             worksheet[f'H{curr_row_index}'] = product.weight
             worksheet[f'I{curr_row_index}'] = product.notes
 
             worksheet[f'K{curr_row_index}'] = product.remains
-            worksheet[f'L{curr_row_index}'] = product.category.title if product.category else ''
+            worksheet[f'L{curr_row_index}'] = ','.join(category.title for category in product.categories.all())
             worksheet[f'M{curr_row_index}'] = product.will_arrive_at
 
             worksheet[f'N{curr_row_index}'] = product.price_before_200k
