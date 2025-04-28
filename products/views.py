@@ -21,6 +21,8 @@ from django.http import FileResponse
 import os
 from .services import generate_unique_article_number
 from Aleucos.elastic_log_handler import log_product_sale, log_product_arrival
+from django.db.models import Count, Q
+
 
 
 class ImportProductsStatusView(View): 
@@ -266,7 +268,13 @@ class ProductView(View):
 
         print(product.pk)
 
-        similar_products = Product.objects.all().filter(category=product.category).exclude(pk=product.pk)
+        similar_products = (
+            Product.objects
+            .filter(categories__in=product.categories.all()) 
+            .exclude(pk=product.pk) 
+            .annotate(same_categories=Count('categories', filter=Q(categories__in=product.categories.all())))
+            .order_by('-same_categories', '-created_at')    
+        )
 
         cart_data = request.cart.to_dict()
         products_in_cart = {

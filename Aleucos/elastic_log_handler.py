@@ -33,18 +33,20 @@ def log_product_arrival(product, quantity: int, manager_name: str) -> None:
     """Логирует поступление товара в Elasticsearch"""
     missing_info = get_missing_fields(product)
 
+    category_titles = list(product.categories.values_list('title', flat=True))
+
     business_logger.info(
         "Поступление товара",
         extra={
             "event_type": "product_arrival",
-            "category": product.category,
+            "categories": category_titles,
             "data": {
                 'article': product.article,
                 "title": product.title,
                 "brand": product.brand,
                 "barcode": product.barcode,
                 "price_before_200k": product.price_before_200k,
-                "category": product.category,
+                "categories": category_titles,
                 "quantity": quantity, 
                 'manager_name': manager_name,
                 **missing_info,
@@ -55,18 +57,20 @@ def log_product_arrival(product, quantity: int, manager_name: str) -> None:
 
 def log_product_sale(product, quantity: int, manager_name: str) -> None:
     """Логирует продажу товара в Elasticsearch"""
+    category_titles = list(product.categories.values_list('title', flat=True))
+    
     business_logger.info(
         "Продажа товара",
         extra={
             "event_type": "product_sale",
-            "category": product.category,
+            "categories": category_titles,
             "data": {
                 'article': product.article,
                 "title": product.title,
                 "brand": product.brand,
                 "barcode": product.barcode,
                 "price_before_200k": product.price_before_200k,
-                "category": product.category,
+                "categories": category_titles,
                 "quantity": quantity, 
                 'manager_name': manager_name,
             }
@@ -81,7 +85,7 @@ def get_missing_fields(product) -> dict:
         'barcode',
         'brand', 
         'description', 
-        'category', 
+        'categories', 
         'photo', 
         'volume',
         'weight', 

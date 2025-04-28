@@ -11,6 +11,7 @@
 
 
 <main class="cart">
+    {{ product_list }}
     <div class="heading-wrapper">
         <div class="breadcrumb only-mobile flex">
             <a href="{% url 'home:home' %}" class="hover-green">Главная</a>
@@ -40,24 +41,27 @@
                 <span>Цена по позиции</span>
                 <span></span>
             </div>
-            {% for article, item in cart.products.items %}
-                <div class="cart-row" data-article="{{ article }}">
-                    <div class="cart-row__image">
-                        <img src="{{ article|product_image_url }}" alt="{{ article }}">
+        
+            {% for product in cart_product_list %}
+                {% with article=product.article %}
+                    <div class="cart-row" data-article="{{ article }}">
+                        <div class="cart-row__image">
+                            <img src="{{ article|product_image_url }}" alt="{{ article }}">
+                        </div>
+                        <span>{{ article|product_title }}</span>
+                        <span>{{ article|product_brand }}</span>
+                        <span>{{ article|product_barcode }}</span>
+                        <span class="product-unit-price">{{ item.unit_price }} ₽</span>
+                        <div class="cart-quantity">
+                            <input id="quantity-{{ article }}" value="{{ item.quantity }}" oninput="checkQuantity('{{ article }}')">
+                            <button data-article="{{ article }}" class="minus-button">-</button>
+                            <button data-article="{{ article }}" class="plus-button">+</button>
+                        </div>
+                        <span>{{ article|product_remains }}</span>
+                        <span class="product-total-price">{{ item.total_product_price }} ₽</span>
+                        <button class="delete-btn" data-article="{{ article }}" onclick="deleteFromCart('{{ article }}')">удалить</button>
                     </div>
-                    <span>{{ article|product_title }}</span>
-                    <span>{{ article|product_brand }}</span>
-                    <span>{{ article|product_barcode }}</span>
-                    <span class="product-unit-price">{{ item.unit_price }} ₽</span>
-                    <div class="cart-quantity">
-                        <input id="quantity-{{ article }}" value="{{ item.quantity }}" oninput="checkQuantity('{{ article }}')">
-                        <button data-article="{{ article }}" class="minus-button">-</button>
-                        <button data-article="{{ article }}" class="plus-button">+</button>
-                    </div>
-                    <span>{{ article|product_remains }}</span>
-                    <span class="product-total-price">{{ item.total_product_price }} ₽</span>
-                    <button class="delete-btn" data-article="{{ article }}" onclick="deleteFromCart('{{ article }}')">удалить</button>
-                </div>
+                {% endwith %}
             {% endfor %}
         {% else %}
         <div class="empty-cart-block">
@@ -73,43 +77,45 @@
 
     <div class="cart-mobile">
         {% if cart.products %}
-            {% for article, item in cart.products.items %}
-                <div class="mobile-product-card" data-article="{{ article }}">
-                    <div class="upper">
-                        <div class="product-data">
-                            <div class="product-photo">
-                                <div class="product-photo-wrapper">
-                                    <img src="{{ article|product_image_url }}" alt="">
+            {% for product in cart_product_list %}
+                {% with article=product.article %}
+                    <div class="mobile-product-card" data-article="{{ article }}">
+                        <div class="upper">
+                            <div class="product-data">
+                                <div class="product-photo">
+                                    <div class="product-photo-wrapper">
+                                        <img src="{{ article|product_image_url }}" alt="">
+                                    </div>
+                                    <p>{{ article|product_barcode }}</p>
                                 </div>
-                                <p>{{ article|product_barcode }}</p>
+                                <div class="product-name-and-price">
+                                    <p class="product-name">{{ article|product_brand }} - {{ article|product_title }}</p>
+                                    <p class="product-price">{{ item.unit_price }} ₽</p>
+                                </div>
                             </div>
-                            <div class="product-name-and-price">
-                                <p class="product-name">{{ article|product_brand }} - {{ article|product_title }}</p>
-                                <p class="product-price">{{ item.unit_price }} ₽</p>
+                            <button class="delete-btn delete" data-article="{{ article }}" onclick="deleteFromCart('{{ article }}')">
+                                <img src="{% static 'img/delete-item.svg' %}" alt="">
+                            </button>
+                        </div>
+                        <div class="medium">
+                            <div>
+                                <div class="cart-quantity">
+                                    <input id="mobile-quantity-{{ article }}" value="{{ item.quantity }}" oninput="checkQuantity('{{ article }}')">
+                                    <button data-article="{{ article }}" class="minus-button">-</button>
+                                    <button data-article="{{ article }}" class="plus-button">+</button>
+                                </div>
+                            </div>
+                            <div class="product-remains">
+                                <p>На складе: <span>{{ article|product_remains }}</span></p>
                             </div>
                         </div>
-                        <button class="delete-btn delete" data-article="{{ article }}" onclick="deleteFromCart('{{ article }}')">
-                            <img src="{% static 'img/delete-item.svg' %}" alt="">
-                        </button>
-                    </div>
-                    <div class="medium">
-                        <div>
-                            <div class="cart-quantity">
-                                <input id="mobile-quantity-{{ article }}" value="{{ item.quantity }}" oninput="checkQuantity('{{ article }}')">
-                                <button data-article="{{ article }}" class="minus-button">-</button>
-                                <button data-article="{{ article }}" class="plus-button">+</button>
-                            </div>
-                        </div>
-                        <div class="product-remains">
-                            <p>На складе: <span>{{ article|product_remains }}</span></p>
+                        <hr>
+                        <div class="position-price">
+                            <p>Цена по позиции:</p>
+                            <p class="product-total-price">{{ item.total_product_price }} ₽</p>
                         </div>
                     </div>
-                    <hr>
-                    <div class="position-price">
-                        <p>Цена по позиции:</p>
-                        <p class="product-total-price">{{ item.total_product_price }} ₽</p>
-                    </div>
-                </div>
+                {% endwith %}
             {% endfor %}
         {% else %}
             <div class="empty-cart-label">

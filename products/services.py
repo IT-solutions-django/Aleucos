@@ -127,14 +127,17 @@ class CatalogImporter:
             if brand: 
                 product.brand = brand
 
-            category = None
             if product_data.get('category'):
-                category, created = Category.objects.get_or_create(title=product_data['category'])
-                if created: 
-                    logger.info(f'Была добавлена новая категория: {category.title}')
+                category_titles = [c.strip() for c in product_data['category'].split(',') if c.strip()]
+                
+                category_objs = []
+                for title in category_titles:
+                    category_obj, created = Category.objects.get_or_create(title=title)
+                    category_objs.append(category_obj)
+                    if created:
+                        logger.info(f'Была добавлена новая категория: {category_obj.title}')
 
-            if category: 
-                product.category = category
+                product.categories.add(*category_objs) 
 
             log_product_arrival(
                 product=product, 
@@ -174,13 +177,22 @@ class CatalogImporter:
                 price_after_200k=product_data['price_after_200k'],
                 price_after_500k=product_data['price_after_500k'],
                 is_in_stock=product_data['is_in_stock'],
-                category=category,
                 remains=product_data['remains'], 
                 will_arrive_at=product_data['arriving_date']
             )
-            if product_data.get('category'): 
-                product.category = category
             product.save()
+            if product_data.get('category'): 
+                category_titles = [c.strip() for c in product_data['category'].split(',') if c.strip()]
+                
+                category_objs = []
+                for title in category_titles:
+                    category_obj, created = Category.objects.get_or_create(title=title)
+                    category_objs.append(category_obj)
+                    if created:
+                        logger.info(f'Была добавлена новая категория: {category_obj.title}')
+
+                product.categories.add(*category_objs) 
+
             logger.info(f'Товар "{product_data["title"]}" сохранён в базу данных')
 
             log_product_arrival(
@@ -387,7 +399,7 @@ class CatalogExporter:
             worksheet[f'I{curr_row_index}'] = product.notes
 
             worksheet[f'K{curr_row_index}'] = product.remains
-            worksheet[f'L{curr_row_index}'] = product.category.title if product.category else ''
+            worksheet[f'L{curr_row_index}'] = ','.join(category.title for category in product.categories.all())
             worksheet[f'M{curr_row_index}'] = product.will_arrive_at
 
             worksheet[f'N{curr_row_index}'] = product.price_before_200k

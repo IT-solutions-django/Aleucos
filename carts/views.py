@@ -83,8 +83,19 @@ class CartItemsView(View):
             key=lambda x: (x.title == 'Другое', x.title)
         )
 
+
+        cart = request.cart
+
+        articles = list(cart['products'].keys())
+        products = Product.objects.filter(article__in=articles).select_related('brand')
+        products_by_article = {product.article: product for product in products}
+        cart_product_list = list(products_by_article.values())
+        cart_product_list.sort(key=lambda p: (p.brand.title if p.brand else '', p.title))
+
+
         context = {
             'cart': request.cart, 
+            'cart_product_list': cart_product_list,
             'delivery_terms': delivery_terms,
             'payment_methods': payment_methods,
         }

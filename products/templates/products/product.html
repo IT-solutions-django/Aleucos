@@ -10,7 +10,11 @@
         <p>/</p>
         <a href="" class="hover-green">Каталог</a>
         <p>/</p>
-        <a href="" class="hover-green">{{ product.category.title }}</a>
+        <a href="" class="hover-green">
+            {% for category in product.categories.all %}
+                {{ category.title }}{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+        </a>
     </div>
     <div class="product__section">
         <div class="product__card">
@@ -115,7 +119,11 @@
                             </div>
                             <div class="product__specs-row">
                                 <p>Категория</p>
-                                <p>{{ product.category.title }}</p>
+                                <p>
+                                    {% for category in product.categories.all %}
+                                        {{ category.title }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </p>
                             </div>
                             {% if product.product_type %}
                                 <div class="product__specs-row">
