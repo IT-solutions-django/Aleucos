@@ -83,7 +83,7 @@ class ProductsListView(View):
 
             selected_categories = cd.get('categories')
             if selected_categories:
-                products = products.filter(category__id__in=selected_categories)
+                products = products.filter(categories__id__in=selected_categories)
 
             selected_brands = cd.get('brands')
             if selected_brands:
@@ -185,7 +185,7 @@ class CatalogFiltersView(View):
 
             selected_categories = cd.get('categories')
             if selected_categories:
-                products = products.filter(category__id__in=selected_categories)
+                products = products.filter(categories__id__in=selected_categories)
 
             selected_brands = cd.get('brands')
             if selected_brands:

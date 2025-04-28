@@ -108,22 +108,12 @@
                 <h2 class="catalog__title home__subheading">Каталог</h2>
                 <div>
                     <div class="catolog__items">
-                        <a href="{% url 'products:products_list' %}" class="catalog__item catalog__item--1">
-                            <h2 class="catalog__item-title">Для ухода <br> за волосам</h2>
-                            <button class="catalog__item-btn">328 товаров</button>
-                        </a>
-                        <a href="{% url 'products:products_list' %}" class="catalog__item catalog__item--2">
-                            <h2 class="catalog__item-title">Для ухода <br> за кожей</h2>
-                            <button class="catalog__item-btn">328 товаров</button>
-                        </a>
-                        <a href="{% url 'products:products_list' %}" class="catalog__item catalog__item--3">
-                            <h2 class="catalog__item-title">Макияж</h2>
-                            <button class="catalog__item-btn">328 товаров</button>
-                        </a>
-                        <a href="{% url 'products:products_list' %}" class="catalog__item catalog__item--4">
-                            <h2 class="catalog__item-title">Для детей</h2>
-                            <button class="catalog__item-btn">328 товаров</button>
-                        </a>
+                        {% for category in home_categories %}
+                            <a href="{% url 'products:products_list' %}?categories={{ category.pk }}" class="catalog__item catalog__item--{{ forloop.counter }}">
+                                <h2 class="catalog__item-title">{{ category.title }}</h2>
+                                <button class="catalog__item-btn">{{ category.title|get_products_count_by_category }} товаров</button>
+                            </a>
+                        {% endfor %}
                         <img href="{% url 'products:products_list' %}" class="catolog__items-img" src="{% static 'img/BigStar.svg' %}" alt="" srcset="">
                     </div>
                     <div>

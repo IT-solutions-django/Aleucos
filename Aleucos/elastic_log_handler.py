@@ -84,7 +84,7 @@ def get_missing_fields(product) -> dict:
     required_fields = [
         'barcode',
         'brand', 
-        'description', 
+        'title_russian', 
         'categories', 
         'photo', 
         'volume',

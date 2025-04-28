@@ -52,7 +52,7 @@ class Product(models.Model):
     title = models.CharField(_('Название'), max_length=200, null=False) 
     title_russian = models.CharField(_('Русское название'), max_length=200, null=True, blank=True) 
     description = models.TextField(_('Описание'), max_length=1000, null=True, blank=True) 
-    categories = models.ManyToManyField(Category, verbose_name=_('Категории'), null=True, blank=True, related_name='categories')
+    categories = models.ManyToManyField(Category, verbose_name=_('Категории'), null=True, blank=True, related_name='products')
     photo = models.ImageField(_('Фото'), upload_to='products', null=False, default=settings.DEFAULT_IMAGE_PATH) 
     volume = models.CharField(_('Объём'), max_length=100, null=True) 
     weight = models.DecimalField(_('Вес'), decimal_places=2, max_digits=4, null=True, blank=True,

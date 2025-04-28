@@ -543,6 +543,9 @@ main {
 .catalog__item .catalog__item-title {
   transition: all 0.3s ease;
 }
+.catalog__item .catalog__item-title {
+  max-width: 60%;
+}
 .advantage__item {
   position: relative;
   border-radius: 20px;
@@ -3234,6 +3237,9 @@ background-image: url(/static/img/CatalogBck.png);
   .header-desktop {
     display: none;
   }
+  .catalog__item .catalog__item-title {
+    max-width: 100%;
+  }
 }
 @media (max-width: 576px) {
   .company {
@@ -3976,6 +3982,9 @@ background-image: url(/static/img/CatalogBck.png);
   }
   .cart__next-delivery-term {
     height: 40px;
+  }
+  .catalog__item .catalog__item-title {
+    max-width: 140px;
   }
 }
 
