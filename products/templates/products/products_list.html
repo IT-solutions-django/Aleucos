@@ -6,13 +6,18 @@
 {% block content %}
 <main class="catalog">
     <div class="heading-wrapper only-desktop">
-        <div class="heading-label">
-            <a href="{% url 'products:products_list' %}" class="color-black">Каталог</a>
+        <div class="left-part">
+            <div class="heading-label">
+                <a href="{% url 'products:products_list' %}" class="color-black">Каталог</a>
+            </div>
+            <div class="breadcrumb">
+                <a href="{% url 'home:home' %}" class="hover-green">Главная</a>
+                <p>/</p>
+                <a href="" class="hover-green">Каталог</a>
+            </div>
         </div>
-        <div class="breadcrumb">
-            <a href="{% url 'home:home' %}" class="hover-green">Главная</a>
-            <p>/</p>
-            <a href="" class="hover-green">Каталог</a>
+        <div class="right-part">
+            <a href="{% url 'products:export_catalog' %}" class="offer__btn-сatalog">Скачать каталог</a>
         </div>
     </div>
 
@@ -147,8 +152,9 @@
             </div>
         </div>
 
+
         <div class="catalog__content">
-            <div>
+            <div class="only-desktop">
                 <div class="catalog__topics only-desktop">
                     {% for section in form.sections %}
                         <div class="catalog__topic {% if section.choice_label == 'все' %}active{% endif %}">
@@ -172,6 +178,9 @@
                 </div>
             </div>
             <div class="catalog__cards-container">
+                <div class="only-mobile flex">
+                    <a href="{% url 'products:export_catalog' %}" class="offer__btn-сatalog">Скачать каталог</a>
+                </div>
                 <div class="mobile-filters">
                     <div class="upper-panel">
                         <div class="back-button">

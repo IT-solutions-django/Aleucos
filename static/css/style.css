@@ -1727,11 +1727,20 @@ label {
 }
 
 .heading-wrapper {
+ display: flex;
+ width: 100%;
+ justify-content: space-between;
+ align-items: center;
+}
+.heading-wrapper .left-part {
   display: flex;
   flex-direction: column;
   gap: 8px;
   margin-top: 16px; 
   margin-bottom: 40px;
+}
+.heading-wrapper .right-part .offer__btn-сatalog {
+  display: block;
 }
 .heading-label {
   font-family: var(--font-jacarta);

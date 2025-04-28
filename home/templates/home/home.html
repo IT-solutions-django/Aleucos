@@ -13,9 +13,9 @@
                 <div class="offer__btns">
                     {% if not request.user.is_authenticated %}
                         <button type="button" class="offer__btn-application" data-toggle="modal" data-target="#exampleModal" data-bs-toggle="modal" data-bs-target="#exampleModal">Оставить заявку</button>
-                        <button class="offer__btn-сatalog" data-bs-toggle="modal" data-bs-target="#exampleModal2">Получить каталог</button>
+                        <button class="offer__btn-сatalog" data-bs-toggle="modal" data-bs-target="#exampleModal2">Скачать каталог</button>
                     {% else %}
-                        <a href="{% url 'products:export_catalog' %}" class="offer__btn-сatalog">Получить каталог</a>
+                        <a href="{% url 'products:export_catalog' %}" class="offer__btn-сatalog">Скачать каталог</a>
                     {% endif %}
                 </div>
                 <div class="offer__info">
