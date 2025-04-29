@@ -399,7 +399,7 @@
                     <div class="col-auto help__left">
                         <img class="help__left-img" src="{% static 'img/quiz-photo.png' %}" alt="" srcset="">
                     </div>
-                    <form class="col help__right">
+                    <form class="col help__right" onsubmit="sendQuizForm(event)">
                         <h2 class="help__title">Помощь с выбором</h2>
                         <p class="help__text">Ответьте на несколько вопросов и мы подберем для вас косметику в 3-х ценовых диапазонах от бюджетного до премиального</p>
                         <div class="help__progress progress" role="progressbar" aria-label="Success example" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
@@ -410,8 +410,8 @@
                                 <h2 class="help__form-title">Где Вы реализуете продукцию?</h2>
                                 <div class="row help__form-item">
                                     <div class="col-auto">
-                                            <input type="radio" id="realization-1" value="1" name="realization" class="help__form-radio item--hidden">
-                                            <label for="realization-1" class="help__form-checkbox--custom"></label>
+                                        <input type="radio" id="realization-1" value="Онлайн магазин" name="realization" class="help__form-radio item--hidden">
+                                        <label for="realization-1" class="help__form-checkbox--custom"></label>
                                     </div>
                                     <div class="col-auto">
                                         <label for="realization-1"><p class="help__form-text">Онлайн магазин</p></label>
@@ -419,7 +419,7 @@
                                 </div>
                                 <div class="row help__form-item">
                                     <div class="col-auto">
-                                        <input type="radio" id="realization-2" value="2" name="realization" class="help__form-radio item--hidden">
+                                        <input type="radio" id="realization-2" value="Офлайн магазин" name="realization" class="help__form-radio item--hidden">
                                         <label for="realization-2" class="help__form-checkbox--custom"></label>
                                     </div>
                                     <div class="col-auto">
@@ -428,7 +428,7 @@
                                 </div>
                                 <div class="row help__form-item">
                                     <div class="col-auto">
-                                        <input type="radio" id="realization-3" value="3" name="realization" class="help__form-radio item--hidden">
+                                        <input type="radio" id="realization-3" value="Маркетплейсы" name="realization" class="help__form-radio item--hidden">
                                         <label for="realization-3" class="help__form-checkbox--custom"></label>
                                     </div>
                                     <div class="col-auto">
@@ -437,7 +437,7 @@
                                 </div>
                                 <div class="row help__form-item">
                                     <div class="col-auto">
-                                        <input type="radio" id="realization-4" value="4" name="realization" class="help__form-radio item--hidden">
+                                        <input type="radio" id="realization-4" value="Совместные закупки" name="realization" class="help__form-radio item--hidden">
                                         <label for="realization-4" class="help__form-checkbox--custom"></label>
                                     </div>
                                     <div class="col-auto">
@@ -450,7 +450,7 @@
                                 <h2 class="help__form-title">Предполагаемый сегмент рынка?</h2>
                                 <div class="row help__form-item">
                                     <div class="col-auto">
-                                        <input type="checkbox" id="segment-1" value="1" name="segment" class="help__form-radio item--hidden">
+                                        <input type="checkbox" id="segment-1" value="Низкий ценовой сегмент" name="segment" class="help__form-radio item--hidden">
                                         <label for="segment-1" class="help__form-checkbox--custom"></label>
                                     </div>
                                     <div class="col-auto">
@@ -459,7 +459,7 @@
                                 </div>
                                 <div class="row help__form-item">
                                     <div class="col-auto">
-                                        <input type="checkbox" id="segment-2" value="2" name="segment" class="help__form-radio item--hidden">
+                                        <input type="checkbox" id="segment-2" value="Средний сегмент" name="segment" class="help__form-radio item--hidden">
                                         <label for="segment-2" class="help__form-checkbox--custom"></label>
                                     </div>
                                     <div class="col-auto">
@@ -468,7 +468,7 @@
                                 </div>
                                 <div class="row help__form-item">
                                     <div class="col-auto">
-                                        <input type="checkbox" id="segment-3" value="3" name="segment" class="help__form-radio item--hidden">
+                                        <input type="checkbox" id="segment-3" value="Премиальный сегмент" name="segment" class="help__form-radio item--hidden">
                                         <label for="segment-3" class="help__form-checkbox--custom"></label>
                                     </div>
                                     <div class="col-auto">
@@ -480,7 +480,7 @@
                                 <h2 class="help__form-title">Что в первую очередь Вас интересует в сотрудничестве?</h2>
                                 <div class="row help__form-item">
                                     <div class="col-auto">
-                                        <input type="checkbox" id="intresting-1" value="1" name="intresting" class="help__form-radio item--hidden">
+                                        <input type="checkbox" id="intresting-1" value="Новые бренды" name="intresting" class="help__form-radio item--hidden">
                                         <label for="intresting-1" class="help__form-checkbox--custom"></label>
                                     </div>
                                     <div class="col-auto">
@@ -489,7 +489,7 @@
                                 </div>
                                 <div class="row help__form-item">
                                     <div class="col-auto">
-                                        <input type="checkbox" id="intresting-2" value="2" name="intresting" class="help__form-radio item--hidden">
+                                        <input type="checkbox" id="intresting-2" value="Низкие цены" name="intresting" class="help__form-radio item--hidden">
                                         <label for="intresting-2" class="help__form-checkbox--custom"></label>
                                     </div>
                                     <div class="col-auto">
@@ -498,7 +498,7 @@
                                 </div>
                                 <div class="row help__form-item">
                                     <div class="col-auto">
-                                        <input type="checkbox" id="intresting-3" value="3" name="intresting" class="help__form-radio item--hidden">
+                                        <input type="checkbox" id="intresting-3" value="Качественный сервис" name="intresting" class="help__form-radio item--hidden">
                                         <label for="intresting-3" class="help__form-checkbox--custom"></label>
                                     </div>
                                     <div class="col-auto">
@@ -507,7 +507,7 @@
                                 </div>
                                 <div class="row help__form-item">
                                     <div class="col-auto">
-                                        <input type="checkbox" id="intresting-4" value="4" name="intresting" class="help__form-radio item--hidden">
+                                        <input type="checkbox" id="intresting-4" value="Наличие полного пакета документов" name="intresting" class="help__form-radio item--hidden">
                                         <label for="intresting-4" class="help__form-checkbox--custom"></label>
                                     </div>
                                     <div class="col-auto">
@@ -519,7 +519,7 @@
                                 <h2 class="help__form-title">Когда Вы готовы начать сотрудничество?</h2>
                                 <div class="row help__form-item">
                                     <div class="col-auto">
-                                        <input type="radio" id="time-1" value="1" name="time" class="help__form-radio item--hidden">
+                                        <input type="radio" id="time-1" value="Сразу после получения прайса" name="time" class="help__form-radio item--hidden">
                                         <label for="time-1" class="help__form-checkbox--custom"></label>
                                     </div>
                                     <div class="col-auto">
@@ -528,7 +528,7 @@
                                 </div>
                                 <div class="row help__form-item">
                                     <div class="col-auto">
-                                        <input type="radio" id="time-2" value="2" name="time" class="help__form-radio item--hidden">
+                                        <input type="radio" id="time-2" value="В ближайшее время" name="time" class="help__form-radio item--hidden">
                                         <label for="time-2" class="help__form-checkbox--custom"></label>
                                     </div>
                                     <div class="col-auto">
@@ -537,7 +537,7 @@
                                 </div>
                                 <div class="row help__form-item">
                                     <div class="col-auto">
-                                        <input type="radio" id="time-3" value="3" name="time" class="help__form-radio item--hidden">
+                                        <input type="radio" id="time-3" value="После сравнения цен с другими поставщиками" name="time" class="help__form-radio item--hidden">
                                         <label for="time-3" class="help__form-checkbox--custom"></label>
                                     </div>
                                     <div class="col-auto">
@@ -546,7 +546,7 @@
                                 </div>
                                 <div class="row help__form-item">
                                     <div class="col-auto">
-                                        <input type="radio" id="time-4" value="4" name="time" class="help__form-radio item--hidden">
+                                        <input type="radio" id="time-4" value="Не скоро" name="time" class="help__form-radio item--hidden">
                                         <label for="time-4" class="help__form-checkbox--custom"></label>
                                     </div>
                                     <div class="col-auto">
@@ -555,7 +555,7 @@
                                 </div>
                             </div>
                             <div class="help__form-box help__form-box--5 item--hidden">
-                                <form action="" class="contactForm">
+                                <form action="" class="contactForm" id="homePageContactForm">
                                     <div class="row">
                                         <div class="col help__form-box-item-1">
                                             <h2 class="help__form-title">Имя</h2>
@@ -575,7 +575,6 @@
                             </div>
                             <div class="help__form-box help__form-box--end item--hidden">
                                 <h2 class="help__form-title">Данные успешнно отправлены!</h2>
-                                <img src="{% static 'img/icons8-complete.svg' %}" class="help__form-box--img" alt="" srcset="">
                             </div>
                             <p class="error-text item--hidden">Введите ваш ответ</p>
                         </div>
@@ -761,6 +760,54 @@
                 console.error("Ошибка при добавлении/удалении из корзины:", error)
                 minusButton.disabled = false;
             });
+    }
+</script>
+
+
+<script defer>
+    function sendQuizForm(event) {
+        event.preventDefault();
+
+        const realization = document.querySelector('input[name="realization"]:checked').value;
+        const segment = document.querySelector('input[name="segment"]:checked').value;
+        const interesting = document.querySelector('input[name="intresting"]:checked').value;
+        const time = document.querySelector('input[name="time"]:checked').value;
+
+        const name = document.querySelector('.help__right input[name="name"]').value;
+        const phone = document.querySelector('.help__right input[name="phone"]').value;
+        const email = document.querySelector('.help__right input[name="email"]').value;
+
+        const formData = {
+            realization,
+            segment,
+            interesting,
+            time,
+            name,
+            phone,
+            email
+        };
+
+        console.log(formData)
+
+        try {
+            const response = fetch('/api/save_registration_request/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+                // alert('Форма успешно отправлена!');
+            } else {
+                // alert('Ошибка при отправке формы.');
+            }
+        } catch (error) {
+            console.error('Ошибка:', error);
+            // alert('Ошибка соединения с сервером.');
+        }
+
     }
 </script>
 
