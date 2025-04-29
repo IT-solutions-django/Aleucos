@@ -10,6 +10,7 @@ from django.contrib.auth.models import Group
 from Aleucos.crm import crm
 from products.models import Product, Category
 from carts.services import Cart
+from contacts.models import Partner
 
 
 class HomeView(View): 
@@ -30,11 +31,14 @@ class HomeView(View):
         home_categories_names = map(lambda x: x.strip(), Config.get_instance().home_page_categories.split(','))
         home_categories = Category.objects.filter(title__in=home_categories_names)
 
+        partners = Partner.objects.all()
+
         context = {
             'contact_form': RequestForm(),
             'popular_products': popular_products,
             'products_in_cart': products_in_cart, 
             'home_categories': home_categories,
+            'partners': partners,
         }
         return render(request, self.template_name, context)
 

@@ -13,9 +13,15 @@
                 <div class="offer__btns">
                     {% if not request.user.is_authenticated %}
                         <button type="button" class="offer__btn-application" data-toggle="modal" data-target="#exampleModal" data-bs-toggle="modal" data-bs-target="#exampleModal">Оставить заявку</button>
-                        <button class="offer__btn-сatalog" data-bs-toggle="modal" data-bs-target="#exampleModal2">Скачать каталог</button>
+                        <div data-bs-toggle="modal" data-bs-target="#exampleModal2" class="offer__btn-сatalog">
+                            <p>Скачать каталог</p>
+                            <img src="{% static 'img/download-green.svg' %}" alt="">
+                        </div>
                     {% else %}
-                        <a href="{% url 'products:export_catalog' %}" class="offer__btn-сatalog">Скачать каталог</a>
+                        <a href="{% url 'products:export_catalog' %}" class="offer__btn-сatalog">
+                            <p>Скачать каталог</p>
+                            <img src="{% static 'img/download-green.svg' %}" alt="">
+                        </a>
                     {% endif %}
                 </div>
                 <div class="offer__info">
@@ -71,33 +77,24 @@
     <section class="company">
         <div class="swiper mySwiper-1">
             <div class="swiper-wrapper home__logos">
-                <img class="swiper-slide swiper-slide--img" src="{% static 'img/slider img.png' %}" alt="" srcset="">
-                <img class="swiper-slide swiper-slide--img" src="{% static 'img/slider img2.svg' %}" alt="" srcset="">
-                <img class="swiper-slide swiper-slide--img" src="{% static 'img/slider img3.svg' %}" alt="" srcset="">
-                <img class="swiper-slide swiper-slide--img" src="{% static 'img/slider img4.svg' %}" alt="" srcset="">
-                <img class="swiper-slide swiper-slide--img" src="{% static 'img/slider img5.svg' %}" alt="" srcset="">
-                <img class="swiper-slide swiper-slide--img" src="{% static 'img/slider img6.svg' %}" alt="" srcset="">
-                <!-- <img class="swiper-slide swiper-slide--img" src="{% static '/slider img7.svg' %}" alt="" srcset=""> -->
-                <img class="swiper-slide swiper-slide--img" src="{% static 'img/slider img3.svg' %}" alt="" srcset="">
-                <img class="swiper-slide swiper-slide--img" src="{% static 'img/slider img6.svg' %}" alt="" srcset="">
-                <img class="swiper-slide swiper-slide--img" src="{% static 'img/slider img5.svg' %}" alt="" srcset="">  
-                <img class="swiper-slide swiper-slide--img" src="{% static 'img/slider img6.svg' %}" alt="" srcset="">
-                <img class="swiper-slide swiper-slide--img" src="{% static 'img/slider img.svg' %}" alt="" srcset="">
-                <img class="swiper-slide swiper-slide--img" src="{% static 'img/slider img2.svg' %}" alt="" srcset="">
-                <img class="swiper-slide swiper-slide--img" src="{% static 'img/slider img3.svg' %}" alt="" srcset="">
-                <img class="swiper-slide swiper-slide--img" src="{% static 'img/slider img4.svg' %}" alt="" srcset="">
-                <img class="swiper-slide swiper-slide--img" src="{% static 'img/slider img2.svg' %}" alt="" srcset="">
-                <img class="swiper-slide swiper-slide--img" src="{% static 'img/slider img3.svg' %}" alt="" srcset="">
-                <img class="swiper-slide swiper-slide--img" src="{% static 'img/slider img4.svg' %}" alt="" srcset="">
-                <img class="swiper-slide swiper-slide--img" src="{% static 'img/slider img5.svg' %}" alt="" srcset="">
-                <img class="swiper-slide swiper-slide--img" src="{% static 'img/slider img6.svg' %}" alt="" srcset="">
-                <!-- <img class="swiper-slide swiper-slide--img" src="{% static '/slider img7.svg' %}" alt="" srcset=""> -->
-                <img class="swiper-slide swiper-slide--img" src="{% static 'img/slider img3.svg' %}" alt="" srcset="">
-                <img class="swiper-slide swiper-slide--img" src="{% static 'img/slider img6.svg' %}" alt="" srcset="">
-                <img class="swiper-slide swiper-slide--img" src="{% static 'img/slider img5.svg' %}" alt="" srcset="">  
-                <img class="swiper-slide swiper-slide--img" src="{% static 'img/slider img6.svg' %}" alt="" srcset="">
-                <img class="swiper-slide swiper-slide--img" src="{% static 'img/slider img5.svg' %}" alt="" srcset="">  
-               
+                {% for partner in partners %}
+                    <img class="swiper-slide swiper-slide--img" src="{{ partner.logo.url }}" alt="{{ partner.name }}" srcset="">
+                {% endfor %}
+                {% for partner in partners %}
+                    <img class="swiper-slide swiper-slide--img" src="{{ partner.logo.url }}" alt="{{ partner.name }}" srcset="">
+                {% endfor %}
+                {% for partner in partners %}
+                    <img class="swiper-slide swiper-slide--img" src="{{ partner.logo.url }}" alt="{{ partner.name }}" srcset="">
+                {% endfor %}
+                {% for partner in partners %}
+                    <img class="swiper-slide swiper-slide--img" src="{{ partner.logo.url }}" alt="{{ partner.name }}" srcset="">
+                {% endfor %}
+                {% for partner in partners %}
+                    <img class="swiper-slide swiper-slide--img" src="{{ partner.logo.url }}" alt="{{ partner.name }}" srcset="">
+                {% endfor %}
+                {% for partner in partners %}
+                    <img class="swiper-slide swiper-slide--img" src="{{ partner.logo.url }}" alt="{{ partner.name }}" srcset="">
+                {% endfor %}
             </div>
           </div>
     </section>

@@ -59,8 +59,12 @@
                                 {% endif %}
                             </div>
                  
-                            <a href="{% url 'products:export_catalog' %}" class="product__get-price">
+                            <!-- <a href="{% url 'products:export_catalog' %}" class="product__get-price">
                                 Получить прайс
+                            </a> -->
+                            <a href="{% url 'products:export_catalog' %}" class="offer__btn-сatalog product-card">
+                                <p>Скачать каталог</p>
+                                <img src="{% static 'img/download.svg' %}" alt="">
                             </a>
                        
                         </div>
@@ -80,8 +84,12 @@
                             <div class="catalog__card-cart-button add-to-cart">
                                 В корзину
                             </div>
-                            <a href="{% url 'products:export_catalog' %}" class="product__get-price">
+                            <!-- <a href="{% url 'products:export_catalog' %}" class="product__get-price">
                                 Получить прайс
+                            </a> -->
+                            <a href="{% url 'products:export_catalog' %}" class="export-catalog only-mobile flex">
+                                <p>Скачать каталог</p>
+                                <img src="{% static 'img/download.svg' %}" alt="">
                             </a>
                         </div>
                     </div>

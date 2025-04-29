@@ -44,3 +44,15 @@ class ContactsManager(models.Model):
     class Meta: 
         verbose_name = 'Менеджер'
         verbose_name_plural = 'Менеджеры'
+
+
+class Partner(models.Model): 
+    name = models.CharField('Название', max_length=100) 
+    logo = models.FileField('Логотип', upload_to='contacts/partners/')
+
+    def __str__(self):
+        return f'{self.name}' 
+    
+    class Meta: 
+        verbose_name = 'Партнёр'
+        verbose_name_plural = 'Партнёры'
