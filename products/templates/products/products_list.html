@@ -16,9 +16,6 @@
                 <a href="" class="hover-green">Каталог</a>
             </div>
         </div>
-        <div class="right-part">
-            <a href="{% url 'products:export_catalog' %}" class="offer__btn-сatalog">Скачать каталог</a>
-        </div>
     </div>
 
 
@@ -155,32 +152,39 @@
 
         <div class="catalog__content">
             <div class="only-desktop">
-                <div class="catalog__topics only-desktop">
-                    {% for section in form.sections %}
-                        <div class="catalog__topic {% if section.choice_label == 'все' %}active{% endif %}">
-                            <p class="hover-green">
-                                {{ section }}
-                            </p>
-                        </div>
-                    {% endfor %}
-                        <div id="viewModeButton" 
-                            data-status="quick" 
-                            data-full-mode-url="{% static 'img/quick-view-mode.svg' %}"
-                            data-quick-mode-url="{% static 'img/full-view-mode.svg' %}"
-                            class="catalog__topic-like {% if section.choice_label == 'все' %}active{% endif %}"
-                        >
-                            <p class="hover-green">
-                                вид
-                            </p>
-                            <img src="{% static 'img/full-view-mode.svg' %}" alt="">
-                        </div>
-                </form>
+                <div class="catalog__topics-panel">
+                    <div class="catalog__topics only-desktop">
+                        {% for section in form.sections %}
+                            <div class="catalog__topic {% if section.choice_label == 'все' %}active{% endif %}">
+                                <p class="hover-green">
+                                    {{ section }}
+                                </p>
+                            </div>
+                        {% endfor %}
+                            <div id="viewModeButton" 
+                                data-status="quick" 
+                                data-full-mode-url="{% static 'img/quick-view-mode.svg' %}"
+                                data-quick-mode-url="{% static 'img/full-view-mode.svg' %}"
+                                class="catalog__topic-like {% if section.choice_label == 'все' %}active{% endif %}"
+                            >
+                                <p class="hover-green">
+                                    вид
+                                </p>
+                                <img src="{% static 'img/full-view-mode.svg' %}" alt="">
+                            </div>
+                    </form>
+                    </div>
+                    <a href="{% url 'products:export_catalog' %}" class="export-catalog">
+                        <p>Скачать каталог</p>
+                        <img src="{% static 'img/download.svg' %}" alt="">
+                    </a>
                 </div>
             </div>
             <div class="catalog__cards-container">
-                <div class="only-mobile flex">
-                    <a href="{% url 'products:export_catalog' %}" class="offer__btn-сatalog">Скачать каталог</a>
-                </div>
+                <a href="{% url 'products:export_catalog' %}" class="export-catalog only-mobile flex">
+                    <p>Скачать каталог</p>
+                    <img src="{% static 'img/download.svg' %}" alt="">
+                </a>
                 <div class="mobile-filters">
                     <div class="upper-panel">
                         <div class="back-button">

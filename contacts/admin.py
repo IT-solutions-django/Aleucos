@@ -2,6 +2,7 @@ from django.contrib import admin
 from .models import (
     CompanyInfo, 
     ContactsManager,
+    Partner,
 )
 
 
@@ -12,4 +13,9 @@ class CompanyInfoAdmin(admin.ModelAdmin):
 
 @admin.register(ContactsManager)
 class ContactsManagerAdmin(admin.ModelAdmin):
-    list_display = ['name', 'email']
+    list_display = ['name', 'email']\
+    
+
+@admin.register(Partner)
+class PartnerAdmin(admin.ModelAdmin):
+    list_display = ['name', 'logo']

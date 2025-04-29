@@ -10,6 +10,8 @@ from django.contrib.auth.models import Group
 from Aleucos.crm import crm
 from products.models import Product, Category
 from carts.services import Cart
+from contacts.models import Partner
+import json
 
 
 class HomeView(View): 
@@ -30,11 +32,14 @@ class HomeView(View):
         home_categories_names = map(lambda x: x.strip(), Config.get_instance().home_page_categories.split(','))
         home_categories = Category.objects.filter(title__in=home_categories_names)
 
+        partners = Partner.objects.all()
+
         context = {
             'contact_form': RequestForm(),
             'popular_products': popular_products,
             'products_in_cart': products_in_cart, 
             'home_categories': home_categories,
+            'partners': partners,
         }
         return render(request, self.template_name, context)
 
@@ -43,27 +48,60 @@ class HomeView(View):
 class ContactFormView(View): 
     @csrf_exempt
     def post(self, request): 
+
+        last_request = RegistrationRequest.objects.order_by('-id').first()
+        manager_group = Group.objects.get(name=Config.get_instance().managers_group_name)
+        if last_request and last_request.manager:
+            last_manager = last_request.manager  
+            next_manager = User.objects.filter(groups__in=(manager_group,)).filter(id__gt=last_manager.id).filter(is_active=True).order_by('id').first()
+            if not next_manager:
+                next_manager = User.objects.filter(groups__in=(manager_group,)).order_by('id').first()
+        else:
+            next_manager = User.objects.filter(groups__in=(manager_group,)).order_by('id').first()
+
+        responsible_user_id = crm.get_user_id(
+            user_email=next_manager.email
+        )
+
+        form_data = json.loads(request.body)
+        # Quiz-форма
+        if form_data.get('realization'): 
+            print(json.loads(request.body))
+
+            realization, segment, interesting, time = form_data['realization'], form_data['segment'], form_data['interesting'], form_data['time']
+            name, phone, email = form_data['name'], form_data['phone'], form_data['email']
+
+            new_request: RegistrationRequest = RegistrationRequest(
+                first_name=name if name else None, 
+                phone=phone, 
+                email=email, 
+                manager=next_manager,
+            )
+            new_request.save()
+            contact_id = crm.create_contact(
+                name=new_request.first_name, 
+                responsible_user_id=responsible_user_id, 
+                email=new_request.email, 
+                phone=new_request.phone
+            )
+            crm.create_lead(
+                f'Новый клиент с сайта: {email}', 
+                responsible_user_id=responsible_user_id, 
+                contact_id=contact_id, 
+                from_the_very_first_status=True, 
+                realization=realization, 
+                segment=segment, 
+                interesting=interesting, 
+                time=time
+            )
+
+            return JsonResponse({'status': 'ok'})
+
         try:
             form: RequestForm = RequestForm(request.POST)
             if form.is_valid(): 
                 cd = form.cleaned_data 
                 name, phone, email, message = cd['name'], cd['phone'], cd['email'], cd['message']
-
-                print(name, phone, email, message)
-
-                last_request = RegistrationRequest.objects.order_by('-id').first()
-                manager_group = Group.objects.get(name=Config.get_instance().managers_group_name)
-                if last_request and last_request.manager:
-                    last_manager = last_request.manager  
-                    next_manager = User.objects.filter(groups__in=(manager_group,)).filter(id__gt=last_manager.id).filter(is_active=True).order_by('id').first()
-                    if not next_manager:
-                        next_manager = User.objects.filter(groups__in=(manager_group,)).order_by('id').first()
-                else:
-                    next_manager = User.objects.filter(groups__in=(manager_group,)).order_by('id').first()
-
-                responsible_user_id = crm.get_user_id(
-                    user_email=next_manager.email
-                )
 
                 new_request: RegistrationRequest = RegistrationRequest(
                     first_name=name if name else None, 

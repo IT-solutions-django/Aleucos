@@ -78,15 +78,57 @@ class AmoCRM:
             responsible_user_id: int, 
             contact_id: int = None,
             price: float = None, 
-            from_the_very_first_status: bool = False
+            from_the_very_first_status: bool = False, 
+            realization: str | None = None, 
+            segment: str | None = None, 
+            interesting: str | None = None, 
+            time: str | None = None
         ) -> int: 
         url = f'{self.CLIENT_DOMAIN}api/v4/leads'
         data = [{
             'name': name,
             'created_by': 0, 
-            'status_id': 59520526 if not from_the_very_first_status else 59520514
+            'status_id': 59520526 if not from_the_very_first_status else 59520514,
         }]
+
         (lead_data,) = data
+
+        if all((realization, segment, interesting, time)): 
+            lead_data['custom_fields_values'] = [
+                {
+                    'field_id': 2635617,
+                    'values': [
+                        {
+                            "value": realization, 
+                        }
+                    ]
+                }, 
+                {
+                    'field_id': 2635619, 
+                    'values': [
+                        {
+                            "value": segment, 
+                        }
+                    ]
+                }, 
+                {
+                    'field_id': 2635621, 
+                    'values': [
+                        {
+                            "value": interesting, 
+                        }
+                    ]
+                },
+                {
+                    'field_id': 2635623, 
+                    'values': [
+                        {
+                            "value": time, 
+                        }
+                    ]
+                }
+            ]
+
         lead_data['responsible_user_id'] = responsible_user_id
         if price: 
             lead_data['price'] = self._round_price_to_int(price)
@@ -102,6 +144,12 @@ class AmoCRM:
             return response.json()['_embedded']['leads'][0]['id']
         else: 
             logger.error(f'Ошибка создания сделки. Код {response.status_code}\n{response.text}') 
+            return 
+        
+
+
+
+        
 
     def create_contact(  
             self, 

@@ -493,8 +493,9 @@
     .offer__btn-application, .offer__btn-сatalog {
         font-size: 14px;
         padding: 9.5px 32px;
-        max-width: 200px;
-        display: block;
+        max-width: 230px;
+        display: flex;
+        align-items: center;
     }
 
     .offer__inner {

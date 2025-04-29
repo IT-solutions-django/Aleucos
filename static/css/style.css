@@ -395,6 +395,8 @@ main {
   border-radius: 20px;
   position: relative;
   z-index: 5;
+  max-height: 50px;
+  height: 50px;
 }
 
 .offer__btn-сatalog {
@@ -410,6 +412,29 @@ main {
   z-index: 5;
 
   transition: all 0.3s ease;
+}
+.offer__btn-сatalog {
+  display: flex;
+  gap: 12px;
+  background-color: white;
+  border-radius: 20px;
+  border: 1px solid #1FC080;
+  align-items: center;
+  max-height: 50px;
+  height: 50px;
+  cursor: pointer;
+}
+.offer__btn-сatalog.product-card {
+  background-color: #1FC080;
+}
+.offer__btn-сatalog p {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1FC080;
+}
+.offer__btn-сatalog.product-card p {
+  color: white; 
+  font-weight: 400;
 }
 .product__get-price {
   transition:  all 0.3s ease;
@@ -1893,6 +1918,35 @@ label {
 .catalog__topics {
   display: flex;
 }
+.catalog__topics-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.export-catalog {
+  padding: 9.5px 20px;
+  background-color: #1FC080;
+  display: flex;
+  gap: 12px;
+  border-radius: 13px;
+  cursor: pointer;
+  width: fit-content;
+
+  transition: all 0.3s ease;
+}
+.product__card .export-catalog {
+  border-radius: 15px;
+}
+.export-catalog:hover {
+  opacity: 0.8;
+}
+.export-catalog p {
+  color: white;
+  text-wrap: nowrap;
+}
+.export-catalog img {
+  min-width: 21px
+}
 .catalog__topic {
   padding: 8px 16px;
   border-radius: 100px;
@@ -1904,6 +1958,9 @@ label {
 #viewModeButton {
   display: flex;
   gap: 10px;
+}
+#viewModeButton img {
+  max-width: 12px;
 }
 #viewModeButton p {
   transition: all 0.3s ease;
@@ -2007,6 +2064,7 @@ label {
   background-position: 15px center;
   background-repeat: no-repeat;
   cursor: pointer;
+  text-wrap: nowrap;
 
   transition: all 0.2s ease;
   padding: 13px 15px;
@@ -3207,7 +3265,7 @@ background-image: url(/static/img/CatalogBck.png);
   display: flex;
   flex-direction: column;
   gap: 25px;
-  padding: 25px 0px 64px 0px;
+  padding: 0px 0px 64px 0px;
   width: 100%;
 }
 .mobile-filters-section {
@@ -3471,6 +3529,7 @@ background-image: url(/static/img/CatalogBck.png);
     padding: 11px 15px 11px 50px;
     background-position: 15px center;
     border-radius: 15px;
+    text-wrap: nowrap;
   }
   .cart-badge {
     font-size: 12px;
@@ -3631,6 +3690,7 @@ background-image: url(/static/img/CatalogBck.png);
     display: flex;
     justify-content: space-between;
     gap: 16px;
+    flex-wrap: wrap;
   }
   .product__get-price, 
   .product .catalog__card-cart-button {
@@ -3994,6 +4054,16 @@ background-image: url(/static/img/CatalogBck.png);
   }
   .catalog__item .catalog__item-title {
     max-width: 140px;
+  }
+  .offer__btn-application,
+  .offer__btn-сatalog {
+    padding: 9.5px 20px;
+    height: 40px;
+  }
+  .offer__btn-application p,
+  .offer__btn-сatalog p {
+    font-size: 16px;
+    text-wrap: nowrap;
   }
 }
 
