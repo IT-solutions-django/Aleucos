@@ -18,11 +18,20 @@ from products.models import Product
 from tempfile import NamedTemporaryFile
 from openpyxl.drawing.image import Image
 from django.core.files.base import ContentFile
+from openpyxl.utils.units import pixels_to_EMU
 from io import BytesIO 
 import os
 from Aleucos.elastic_log_handler import log_product_sale
 from openpyxl.styles import Border, Side
 from copy import copy
+import openpyxl
+
+from openpyxl.drawing.image import Image as OpenpyxlImage
+from openpyxl.drawing.spreadsheet_drawing import AnchorMarker, OneCellAnchor
+from openpyxl.drawing.xdr import XDRPositiveSize2D
+from openpyxl.utils.units import pixels_to_EMU
+from openpyxl.utils import column_index_from_string
+
 
 
 class OrderImporter:
@@ -274,7 +283,7 @@ class OrderExcelGenerator:
             worksheet[f'B{curr_row_index}'] = str(product.barcode)
             worksheet[f'C{curr_row_index}'] = product.brand.title
             worksheet[f'D{curr_row_index}'] = product.title
-            worksheet[f'E{curr_row_index}'] = product.title_russian if product.title_russian is not None else ''
+            worksheet[f'E{curr_row_index}'] = product.title_russian if (product.title_russian is not None and product.title_russian != 'None') else ''
             worksheet[f'G{curr_row_index}'] = product.volume
             worksheet[f'H{curr_row_index}'] = product.weight
             worksheet[f'I{curr_row_index}'] = product.notes
@@ -293,18 +302,71 @@ class OrderExcelGenerator:
                 image_path = os.path.join(settings.MEDIA_ROOT, product.photo.name)
                 try:
                     img = Image(image_path)
+                    proto_image = copy(img)
 
-                    img.width = 102
-                    img.height = 100
+                    # Максимальные размеры
+                    MAX_WIDTH = 160
+                    MAX_HEIGHT = 100
 
-                    worksheet.add_image(img, f"F{curr_row_index}")
+                    # Получаем текущие размеры
+                    current_width = proto_image.width
+                    current_height = proto_image.height
 
-                    worksheet.column_dimensions['F'].width = 15 
-                    worksheet.row_dimensions[curr_row_index].height = 80
+                    # Проверяем, нужно ли масштабировать
+                    if current_width > MAX_WIDTH or current_height > MAX_HEIGHT:
+                        # Определяем, по какому измерению нужно масштабировать
+                        width_ratio = MAX_WIDTH / current_width
+                        height_ratio = MAX_HEIGHT / current_height
+                        
+                        # Выбираем меньший коэффициент масштабирования
+                        scale_ratio = min(width_ratio, height_ratio)
+                        
+                        # Применяем масштабирование
+                        proto_image.width = int(current_width * scale_ratio)
+                        proto_image.height = int(current_height * scale_ratio)
+                    else:
+                        # Если размеры меньше максимальных, оставляем как есть
+                        proto_image.width = current_width
+                        proto_image.height = current_height
+
+                    col_letter = 'F'
+
+                    # Преобразуем размеры в EMU
+                    width_emu = pixels_to_EMU(proto_image.width)
+                    height_emu = pixels_to_EMU(proto_image.height)
+
+                    size = XDRPositiveSize2D(width_emu, height_emu)
+
+                    col_index = column_index_from_string(col_letter) - 1
+
+                    # Получаем ширину колонки в символах
+                    col_width_chars = worksheet.column_dimensions[col_letter].width or 8.43  # 8.43 - ширина по умолчанию
+
+                    # Преобразуем ширину колонки в пиксели (1 символ ≈ 7.5 пикселей)
+                    col_width_px = col_width_chars * 7.5
+
+                    # Центровка: сколько отступа слева
+                    left_padding_px = max((col_width_px - proto_image.width) / 2, 0)
+                    col_offset_emu = pixels_to_EMU(left_padding_px)
+
+                    # Вычисляем вертикальное центрирование
+                    row_height_px = worksheet.row_dimensions[curr_row_index].height or 15  # 15 - стандартная высота строки
+                    row_height_px = row_height_px * 1.2  # Конвертируем в пиксели (1.2 - примерный коэффициент)
+                    vertical_padding_px = max((row_height_px - proto_image.height) / 2, 0)
+                    
+                    # Фиксированный отступ сверху
+                    TOP_PADDING = 5
+                    row_offset_emu = pixels_to_EMU(vertical_padding_px + TOP_PADDING)
+
+                    marker = AnchorMarker(col=col_index, colOff=col_offset_emu, row=curr_row_index - 1, rowOff=row_offset_emu)
+                    proto_image.anchor = OneCellAnchor(_from=marker, ext=size)
+
+                    worksheet.add_image(proto_image)
+
                 except FileNotFoundError:
                     worksheet[f'E{curr_row_index}'] = "Файл не найден"
 
-            curr_row_index += 1\
+            curr_row_index += 1
         
         thin_border = Border(
             top=Side(style='thin'),
