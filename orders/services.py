@@ -283,7 +283,7 @@ class OrderExcelGenerator:
             worksheet[f'B{curr_row_index}'] = str(product.barcode)
             worksheet[f'C{curr_row_index}'] = product.brand.title
             worksheet[f'D{curr_row_index}'] = product.title
-            worksheet[f'E{curr_row_index}'] = product.title_russian if product.title_russian is not None else ''
+            worksheet[f'E{curr_row_index}'] = product.title_russian if (product.title_russian is not None and product.title_russian != 'None') else ''
             worksheet[f'G{curr_row_index}'] = product.volume
             worksheet[f'H{curr_row_index}'] = product.weight
             worksheet[f'I{curr_row_index}'] = product.notes
@@ -302,7 +302,6 @@ class OrderExcelGenerator:
                 image_path = os.path.join(settings.MEDIA_ROOT, product.photo.name)
                 try:
                     img = Image(image_path)
-
                     proto_image = copy(img)
 
                     # Максимальные размеры
@@ -338,7 +337,6 @@ class OrderExcelGenerator:
 
                     size = XDRPositiveSize2D(width_emu, height_emu)
 
-                    # Индекс колонки (0-based)
                     col_index = column_index_from_string(col_letter) - 1
 
                     # Получаем ширину колонки в символах
@@ -355,7 +353,10 @@ class OrderExcelGenerator:
                     row_height_px = worksheet.row_dimensions[curr_row_index].height or 15  # 15 - стандартная высота строки
                     row_height_px = row_height_px * 1.2  # Конвертируем в пиксели (1.2 - примерный коэффициент)
                     vertical_padding_px = max((row_height_px - proto_image.height) / 2, 0)
-                    row_offset_emu = pixels_to_EMU(vertical_padding_px)
+                    
+                    # Фиксированный отступ сверху
+                    TOP_PADDING = 5
+                    row_offset_emu = pixels_to_EMU(vertical_padding_px + TOP_PADDING)
 
                     marker = AnchorMarker(col=col_index, colOff=col_offset_emu, row=curr_row_index - 1, rowOff=row_offset_emu)
                     proto_image.anchor = OneCellAnchor(_from=marker, ext=size)
