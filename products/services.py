@@ -33,6 +33,10 @@ from dataclasses import dataclass
 from datetime import datetime
 import string
 from Aleucos.elastic_log_handler import log_product_arrival
+from openpyxl.drawing.spreadsheet_drawing import OneCellAnchor
+from openpyxl.drawing.spreadsheet_drawing import XDRPositiveSize2D
+from openpyxl.utils import column_index_from_string
+from openpyxl.drawing.spreadsheet_drawing import pixels_to_EMU
 
 
 @dataclass
@@ -411,13 +415,63 @@ class CatalogExporter:
                 try:
                     img = Image(image_path)
 
-                    img.width = 102
-                    img.height = 100
+                    # Максимальные размеры
+                    MAX_WIDTH = 160
+                    MAX_HEIGHT = 100
 
-                    worksheet.add_image(img, f"F{curr_row_index}")
+                    # Получаем текущие размеры
+                    current_width = img.width
+                    current_height = img.height
 
-                    worksheet.column_dimensions['F'].width = 15 
-                    worksheet.row_dimensions[curr_row_index].height = 80
+                    # Проверяем, нужно ли масштабировать
+                    if current_width > MAX_WIDTH or current_height > MAX_HEIGHT:
+                        # Определяем, по какому измерению нужно масштабировать
+                        width_ratio = MAX_WIDTH / current_width
+                        height_ratio = MAX_HEIGHT / current_height
+                        
+                        # Выбираем меньший коэффициент масштабирования
+                        scale_ratio = min(width_ratio, height_ratio)
+                        
+                        # Применяем масштабирование
+                        img.width = int(current_width * scale_ratio)
+                        img.height = int(current_height * scale_ratio)
+                    else:
+                        # Если размеры меньше максимальных, оставляем как есть
+                        img.width = current_width
+                        img.height = current_height
+
+                    # Преобразуем размеры в EMU
+                    width_emu = pixels_to_EMU(img.width)
+                    height_emu = pixels_to_EMU(img.height)
+                    size = XDRPositiveSize2D(width_emu, height_emu)
+
+                    # Получаем ширину колонки в символах
+                    col_width_chars = worksheet.column_dimensions['F'].width or 8.43  # 8.43 - ширина по умолчанию
+
+                    # Преобразуем ширину колонки в пиксели (1 символ ≈ 7.5 пикселей)
+                    col_width_px = col_width_chars * 7.5
+
+                    # Центровка: сколько отступа слева
+                    left_padding_px = max((col_width_px - img.width) / 2, 0)
+                    col_offset_emu = pixels_to_EMU(left_padding_px)
+
+                    # Вычисляем вертикальное центрирование
+                    row_height_px = worksheet.row_dimensions[curr_row_index].height or 15  # 15 - стандартная высота строки
+                    row_height_px = row_height_px * 1.2  # Конвертируем в пиксели (1.2 - примерный коэффициент)
+                    vertical_padding_px = max((row_height_px - img.height) / 2, 0)
+                    
+                    # Фиксированный отступ сверху
+                    TOP_PADDING = 5
+                    row_offset_emu = pixels_to_EMU(vertical_padding_px + TOP_PADDING)
+
+                    # Задаём якорь (позиционирование)
+                    col_index = column_index_from_string('F') - 1
+                    marker = AnchorMarker(col=col_index, colOff=col_offset_emu, row=curr_row_index - 1, rowOff=row_offset_emu)
+                    img.anchor = OneCellAnchor(_from=marker, ext=size)
+
+                    # Добавляем изображение на лист
+                    worksheet.add_image(img)
+
                 except FileNotFoundError:
                     worksheet[f'E{curr_row_index}'] = "Файл не найден"
 

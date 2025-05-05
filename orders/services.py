@@ -305,8 +305,8 @@ class OrderExcelGenerator:
                     proto_image = copy(img)
 
                     # Максимальные размеры
-                    MAX_WIDTH = 200
-                    MAX_HEIGHT = 120
+                    MAX_WIDTH = 160
+                    MAX_HEIGHT = 100
 
                     # Получаем текущие размеры
                     current_width = proto_image.width
