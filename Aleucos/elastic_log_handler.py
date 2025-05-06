@@ -99,3 +99,45 @@ def get_missing_fields(product) -> dict:
         missing_info[f"missing_{field}"] = value is None or value == ''
 
     return missing_info
+
+def log_customer_update(customer, changed_by_user) -> None:
+    """Логирует изменение данных клиента в Elasticsearch"""
+    print('Клиент изменён из админки')
+    business_logger.info(
+        "Изменение данных клиента",
+        extra={
+            "event_type": "customer_update",
+            "data": {
+                "customer": {
+                    "fullname": customer.get_fullname(),
+                    "email": customer.email,
+                },
+                "changed_by": {
+                    "fullname": changed_by_user.get_fullname(),
+                    "email": changed_by_user.email,
+                }
+            }
+        }
+    )
+
+def log_order_update(order, changed_by_user) -> None:
+    """Логирует изменение данных заказа в Elasticsearch"""
+    business_logger.info(
+        "Изменение данных заказа",
+        extra={
+            "event_type": "order_update",
+            "data": {
+                "order": {
+                    "number": order.number,
+                    "customer": {
+                        "fullname": order.user.get_fullname(),
+                        "email": order.user.email
+                    }
+                },
+                "changed_by": {
+                    "fullname": changed_by_user.get_fullname(),
+                    "email": changed_by_user.email
+                }
+            }
+        }
+    )
