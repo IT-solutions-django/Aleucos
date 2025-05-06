@@ -27,7 +27,7 @@ from Aleucos.crm import crm
 
 @admin.register(UserProxy)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ['pk', 'email', 'first_name', 'last_name','phone', 'manager', 'discount']
+    list_display = ['pk', 'email', 'first_name', 'last_name', 'organization_name', 'inn', 'kpp', 'full_address', 'phone', 'manager', 'discount']
     list_filter = [
         IsWithManager
     ]
