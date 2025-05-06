@@ -151,7 +151,9 @@ def after_order_save(sender, instance: Order, created, **kwargs):
             contact_id = instance.user.id_in_amocrm if instance.user else None, 
             price = instance.total_price
         )
-        Order.objects.filter(pk=instance.pk).update(id_in_amocrm=id_in_amocrm)
+        print(f'id_in_amocrm: {id_in_amocrm}')
+        
+        instance.id_in_amocrm = id_in_amocrm
         instance.save()
 
 
