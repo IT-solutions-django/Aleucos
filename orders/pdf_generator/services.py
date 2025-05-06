@@ -32,8 +32,8 @@ def generate_pdf_bill(
     reportlab.rl_config.TTFSearchPath.append(str(settings.BASE_DIR) + '/orders/pdf_generator/fonts')
     styles['Normal'].fontName='Arial'
     styles['Heading1'].fontName='Arial'
-    pdfmetrics.registerFont(TTFont('Arial','Arial.ttf', 'UTF-8'))
-    pdfmetrics.registerFont(TTFont('BoldArial','Arial3.ttf', 'UTF-8'))
+    pdfmetrics.registerFont(TTFont('Arial','Arial.ttf'))
+    pdfmetrics.registerFont(TTFont('BoldArial','Arial3.ttf'))
     
     _print_upper_grid(pdf)
     _print_upper_grid_text(pdf)
