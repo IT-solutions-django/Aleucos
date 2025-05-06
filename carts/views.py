@@ -229,7 +229,7 @@ class CreateOrderView(View):
             product.save()
 
         OrderItem.objects.bulk_create(order_items)
-        new_order.create_pdf_bill()
+        # new_order.create_pdf_bill()
 
         request.cart.flush()
         messages.success(request, f'Заказ №{new_order.number} успешно создан!', extra_tags=messages.SUCCESS)

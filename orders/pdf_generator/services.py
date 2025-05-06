@@ -38,7 +38,7 @@ def generate_pdf_bill(
     _print_upper_grid(pdf)
     _print_upper_grid_text(pdf)
     _print_header_text(pdf)
-    _print_contract_info(pdf)
+    _print_contract_info(pdf, order)
     _print_items_grid(pdf, items)
     _print_items_grid_header_text(pdf)
     _print_items_grid_text(pdf, items)
@@ -140,7 +140,7 @@ def _print_header_text(pdf: canvas.Canvas) -> None:
     pdf.line(LEFT, Header.Y_POSITION - 13, RIGHT, Header.Y_POSITION - 13)
 
 
-def _print_contract_info(pdf: canvas.Canvas) -> None: 
+def _print_contract_info(pdf: canvas.Canvas, order) -> None: 
     LEFT_TEXT_POSITION = LEFT + 2
     PARTNERS_LEFT = LEFT + 75
     CURRENT_FONT_SIZE = 9.8
@@ -169,7 +169,10 @@ def _print_contract_info(pdf: canvas.Canvas) -> None:
     for line in result_lines: 
         textobject.textLine(line)
 
+
     customer_info = 'ИП Шубина Валентина Павловна, ИНН 940200030436, 291011, Луганская Народная респ., г Луганск, ул. Советская, д. 92А, кв. 465'
+    customer_info = ''
+    customer_info = f'{order.user.organization_name}, ИНН {order.user.inn}, {order.user.full_address}'
     result_lines = split_text_into_lines(text=customer_info, max_chars_in_line=MAX_CHARS_IN_LINE)
     textobject.setTextOrigin(PARTNERS_LEFT, TOP - UpperGrid.HEIGHT - Header.HEIGHT - 1 * BLOCK_HEIGHT)
     for line in result_lines: 

@@ -60,8 +60,8 @@ class User(AbstractUser):
     id_in_amocrm = models.IntegerField('ID в amoCRM', null=True, blank=True)
 
     organization_name = models.CharField(_('Наименование организации'), max_length=255, null=True, blank=True)
-    inn = models.IntegerField(_('ИНН'), max_length=10, null=True, blank=True) 
-    kpp = models.IntegerField(_('КПП'), max_length=9, null=True, blank=True)
+    inn = models.CharField(_('ИНН'), max_length=10, null=True, blank=True) 
+    kpp = models.CharField(_('КПП'), max_length=9, null=True, blank=True)
     full_address = models.CharField(_('Полный адрес'), max_length=300, null=True, blank=True)
 
     comments = models.TextField(_('Комментарии'), null=True, blank=True)
