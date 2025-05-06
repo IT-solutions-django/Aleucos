@@ -13,6 +13,7 @@ from users.tasks import send_email_when_new_status_task
 @require_POST
 @csrf_exempt
 def status_lead_view(request):
+    """Изменились данные сделки"""
     data: QueryDict = request.POST
 
     lead_id = data['leads[status][0][id]']
@@ -38,6 +39,10 @@ def status_lead_view(request):
 
     order.status = new_status
     order.save()
+
+    if new_status == 'Товар собран':
+        order.create_pdf_bill()
+
     logger.info(f'У заказа {order.number} новый статус: {new_status}')
 
     return HttpResponse("ОК", content_type="text/plain")
@@ -46,6 +51,7 @@ def status_lead_view(request):
 @require_POST
 @csrf_exempt
 def responsible_lead_view(request):
+    """Изменился ответственный за сделку"""
     data: QueryDict = request.POST
     lead_id = data['leads[responsible][0][id]']
     responsible_user_id = data['leads[responsible][0][responsible_user_id]']

@@ -14,6 +14,7 @@ from Aleucos import settings
 from users.models import User
 from configs.models import Config
 from .filters import HasClient
+from Aleucos.elastic_log_handler import log_order_update
 
 
 @admin.register(OrderStatus)
@@ -42,6 +43,12 @@ class OrderAdmin(admin.ModelAdmin):
     change_list_template = 'orders/order_change_list.html'
     change_form_template = 'orders/order/change_form.html' 
 
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        
+        # Логируем изменение данных заказа
+        if change:  # Если это изменение существующего заказа
+            log_order_update(obj, request.user)
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)

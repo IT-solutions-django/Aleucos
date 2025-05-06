@@ -23,11 +23,12 @@ from .forms import (
     StaffRegistrationForm
 )
 from Aleucos.crm import crm
+from Aleucos.elastic_log_handler import log_customer_update
 
 
 @admin.register(UserProxy)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ['pk', 'email', 'first_name', 'last_name','phone', 'manager', 'discount']
+    list_display = ['pk', 'email', 'first_name', 'last_name', 'organization_name', 'inn', 'kpp', 'full_address', 'phone', 'manager', 'discount']
     list_filter = [
         IsWithManager
     ]
@@ -63,6 +64,9 @@ class UserAdmin(admin.ModelAdmin):
             obj.set_password(obj.password)  
         super().save_model(request, obj, form, change)
         
+        # Логируем изменение данных клиента
+        if change:
+            log_customer_update(obj, request.user)
 
     def get_queryset(self, request):
         users_group_name = Config.get_instance().users_group_name
