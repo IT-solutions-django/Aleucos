@@ -448,7 +448,7 @@ main {
 }
 .product__get-price:hover,
 .offer__btn-сatalog:hover {
-  background-color: rgb(243, 243, 243);
+  background-color: #f2f8f6;
 }
 
 .offer__info {

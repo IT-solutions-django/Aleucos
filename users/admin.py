@@ -38,14 +38,18 @@ class UserAdmin(admin.ModelAdmin):
         if not change: 
             obj.manager = request.user
 
-            raw_password = generate_random_password()
-            obj.set_password(raw_password)
+            # Сначала проверяем, был ли указан пароль в форме
+            if form.cleaned_data.get('password'):
+                obj.set_password(form.cleaned_data['password'])
+            else:
+                raw_password = generate_random_password()
+                obj.set_password(raw_password)
+                # Отправляем email только если пароль был сгенерирован автоматически
+                send_email_to_new_user_task.delay(obj.email, raw_password)
 
             super().save_model(request, obj, form, change)
             obj.groups.add(Group.objects.get(name=Config.get_instance().users_group_name))
             super().save_model(request, obj, form, change)
-
-            send_email_to_new_user_task.delay(obj.email, raw_password)
 
             responsible_user_email = obj.manager.email
             responsible_user_id = crm.get_user_id(responsible_user_email) 
