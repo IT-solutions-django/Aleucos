@@ -2369,6 +2369,16 @@ input::-webkit-inner-spin-button {
   gap: 5px;
 }
 
+.barcode-and-remains-desktop {
+  display: flex;
+  gap: 15px;
+}
+.barcode-and-remains-desktop .divider {
+  width: 1px;
+  background-color: #DADADA;
+  height: 21px;
+}
+
 .cart-quantity button {
   background: #ddd;
   border: none;
@@ -4142,6 +4152,10 @@ background-image: url(/static/img/CatalogBck.png);
   .offer__btn-сatalog p {
     font-size: 16px;
     text-wrap: nowrap;
+  }
+  .juridical-info-modal-content {
+    width: 100vw;
+    border-radius: 8px;
   }
 }
 
