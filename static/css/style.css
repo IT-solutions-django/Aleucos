@@ -35,6 +35,13 @@
   font-family: "Evolventa", sans-serif;
 }
 
+.bold {
+  font-weight: bold;
+}
+
+.font-size-14 {
+  font-size: 14px;
+}
 
 /* .col, .col-auto {
   padding: 0;
@@ -2607,7 +2614,7 @@ input::-webkit-inner-spin-button {
   display: flex;
   flex-direction: column;
   gap: 40px;
-  height: 500px;
+  height: 542px;
   background-color: #F4F5F7;
   border-radius: 0px 40px 40px 0px;
   padding: 30px 30px 30px 0px;
@@ -3299,6 +3306,77 @@ background-image: url(/static/img/CatalogBck.png);
   gap: 8px;
   align-items: center;
   padding: 20px 0px;
+}
+.account__user-info-body button {
+  color: var(--color-green);
+  width: fit-content;
+  font-weight: bold;
+}
+.juridical-info-modal {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  z-index: 100;
+  background-color: rgba(0, 0, 0, 0.5);
+
+  transition: all 0.3s ease-in-out;
+  
+  opacity: 0;
+  user-select: none;
+  pointer-events: none;
+}
+.juridical-info-modal.active {
+  opacity: 1;
+  user-select: all;
+  pointer-events: all;
+}
+.juridical-info-modal-content {
+  padding: 30px 20px;
+  border-radius: 20px;
+  position: absolute;
+  width: 537px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.juridical-info-modal-content p:first-child {
+  font-size: 20px;
+  font-weight: bold;
+}
+.juridical-info-modal-content > div {
+  display: flex;
+  gap: 6px;
+}
+.juridical-info-modal-content input {
+  flex: 1;
+}
+#juridical-info-modal-form button[type="submit"] {
+    padding: 9.5px 20px;
+    background-color: #1FC080;
+    display: flex;
+    color: white;
+    gap: 12px;
+    float: right;
+    user-select: none;
+    border-radius: 13px;
+    cursor: pointer;
+    width: fit-content;
+    transition: all 0.3s ease;
+}
+#close-juridical-info-modal {
+  position: absolute;
+  top: 30px;
+  right: 20px;
+  width: 20px;
+  height: 20px;
+  background-color: transparent;
+  
 }
 @media (max-width: 990px) { 
   .header-desktop {
