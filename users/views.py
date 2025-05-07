@@ -9,6 +9,7 @@ from .forms import LoginForm
 from django.contrib.auth import authenticate, login
 from .forms import AccountFilterForm
 from datetime import datetime
+from django.http import JsonResponse
 
 
 @method_decorator(login_required, name='dispatch')
@@ -76,3 +77,20 @@ class LoginView(FormView):
 
         form.add_error(None, "Неверный логин или пароль")
         return self.form_invalid(form)
+    
+
+class JuridicalInfoView(View):
+    def post(self, request):
+        organization_name = request.POST.get('organization-name')
+        inn = request.POST.get('inn')
+        kpp = request.POST.get('kpp')
+        full_address = request.POST.get('full-address')
+
+        request.user.organization_name = organization_name
+        request.user.inn = inn
+        request.user.kpp = kpp
+        request.user.full_address = full_address
+        request.user.save()
+
+        return JsonResponse({'success': True})
+

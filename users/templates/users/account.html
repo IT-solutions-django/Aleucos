@@ -8,8 +8,42 @@
 <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script> -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ru.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/suggestions-jquery@21.12.0/dist/js/jquery.suggestions.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/suggestions-jquery@21.12.0/dist/css/suggestions.min.css" rel="stylesheet" />
+
+
+
+<div class="juridical-info-modal">
+    <form id="juridical-info-modal-form" class="juridical-info-modal-content">
+        {% csrf_token %}
+        <p>Юридические данные</p>
+        <button id="close-juridical-info-modal">
+            <img src="{% static 'img/close.svg' %}" alt="">
+        </button>
+        <div class="input-wrapper">
+            <label class="font-size-14 bold" for="organization-name">Наименование организации:</label>
+            <input type="text" id="organization-name" maxlength="255" name="organization-name" value="{% if request.user.organization_name %}{{ request.user.organization_name }}{% else %}...{% endif %}">
+        </div>
+        <div>
+            <label class="font-size-14 bold" for="inn">ИНН:</label>
+            <input type="text" maxlength="12" id="inn" name="inn" value="{% if request.user.inn %}{{ request.user.inn }}{% else %}...{% endif %}">
+        </div>
+        <!-- <div>
+            <label class="font-size-14 bold" for="kpp">КПП:</label>
+            <input type="text" maxlength="9" id="kpp" name="kpp" value="{% if request.user.kpp %}{{ request.user.kpp }}{% else %}...{% endif %}">
+        </div> -->
+        <div>
+            <label class="font-size-14 bold" for="full-address">Адрес:</label>
+            <input type="text" maxlength="300" id="full-address" name="full-address" value="{% if request.user.full_address %}{{ request.user.full_address }}{% else %}...{% endif %}">
+        </div>
+        <div>
+            <button type="submit">Сохранить</button>
+        </div>
+    </form>
+</div>
 
 <main class="account">
     <div class="heading-wrapper">
@@ -30,6 +64,7 @@
                     {% if request.user.discount %}
                       <p><span class="bold">Скидка: </span>{{ request.user.discount }}%</p>
                     {% endif %}
+                    <button id="juridical-info-button">Юридическая информация</button>
                 </div>
                 <hr>
                 {% if manager %}
@@ -217,6 +252,52 @@
     document.addEventListener('DOMContentLoaded', () => {
         // Аккордеон для заказов 
         
+    });
+</script>
+
+<script defer>
+    const juridicalInfoButton = document.getElementById('juridical-info-button'); 
+    juridicalInfoButton.addEventListener('click', () => {
+        document.querySelector('.juridical-info-modal').classList.add('active');
+    });
+
+    const closeJuridicalInfoModal = document.getElementById('close-juridical-info-modal');
+    closeJuridicalInfoModal.addEventListener('click', (event) => {
+        event.preventDefault();
+        document.querySelector('.juridical-info-modal').classList.remove('active');
+    });
+
+    // Инициализация Dadata
+    $("#inn").suggestions({
+        token: "aa594033d2dd8b0a72dcaa25487b293486127477", // Замените на ваш токен
+        type: "PARTY",
+        bounds: "inn",
+        constraints: {
+            locations: [{ country: "Россия" }]
+        },
+        onSelect: function(suggestion) {
+            // Заполняем поля данными из Dadata
+            document.getElementById('organization-name').value = suggestion.value;
+            document.getElementById('inn').value = suggestion.data.inn;
+            document.getElementById('kpp').value = suggestion.data.kpp || '';
+            document.getElementById('full-address').value = suggestion.data.address.value;
+        }
+    });
+
+    const juridicalInfoForm = document.getElementById('juridical-info-modal-form');
+    juridicalInfoForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        
+        const formData = new FormData(juridicalInfoForm);
+        const data = Object.fromEntries(formData);
+        console.log(data);
+
+        document.querySelector('.juridical-info-modal').classList.remove('active');
+
+        fetch('/users/juridical-info/', {
+            method: 'POST',
+            body: formData
+        });
     });
 </script>
 {% endblock %}

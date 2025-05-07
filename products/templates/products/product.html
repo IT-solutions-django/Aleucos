@@ -80,6 +80,7 @@
                                 </div>
                             {% endif %}
                         </div>
+                        <p>На складе {{ product.remains }} шт</p>
                         <div class="mobile-product-buttons">
                             <div class="catalog__card-cart-button add-to-cart">
                                 В корзину
@@ -95,8 +96,11 @@
                     </div>
                     <div class="product__info-block">
                         {% if product.barcode %}
-                            <div class="only-desktop">
-                                Штрихкод: {{ product.barcode }}
+                            <div class="only-desktop barcode-and-remains-desktop">
+                                <p>Штрихкод: {{ product.barcode }}</p>
+                                <div class="divider">
+                                </div>
+                                <p>На складе {{ product.remains }}</p>
                             </div>
                         {% endif %}
                         {% if product.description %}

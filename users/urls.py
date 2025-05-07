@@ -12,4 +12,5 @@ urlpatterns = [
     path('password_change/', auth_views.PasswordChangeView.as_view(), name='password_change'),
 
     path('account/', AccountView.as_view(), name='account'),
+    path('juridical-info/', JuridicalInfoView.as_view(), name='juridical_info'),
 ]
